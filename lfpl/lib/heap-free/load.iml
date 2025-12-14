@@ -1,7 +1,7 @@
 File.import "../../core/load-denotational.iml";
 
-File.loadWithoutDependencies "sugar.isto";
+File.loadWithoutDependencies "contraction.isto";
 File.loadWithoutDependencies "surjective.isto";
 
-openModule /HeapFreeSugar/;
-openModule /HeapFreeSurjective/;
+openModule /Contraction/;
+openModule /Surjective/;

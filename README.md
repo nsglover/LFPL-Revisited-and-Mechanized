@@ -15,7 +15,7 @@ The file structure consists of two general helper libraries (one defining some b
 - `turing-machine`: A definition of general Turing machines and polynomial-time Turing machines.
   - `tape.ist`: Defines the tape of a Turing machine as a 3-tuple of the left section, head symbol, and right section of the tape.
   - `transition.ist`: Defines the state and transition function of a Turing machine.
-  - `machine.ist`: Defines Turing machines via general recursion, and provides a terminating interface for Turing machines which always halt. For convenience, these definitions are instantiated for polynomial-time Turing machines.
+  - `machine.ist`: Defines Turing machines and how to run them for a finite number of steps. A definition of polynomial-time Turing machines is also provided.
 - `lfpl/core`: The syntax and semantics of LFPL.
   - `language.ist`: Defines types, contexts, context splitting, well-typed terms, and heap-free types.
   - `operational.ist`: Gives a big-step operational semantics for LFPL. The language for values (to which terms are evaluated) include a value of diamond type so that we can reason about the runtime of programs which use nonempty lists. This is necessary since LFPL does not have any closed terms of diamond type.
@@ -32,7 +32,7 @@ The file structure consists of two general helper libraries (one defining some b
   - `machine.ist`: Combines all the above pieces to encode the process of running a polynomial-time Turing machine, which amounts to iterating the step function $P(n)$ times on an input list of length $n$.
   - `theorems.ist`: Statements and proofs of the main polynomial-time completeness theorems.
 - `lfpl/lib/heap-free`: LFPL library for heap-free types.
-  - `sugar.ist`: Provides syntactic sugar for contraction at such types.
+  - `contraction.ist`: Provides syntactic sugar for contraction at such types.
   - `surjective.ist`: Proves heap-free surjectivity - that LFPL can encode any element $A$ or function $f : A \to B$, where $A$ and $B$ are the semantic objects corresponding to two heap-free types.
 - `lfpl/lib/tuple`: LFPL library for $n$-ary tensor products.
   - `sugar.ist`: Defines the tuple type.

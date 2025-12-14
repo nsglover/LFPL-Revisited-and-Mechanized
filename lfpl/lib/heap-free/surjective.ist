@@ -1,12 +1,8 @@
-openModule /Nat/;
 openModule /List/;
 
 File.import "../../core/load-denotational.iml";
 
-File.loadWithoutDependencies "sugar.isto";
-openModule /HeapFreeSugar/;
-
-beginModule "HeapFreeSurjective";
+beginModule "Surjective";
 
 
 
