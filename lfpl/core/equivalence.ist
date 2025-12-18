@@ -219,21 +219,15 @@ lemma "split_equiv"
   env_sem (Operational.env_split T S #2) = Denotational.env_split T (env_sem S) #2 : (Denotational.env G2)
 /;
 intro /G G1 G2 T/.
-induction /T/ >>> [auto, idtac, idtac].
-{
-  intro /G G1 G2 A T ih S/.
-  destruct /S/ /{h | A' G' V S h}/ >> injection /h/.
-  unfold /Tuple.letpair at all/.
-  subst /A' G'/ >> clear /h/.
-  so /ih S/ /ih1 ih2/.
-  reduce //.
-  split >> auto.
-}
-{
-  intro /G G1 G2 T ih S/.
-  unfold /Tuple.letpair at all/.
-  auto.
-}
+induction /T/ >>> [auto, idtac, idtac] >>
+(
+  intro /G G1 G2 A T ih S/ >>
+  destruct /S/ /{h | A' G' V S h}/ >> injection /h/ >>
+  unfold /Tuple.letpair at all/ >>
+  subst /A' G'/ >> clear /h/ >>
+  so /ih S/ /ih1 ih2/ >>
+  reduce // >> split >> auto
+).
 qed ();
 
 

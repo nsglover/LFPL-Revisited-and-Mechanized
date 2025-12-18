@@ -161,7 +161,7 @@ destruct /c/ /| c/ >> reduce //.
     so /pop_correct l_enc l_valid/ /l_out x_out l_out_valid pop_eq pop_observed/. revert /pop_eq/.
     generalize /term_sem pop _# 3/ /_/ /tmp/. intro /pop_eq/.
     destruct /tmp/ /pop_m pop_s pop_r/. reduce //.
-    so /push_correct x_write r_enc r_valid/ /r_out none r_out_valid push_eq push_observed/.
+    so /push_correct x_write r_enc r_valid/ /r_out error_code r_out_valid push_eq push_observed/.
     injection /pop_eq/. clear /pop_eq/. reintro /pop_m_eq pop_sr_eq/.
     rewrite /<- pop_m_eq in push_eq/. revert /push_eq/.
     generalize /term_sem push _# 3/ /_/ /tmp/. intro /push_eq/.
@@ -194,7 +194,7 @@ destruct /c/ /| c/ >> reduce //.
     so /pop_correct r_enc r_valid/ /r_out x_out r_out_valid pop_eq pop_observed/. revert /pop_eq/.
     generalize /term_sem pop _# 3/ /_/ /tmp/. intro /pop_eq/.
     destruct /tmp/ /pop_m pop_s pop_r/. reduce //.
-    so /push_correct x_write l_enc l_valid/ /l_out none l_out_valid push_eq push_observed/.
+    so /push_correct x_write l_enc l_valid/ /l_out error_code l_out_valid push_eq push_observed/.
     injection /pop_eq/. clear /pop_eq/. reintro /pop_m_eq pop_sr_eq/.
     rewrite /<- pop_m_eq in push_eq/. revert /push_eq/.
     generalize /term_sem push _# 3/ /_/ /tmp/. intro /push_eq/.

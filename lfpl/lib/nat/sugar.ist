@@ -114,13 +114,7 @@ define /nsucc {G GM GN} T M N/
   forall (G GM GN : ctx) . split G GM GN -> term GM diam -> term GN dnat -> term G dnat
 /;
 withTypecheck (unfold /nsucc/). qed ();
-reductions
-/
-  term_sem _ _ (nsucc G GM GN T M N) S --> 
-    let (_, S') = env_split G GM GN T S in
-    () :: term_sem GN (dlist one) N S' ;
-  unfolding nsucc
-/;
+setOpacity /nsucc/ Constant.SOFT_STRICT;
 
 
 

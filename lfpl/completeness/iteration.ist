@@ -77,10 +77,10 @@ define /iter_helper A B M/
 /
   lam
   (
-    letp (left all_right) var
+    letp (left none) var
     (
-      lrec_foldl (right (left all_right)) var
-      (lam (pair (right all_left) var var))
+      lrec_foldl (right (left none)) var
+      (lam (pair (right (left none)) var var))
       (
         lam
         (
@@ -88,7 +88,7 @@ define /iter_helper A B M/
           (
             app (right (left all_right)) var
             (
-              lcons (right (right all_left)) (right all_left) var var var
+              lcons (right (right (left none))) (right (left none)) var var var
             )
           )
         )
@@ -144,14 +144,7 @@ qed ();
 
 define /iter A B M/
 /
-  lam
-  (
-    app all_left
-    (
-      app all_right (iter_helper A B M) var
-    )
-    lnil
-  )
+  lam (app (left none) (app (right none) (iter_helper A B M) var) lnil)
 //
   forall (A B : tp) . term nil (iter_tp A B) ->
   term nil (iter_tp A B)
@@ -210,12 +203,14 @@ lemma "compose_correct"
 /
   forall (G GM GN : ctx) (A B C : tp) (T : split G GM GN) .
   forall (M : term GM (arrow B C)) (N : term GN (arrow A B)) (S : env G) .
-  term_sem (compose T M N) S = (fn x . (term_sem M (env_split T S #1) (term_sem N (env_split T S #2) x)))
+  term_sem (compose T M N) S =
+  (fn x . (`term_sem _ (arrow _ _) M (env_split T S #1) (`term_sem _ (arrow _ _) N (env_split T S #2) x)))
   : tp_sem (arrow A C)
 /;
 inference.
 intro /G GM GN A B C T M N S/.
 unfold /compose/ >> reduce //.
+rewrite /-> env_split_all_left/.
 extensionality >> reintro /x/.
 repeat (unfold /Tuple.letpair/).
 reduce // >> reflexivity.
@@ -227,7 +222,7 @@ qed ();
 
 define /mono_iter A B M d c/
 /
-  nfold (nfold (lam var) (compose all_right M) c) (iter A B) d
+  nfold (nfold (lam var) (compose none M) c) (iter A B) d
 //
   forall (A B : tp) . term nil (iter_tp A B) -> nat -> nat -> term nil (iter_tp A B)
 /;
@@ -272,7 +267,7 @@ defineInd /A B M/
 /
   poly_iter : polynomial d -> term nil (arrow (tensor A (dlist B)) (tensor A (dlist B))) of
   | const c . mono_iter A B M zero c
-  | monomial d c P . compose all_right (mono_iter A B M (succ d) c) (poly_iter P)
+  | monomial d c P . compose none (mono_iter A B M (succ d) c) (poly_iter P)
 //
   forall (A B : tp) . term nil (arrow (tensor A (dlist B)) (tensor A (dlist B))) ->
   forall (d : nat) . polynomial d ->

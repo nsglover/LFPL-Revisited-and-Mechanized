@@ -38,20 +38,13 @@ lemma "split_size"
   env_size S = env_size (env_split T S #1) + env_size (env_split T S #2) : nat
 /;
 intro /G G1 G2 T/.
-induction /T/ >>> [intro /G S/ >> reduce // >> reflexivity, idtac, idtac].
-{
-  intro /G G1 G2 A T ih S/.
-  destruct /S/ /{h | A' G' V S h}/ >> injection /h/.
-  unfold /Tuple.letpair at all/ >> subst /A' G'/ >> clear /h/.
-  reduce //.
-  rewrite /-> ih S/.
-  omega.
-}
-{
-  intro /G G1 G2 T ih S/.
-  rewrite /-> ih S/.
-  omega.
-}
+induction /T/ >>> [intro /S/ >> destructThin /S/ /{}/ >> reflexivity, idtac, idtac] >>
+(
+  intro /G G1 G2 A T ih S/ >>
+  destruct /S/ /{h | A' G' V S h}/ >> injection /h/ >>
+  unfold /Tuple.letpair at all/ >> subst /A' G'/ >> clear /h/ >>
+  reduce // >> rewrite /-> ih S/ >> omega
+).
 qed ();
 
 

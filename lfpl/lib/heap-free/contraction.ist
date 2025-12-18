@@ -1,3 +1,5 @@
+openModule /List/;
+
 File.import "../../core/load-denotational.iml";
 
 beginModule "Contraction";
@@ -61,15 +63,17 @@ induction /HA/ >> auto.
 }
 {
   intro /A B HA ih_A HB ih_B G S M/.
-  generalize /term_sem M S/ /tp_sem A % tp_sem B/ /v/. 
-  andthenl (destruct /v/ /v | v/ >> reduce //) [rewrite /-> ih_A _ _ _/, rewrite /-> ih_B _ _ _/] >>
+  rewrite /-> env_split_all_left/ >> reduce //.
+  generalize /term_sem M S/ /tp_sem A % tp_sem B/ /v/.
+  (destruct /v/ /v | v/ >> reduce //) >>> [rewrite /-> ih_A/, rewrite /-> ih_B/] >>
   extensionalityAuto >> reduce // >> reflexivity.
 }
 {
   intro /A B HA ih_A HB ih_B G S M/.
+  rewrite /-> env_split_all_left/ >> reduce //.
   generalize /term_sem M S/ /tp_sem A & tp_sem B/ /v/.
   destruct /v/ /v1 v2/ >> reduce //.
-  andthen (rewrite /-> ih_B _ _ _/ >> reduce //) (rewrite /-> ih_A _ _ _/ >> reduce //).
+  andthen (rewrite /-> ih_B _# 3/ >> reduce //) (rewrite /-> ih_A _# 3/ >> reduce //).
   reflexivity.
 }
 qed ();
@@ -94,6 +98,7 @@ lemma "contract_correct"
 /;
 inference.
 intro /G A B s v HA M/ >> unfold /contract/ >> reduce //.
+rewrite /-> env_split_all_right at all/ >> reduce //.
 rewrite /-> dup_correct _# 3 (env_single v) var/ >> reduce //.
 reflexivity.
 qed ();

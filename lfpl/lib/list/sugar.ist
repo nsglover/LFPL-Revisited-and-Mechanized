@@ -249,6 +249,7 @@ intro /G GM GN A B T S M N1 N2/.
 unfold /lmatch/.
 reduce //.
 repeatn 4 (unfold /Tuple.letpair/).
+rewrite /-> env_split_all_right at all/.
 remember /term_sem (lunfold M) (env_split T S #1)/ /_/ /unfold_v/ /h_unfold_v/.
 rewrite /-> lunfold_correct _# 4 in h_unfold_v/.
 revert /h_unfold_v/.

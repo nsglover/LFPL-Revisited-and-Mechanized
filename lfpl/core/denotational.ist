@@ -24,7 +24,7 @@ defineInd //
 
 
 
-(* EVALUATION ENVIRONMENTS *)
+(* EVALUATION ENVIRONMENT *)
 
 define /env G/
 /
@@ -87,32 +87,90 @@ reductions
 /;
 
 
+lemma "env_nil_form"
+/
+  forall (S : env nil) . S = env_nil : env nil
+/;
+intro /S/.
+destructThin /S/ /{}/.
+unfold /env, env_nil/.
+reflexivity.
+qed ();
+
+
+lemma "env_cons_form"
+/
+  forall (A : tp) (G : ctx) (S' : env (A :: G)) . exists (v : tp_sem A) (S : env G) . S' = env_cons v S : env (A :: G)
+/;
+intro /A G S'/.
+destructThin /S'/ /{v S}/ >> attempt (unfold /env/ >> auto).
+existses [/v/, /S/] >> attempt (unfold /env/ >> auto).
+unfold /env_cons/.
+reflexivity.
+qed ();
+
+
 defineInd //
 /
   env_split : split G G1 G2 -> env G -> env G1 & env G2 of
-  | all_right _ . fn S .
-    (env_nil, S)
+  | none . fn S .
+    (env_nil, env_nil)
   | left G G1 G2 A T . fn S .
     let (v, S) = env_pop S in
-    let (S1, S2) = env_split T S in
-    (env_cons v S1, S2)
-  | swap G G1 G2 T . fn S .
-    let (S1, S2) = env_split T S in
-    (S2, S1)
+    (env_cons v (env_split T S #1), env_split T S #2)
+  | right G G1 G2 A T . fn S .
+    let (v, S) = env_pop S in
+    (env_split T S #1, env_cons v (env_split T S #2))
 //
-  forall (G G1 G2 : ctx) .
-  split G G1 G2 -> env G -> env G1 & env G2
-/;
-reductions
-/
-  env_split _ _ _ (all_left _) S --> (S, env_nil) ;
-  env_split _ _ _ (right G G1 G2 A T) S --> 
-    let (v, S) = env_pop A G S in 
-    let (S1, S2) = env_split G G1 G2 T S in
-    (S1, env_cons A G2 v S2) ;
-  unfolding env_split all_left right Tuple.letpair
+  forall (G G1 G2 : ctx) . split G G1 G2 -> env G -> env G1 & env G2
 /;
 Database.setImplicits (parseConstant /env_split/) 3;
+
+
+lemma "env_split_all_left"
+/
+  forall (G : ctx) (S : env G) . env_split all_left S = (S, env_nil) : (env G & env nil)
+/;
+intro /G/.
+induction /G/.
+{
+  intro /S/.
+  so /env_nil_form S/ /h_S/.
+  subst /S/.
+  reflexivity.
+}
+{
+  intro /A G ih S'/.
+  so /env_cons_form _# 2 S'/ /v S h_S/.
+  subst /S'/.
+  reduce //.
+  rewrite /-> ih at all/.
+  reflexivity.
+}
+qed ();
+
+
+lemma "env_split_all_right"
+/
+  forall (G : ctx) (S : env G) . env_split all_right S = (env_nil, S) : (env nil & env G)
+/;
+intro /G/.
+induction /G/.
+{
+  intro /S/.
+  so /env_nil_form S/ /h_S/.
+  subst /S/.
+  reflexivity.
+}
+{
+  intro /A G ih S'/.
+  so /env_cons_form _# 2 S'/ /v S h_S/.
+  subst /S'/.
+  reduce //.
+  rewrite /-> ih at all/.
+  reflexivity.
+}
+qed ();
 
 
 

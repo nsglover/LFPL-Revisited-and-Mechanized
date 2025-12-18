@@ -92,13 +92,14 @@ reductions
 defineInd //
 /
   env_split : split G G1 G2 -> env G -> env G1 & env G2 of
-  | all_right _ . fn S .
-    (env_nil, S)
+  | none . fn S .
+    (env_nil, env_nil)
   | left G G1 G2 A T . fn S .
     let (v, S) = env_pop S in
     (env_cons v (env_split T S #1), env_split T S #2)
-  | swap G G1 G2 T . fn S .
-    (env_split T S #2, env_split T S #1)
+  | right G G1 G2 A T . fn S .
+    let (v, S) = env_pop S in
+    (env_split T S #1, env_cons v (env_split T S #2))
 //
   forall (G G1 G2 : ctx) . split G G1 G2 -> env G -> env G1 & env G2
 /;

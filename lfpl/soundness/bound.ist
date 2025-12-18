@@ -64,26 +64,13 @@ lemma "split_bound"
   p_eval (env_bound S) n = p_eval (env_bound (env_split T S #1)) n + p_eval (env_bound (env_split T S #2)) n : nat
 /;
 intro /G G1 G2 T/.
-induction /T/.
-{
-  unfold /p_eval at 1/.
-  reduce //.
-  auto.
-}
-{
-  intro /G G1 G2 A T ih S n/.
-  destruct /S/ /{h | A' G' V S h}/ >> injection /h/.
-  unfold /Tuple.letpair at all/ >> subst /A' G'/ >> clear /h/.
-  reduce //.
-  rewrite /-> p_plus_correct at all/.
-  rewrite /-> ih S n/.
-  omega.
-}
-{
-  intro /G G1 G2 T ih S n/.
-  rewrite /-> ih S n/.
-  omega.
-}
+induction /T/ >>> [intro /S n/ >> destructThin /S/ /{}/ >> unfold /p_eval at all/ >> omega, idtac, idtac] >>
+(
+  intro /G G1 G2 A T ih S n/ >>
+  destruct /S/ /{h | A' G' V S h}/ >> injection /h/ >>
+  unfold /Tuple.letpair at all/ >> subst /A' G'/ >> clear /h/ >>
+  reduce // >> rewrite /-> p_plus_correct at all, -> ih S n/ >> omega
+).
 qed ();
 
 

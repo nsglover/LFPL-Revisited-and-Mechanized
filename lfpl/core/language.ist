@@ -43,33 +43,46 @@ typedef
     intersect (i : level) . U i
   of
     split : ctx -> ctx -> ctx -> type =
-    | all_right : forall (G : ctx) . split G nil G
+    | none : split nil nil nil
     | left : forall (G G1 G2 : ctx) (A : tp) . split G G1 G2 -> split (A :: G) (A :: G1) G2
-    | swap : forall (G G1 G2 : ctx) . split G G1 G2 -> split G G2 G1
+    | right : forall (G G1 G2 : ctx) (A : tp) . split G G1 G2 -> split (A :: G) G1 (A :: G2)
 /;
-Database.setImplicits (parseConstant /all_right/) 1;
 Database.setImplicits (parseConstant /left/) 4;
-Database.setImplicits (parseConstant /swap/) 3;
+Database.setImplicits (parseConstant /right/) 4;
 
 
-define /all_left {G}/
+defineInd //
 /
-  swap all_right
+  all_left : forall (G : list [tp]) . split G G nil of
+  | nil . none
+  | cons A G . left (all_left G)
 //
   forall (G : ctx) . split G G nil
 /;
-withTypecheck (unfold /all_left/). qed ();
-setOpacity /all_left/ Constant.SOFT;
+Database.setImplicits (parseConstant /all_left/) 1;
 
 
-define /right {G G1 G2 A} S/
+defineInd //
 /
-  swap (left (swap S))
+  all_right : forall (G : list [tp]) . split G nil G of
+  | nil . none
+  | cons A G . right (all_right G)
 //
-  forall (G G1 G2 : ctx) (A : tp) . split G G1 G2 -> split (A :: G) G1 (A :: G2)
+  forall (G : ctx) . split G nil G
 /;
-withTypecheck (unfold /right/). qed ();
-setOpacity /right/ Constant.SOFT;
+Database.setImplicits (parseConstant /all_right/) 1;
+
+
+defineInd //
+/
+  swap : split G G1 G2 -> split G G2 G1 of
+  | none . none
+  | left G G1 G2 A T . right (swap T)
+  | right G G1 G2 A T . left (swap T)
+//
+  forall (G G1 G2 : ctx) . split G G1 G2 -> split G G2 G1
+/;
+Database.setImplicits (parseConstant /swap/) 3;
 
 
 
@@ -145,13 +158,15 @@ Database.setImplicits (parseConstant /lrec/) 3;
 
 (* LET SUGAR *)
 
-define /llet {G GA GB A B} S M N/
+define /llet {G GA GB A B} T M N/
 /
-  app (swap S) (lam N) M
+  app (swap T) (lam N) M
 //
   forall (G GA GB : ctx) (A B : tp) . split G GA GB -> term GA A -> term (A :: GB) B -> term G B
 /;
-withTypecheck (unfold /llet/). qed ();
+withTypecheck (unfold /llet/). 
+
+qed ();
 setOpacity /llet/ Constant.SOFT;
 
 
