@@ -6,128 +6,19 @@ beginModule "ListSugar";
 
 
 
-(* NIL AND CONS *)
-
-define /lnil {G A}/
-/
-  lfold (inj1 triv)
-//
-  forall (G : ctx) (A : tp) . term G (dlist A)
-/;
-withTypecheck (unfold /lnil/). qed ();
-reductions
-/
-  term_sem _ _ (lnil _ _) _ --> nil ;
-  unfolding lnil
-/;
-
-
-define /lcons {G Gd Ght Gh Gt A} T Tht Md Mh Mt/
-/
-  lfold (inj2 (pair T Md (pair Tht Mh Mt)))
-//
-  forall (G Gd Ght Gh Gt : ctx) (A : tp) . split G Gd Ght -> split Ght Gh Gt ->
-  term Gd diam -> term Gh A -> term Gt (dlist A) -> term G (dlist A)
-/;
-withTypecheck (unfold /lcons/). qed ();
-reductions
-/
-  term_sem _ _ (lcons G Gd Ght Gh Gt A T Tht Md Mh Mt) S --> 
-    let (_, Sht) = env_split G Gd Ght T S in
-    let (Sh, St) = env_split Ght Gh Gt Tht Sht in
-    term_sem Gh A Mh Sh :: term_sem Gt (dlist A) Mt St ;
-  unfolding lcons Tuple.letpair
-/;
-
-
-
-(* FOLDR AND FOLDL *)
-
-define /lrec_foldr {G GA GB A B} T M N1 N2/
-/
-  app T
-  (
-    lrec M
-    (
-      match all_left var
-      (
-        drop (lam var)
-      )
-      (
-        letp all_left var
-        (
-          letp (right all_left) var
-          (
-            lam
-            (
-              app (right (left (right all_left))) (lam N2) (app (right all_left) var var)
-            )
-          )
-        )
-      )
-    )
-  )
-  N1
-//
-  forall (G GA GB : ctx) (A B : tp) .
-  split G GA GB -> term GA (dlist A) -> term GB B -> term (B :: A :: diam :: nil) B ->
-  term G B
-/;
-withTypecheck (unfold /lrec_foldr/). qed ();
-
-
-lemma "lrec_foldr_correct"
-/
-  forall (G GA GB : ctx) (A B : tp) (T : split G GA GB) (S : env G) .
-  forall (M : term GA (dlist A)) (N1 : term GB B) (N2 : term (B :: A :: diam :: nil) B) .
-  term_sem (lrec_foldr T M N1 N2) S =
-  (
-    foldr (term_sem N1 (env_split T S #2))
-    (fn va acc . term_sem N2 (env_cons acc (env_cons va (env_cons () env_nil))))
-    (term_sem M (env_split T S #1))
-  ) : tp_sem B
-/;
-inference.
-intro /G GA GB A B T S M N1 N2/.
-unfold /lrec_foldr/.
-reduce //.
-unfold /Tuple.letpair/.
-generalize /term_sem M (env_split T S #1)/ /_/ /v/.
-induction /v/ >>> [reflexivity, idtac].
-intro /v vs ih/.
-rewrite /-> ih/.
-reflexivity.
-qed ();
-
+(* LEFT-ORIENTED RECURSOR *)
 
 define /lrec_foldl {G GA GB A B} T M N1 N2/
 /
   app T
   (
-    lrec M
-    (
-      match all_left var
-      (
-        drop (lam var)
-      )
-      (
-        letp all_left var
-        (
-          letp (right all_left) var
-          (
-            lam
-            (
-              app (right (right (left all_right))) var N2
-            )
-          )
-        )
-      )
-    )
+    lrec all_left M (lam var)
+    (lam (app (right (right (right (left none)))) var (letp (right all_left) (pair (left all_right) var var) N2)))
   )
   N1
 //
   forall (G GA GB : ctx) (A B : tp) .
-  split G GA GB -> term GA (dlist A) -> term GB B -> term (B :: A :: diam :: nil) B ->
+  split G GA GB -> term GA (dlist A) -> term GB B -> term (diam :: A :: B :: nil) B ->
   term G B
 /;
 withTypecheck (unfold /lrec_foldl/). qed ();
@@ -136,11 +27,11 @@ withTypecheck (unfold /lrec_foldl/). qed ();
 lemma "lrec_foldl_correct"
 /
   forall (G GA GB : ctx) (A B : tp) (T : split G GA GB) (S : env G) .
-  forall (M : term GA (dlist A)) (N1 : term GB B) (N2 : term (B :: A :: diam :: nil) B) .
+  forall (M : term GA (dlist A)) (N1 : term GB B) (N2 : term (diam :: A :: B :: nil) B) .
   term_sem (lrec_foldl T M N1 N2) S =
   (
     foldl (term_sem N1 (env_split T S #2)) 
-    (fn va acc . term_sem N2 (env_cons acc (env_cons va (env_cons () env_nil))))
+    (fn va acc . term_sem N2 (env_cons () (env_cons va (env_cons acc env_nil))))
     (term_sem M (env_split T S #1))
   ) : tp_sem B
 /;
@@ -148,13 +39,14 @@ inference.
 intro /G GA GB A B T S M N1 N2/.
 unfold /lrec_foldl/.
 reduce //.
-unfold /Tuple.letpair/.
+rewrite /-> env_split_all_left/.
+reduce //.
 generalize /term_sem M (env_split T S #1)/ /_/ /v/.
 generalize /term_sem N1/ /_/ /f/.
 revert /f/.
 induction /v/ >>> [intros >>+ reflexivity, idtac].
 intro /v vs ih f/.
-exact /ih (fn SN . term_sem N2 (env_cons (f SN) (env_cons v (env_cons () env_nil))))/.
+exact /ih (fn SN . term_sem N2 (env_cons () (env_cons v (env_cons (f SN) env_nil))))/.
 qed ();
 
 
@@ -163,21 +55,17 @@ qed ();
 
 define /lunfold {G A} M/
 /
-  lrec M 
+  lrec all_left M
+  (inj1 triv)
   (
-    match all_left var (inj1 triv)
+    inj2
     (
-      letp all_left var
+      pair (left all_right) var
       (
-        letp (right all_left) var
+        pair (left all_right) var
         (
-          inj2
-          (
-            pair (right (right all_left)) var
-            (
-              pair (left all_right) var (lfold var)
-            )
-          )
+          match all_left var lnil
+          (letp all_left var (letp (right all_left) var (lcons (right (right all_left)) (left all_right) var var var)))
         )
       )
     )
@@ -201,7 +89,9 @@ lemma "lunfold_correct"
 /;
 inference.
 intro /G A M S/.
-unfold /lunfold/ >> reduce // >> unfold /Tuple.letpair/.
+unfold /lunfold/ >> reduce // >> unfold /Tuple.letpair at all/.
+rewrite /-> env_split_all_left/.
+reduce //.
 generalize /term_sem M S/ /_/ /v/ >> clear /M/.
 induction /v/ >>> [reflexivity, idtac].
 {
@@ -218,13 +108,11 @@ define /lmatch {G GM GN A B} T M N1 N2/
   match T (lunfold M) (drop N1)
   (
     letp (left all_right) var
-    (
-      letp (right (left all_right)) var N2
-    )
+    (letp (right (left all_right)) var (letp (left (right (left all_right))) (pair (right (left all_right)) var var) N2))
   )
 //
   forall (G GM GN : ctx) (A B : tp) .
-  split G GM GN -> term GM (dlist A) -> term GN B -> term (A :: dlist A :: diam :: GN) B ->
+  split G GM GN -> term GM (dlist A) -> term GN B -> term (diam :: A :: dlist A :: GN) B ->
   term G B
 /;
 withTypecheck (unfold /lmatch/). qed ();
@@ -233,22 +121,19 @@ withTypecheck (unfold /lmatch/). qed ();
 lemma "lmatch_correct"
 /
   forall (G GM GN : ctx) (A B : tp) (T : split G GM GN) (S : env G) .
-  forall (M : term GM (dlist A)) (N1 : term GN B) (N2 : term (A :: dlist A :: diam :: GN) B) . 
+  forall (M : term GM (dlist A)) (N1 : term GN B) (N2 : term (diam :: A :: dlist A :: GN) B) . 
   term_sem (lmatch T M N1 N2) S = 
   (
-    let (SM, SN) = env_split T S in
-    (
-      case term_sem M SM : list of
-      | nil . term_sem N1 SN
-      | cons v vs . term_sem N2 (env_cons v (env_cons vs (env_cons () SN)))
-    )
+    case term_sem M (env_split T S #1) : list of
+    | nil . term_sem N1 (env_split T S #2)
+    | cons v vs . term_sem N2 (env_cons () (env_cons v (env_cons vs (env_split T S #2))))
   ) : tp_sem B
 /;
 inference.
 intro /G GM GN A B T S M N1 N2/.
 unfold /lmatch/.
 reduce //.
-repeatn 4 (unfold /Tuple.letpair/).
+unfold /Tuple.letpair at all/.
 rewrite /-> env_split_all_right at all/.
 remember /term_sem (lunfold M) (env_split T S #1)/ /_/ /unfold_v/ /h_unfold_v/.
 rewrite /-> lunfold_correct _# 4 in h_unfold_v/.

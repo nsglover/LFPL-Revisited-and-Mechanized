@@ -26,7 +26,7 @@ setOpacity /Tsucc/ Constant.SOFT;
 
 define /empty_succ T empty/
 /
-  lam (lrec_foldr all_left var lnil (lcons (right (right all_left)) (right all_left) var (drop empty) var))
+  lam (lrec all_left var lnil (lcons (left all_right) (left all_right) var (drop empty) var))
 //
   forall (T : tp) . term nil T -> term nil (Tsucc T)
 /;
@@ -41,16 +41,16 @@ define /push_succ_main E T k push/
     (
       letp (left all_right) var
       (
-        lrec_foldr (right (left all_right)) var
+        lrec (right (left all_right)) var
         (pair (right all_left) var (pair all_right lnil (inj1 var)))
         (
-          letp (left all_right) var
+          letp (right (right all_left)) var
           (
             letp (right (left all_right)) var
             (
               match (right (left all_right)) var
               (
-                letp (left (right (left (left all_right))))
+                letp (left (right (left (right all_left))))
                 (app (right (left all_right)) (app all_right push var) (pair (left all_right) var var))
                 (
                   pair (left all_right) var
@@ -62,7 +62,7 @@ define /push_succ_main E T k push/
               )
               (
                 pair (right (right (left all_right))) var
-                (pair (right all_left) (lcons (right (right all_left)) (right all_left) var var var) (inj2 var))
+                (pair (right all_left) (lcons (right (left all_right)) (right all_left) var var var) (inj2 var))
               )
             )
           )
@@ -124,7 +124,7 @@ define /pop_succ_main E T k pop/
         (
           app (left all_right)
           (
-            lrec_foldr all_left var
+            lrec all_left var
             (lam (lam (pair all_left var (pair all_right lnil (inj1 triv)))))
             (
               lam
@@ -133,13 +133,19 @@ define /pop_succ_main E T k pop/
                 (
                   match (right (left all_right)) var
                   (
-                    letp (left (left (left all_right)))
-                    (drop (app (right all_left) (app all_left var (inj1 triv)) var))
+                    drop
                     (
-                      pair (left all_right) var
+                      letp (left (right (right all_left)))
+                      (app (right all_left) (app all_left var (inj1 triv)) var)
                       (
-                        letp (left all_right) var
-                        (pair (left (right all_left)) (lcons (right (right all_left)) (right all_left) var var var) var)
+                        pair (left all_right) var
+                        (
+                          letp (left all_right) var
+                          (
+                            pair (left (right all_left))
+                            (lcons (right (left all_right)) (right all_left) var var var) var
+                          )
+                        )
                       )
                     )
                   )
@@ -152,22 +158,25 @@ define /pop_succ_main E T k pop/
                         (
                           match (right (left all_right)) var
                           (
-                            letp (left (right (left (left all_right))))
-                            (drop (app (right all_left) (app all_left var (inj2 triv)) var))
+                            drop
                             (
-                              pair (left all_right) var
+                              letp (right (left (right all_left)))
+                              (app (right all_left) (app all_left var (inj2 triv)) var)
                               (
-                                letp (left all_right) var
+                                pair (left all_right) var
                                 (
-                                  pair (left (right all_left)) 
-                                  (lcons (right (right all_left)) (right all_left) var var var)
-                                  var
+                                  letp (left all_right) var
+                                  (
+                                    pair (left (right all_left)) 
+                                    (lcons (right (right all_left)) (right all_left) var var var)
+                                    var
+                                  )
                                 )
                               )
                             )
                           )
                           (
-                            letp (right (right (left (left all_right))))
+                            letp (right (right (left (right all_left))))
                             (app (right all_left) (app all_left var (inj1 triv)) var)
                             (
                               pair (left all_right) var
@@ -309,8 +318,7 @@ assert
   revert /m/. generalizeAt /n/ /nat/ /0/ /n'/.
   generalize /bound n/ /nat/ /b/. clear /bound/. subst /n/.
   intro /m push push_correct/.
-  subst /push/. unfold /push_succ_main/. reduce //.
-  rewrite /-> lrec_foldr_correct/. reduceHard //.
+  subst /push/. unfold /push_succ_main/. reduceHard //.
   revert /substacks_valid/.
   induction /s/.
   {
@@ -409,7 +417,7 @@ assert
       in p (inl ()) m s = (m, s, inl ()) : _
     ) _
   /. clear /proj/. reduceHard //.
-  repeatn 2 (unfold /pop_succ_main/ >> reduce // >> rewrite /-> lrec_foldr_correct/ >> reduceHard //).
+  unfold /pop_succ_main at all/. reduceHard //.
   induction /s/ >>> [split >>> [reflexivity, intro /substacks_valid/ >> existses [/nil/, /inl ()/] >> auto], idtac].
   intro /s ss (ih_fail ih)/.
   split >>> [rewrite /-> ih_fail/ >> reduce // >> reflexivity, idtac].
@@ -544,8 +552,6 @@ split.
   remember /term_sem (empty_succ (impl #1) (impl #2 #1)) env_nil (make_dnat n)/ /_/
   /empty_substacks/ /empty_substacks_eq/.
   unfold /empty_succ in empty_substacks_eq/. reduce /empty_substacks_eq/.
-  rewrite /-> lrec_foldr_correct in empty_substacks_eq/.
-  reduce /empty_substacks_eq/.
   rewrite /<- map_as_foldr in empty_substacks_eq/.
   revert /empty_correct/. generalize /bound n/ /nat/ /b/. intro /empty_correct/.
   subst /empty_substacks/.

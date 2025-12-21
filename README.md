@@ -45,7 +45,7 @@ The file structure consists of two general helper libraries (one defining some b
   - `memory.ist`: Tools for reasoning about tuples of natural numbers, which in LFPL can be viewed as structured chunks of free diamonds. This is primarily used in the stack library.
   - `division.ist`: Implements division (by a compile-time constant) for LFPL nats.
 - `lfpl/lib/stack`: LFPL library for $(k, s)$-bounded stacks, where $k : \mathbb{N}$ and $s : \mathbb{N} \to \mathbb{N}$. Whereas LFPL lists can only hold $n$ values given $n$ diamonds, these stacks hold up to $s(n)$ values given $0$ diamonds by suspending them under a lambda abstraction. To actually store and retrieve these values via the stack operations (push and pop), a pool of $nk$ diamonds is needed. These diamonds will only be temporarily borrowed, not consumed, by the stack operations. Notably, we can inductively construct $(k, n \mapsto cn^k)$-stacks, obtaining polynomial storage space with linear expenses.
-  - `interace.ist`: Defines an interface for $(k, s)$-bounded stacks and for reasoning about their correctness.
+  - `interface.ist`: Defines an interface for $(k, s)$-bounded stacks and for reasoning about their correctness.
   - `weakened.ist`: Weakens a $(k, s)$-stack to a $(k + 1, s)$-stack.
   - `additive.ist`: Given a $(k, s_1)$-stack and a $(k, s_2)$-stack, constructs a $(k, n \mapsto s_1(n) + s_2(n))$-stack.
   - `base.ist`: The base case of the inductive construction; builds a $(0, n \mapsto c)$-stack.

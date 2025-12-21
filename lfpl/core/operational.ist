@@ -8,7 +8,7 @@ beginModule "Operational";
 
 
 
-(* VALUE LANGUAGE AND EVALUATION ENVIRONMENTS *)
+(* VALUE AND EVALUATION ENVIRONMENT *)
 
 typedef
 /
@@ -16,10 +16,10 @@ typedef
     intersect (i : level) . U i
   of
     value : tp -> type =
-    | vtriv :
-      value one
     | vdiam :
       value diam
+    | vtriv :
+      value one
     | vinj1 :
       forall (A B : tp) .
       value A ->
@@ -36,9 +36,12 @@ typedef
       forall (G : ctx) (A B : tp) .
       env G -> term (A :: G) B ->
       value (arrow A B)
-    | vfold :
+    | vnil :
       forall (A : tp) .
-      value (plus one (tensor diam (tensor A (dlist A)))) ->
+      value (dlist A)
+    | vcons :
+      forall (A : tp) .
+      value A -> value (dlist A) ->
       value (dlist A)
   and
     env : ctx -> type =
@@ -53,18 +56,9 @@ Database.setImplicits (parseConstant /vinj1/) 2;
 Database.setImplicits (parseConstant /vinj2/) 2;
 Database.setImplicits (parseConstant /vpair/) 2;
 Database.setImplicits (parseConstant /vlam/) 3;
-Database.setImplicits (parseConstant /vfold/) 1;
+Database.setImplicits (parseConstant /vnil/) 1;
+Database.setImplicits (parseConstant /vcons/) 1;
 Database.setImplicits (parseConstant /env_cons/) 2;
-
-
-define /env_single {A} V/
-/
-  env_cons V env_nil
-//
-  forall (A : tp) . value A -> env (A :: nil)
-/;
-withTypecheck (unfold /env_single/). qed ();
-setOpacity /env_single/ Constant.SOFT;
 
 
 define /env_pop {A G} S/
@@ -106,25 +100,67 @@ defineInd //
 Database.setImplicits (parseConstant /env_split/) 3;
 
 
-
-(* CANONICAL FORM LEMMAS *)
-
-lemma "one_canonical_form"
+lemma "env_split_all_left"
 /
-  forall (V : value one) . V = vtriv : value one
+  forall (G : ctx) (S : env G) . env_split all_left S = (S, env_nil) : (env G & env nil)
 /;
-intro /V/.
-destruct /V/ /{h | h | C D V h | C D V h | C D VA VB h | G C D S M h | C V h}/ >> injection /h/.
-reflexivity.
+intro /G/.
+induction /G/.
+{
+  intro /S/.
+  destructThin /S/ /{}/.
+  reflexivity.
+}
+{
+  intro /A G ih S/.
+  destruct /S/ /{h | A' G' V S h}/ >> injection /h/ >> subst /A' G'/ >> clear /h/.
+  reduce //.
+  rewrite /-> ih at all/.
+  reflexivity.
+}
 qed ();
 
+
+lemma "env_split_all_right"
+/
+  forall (G : ctx) (S : env G) . env_split all_right S = (env_nil, S) : (env nil & env G)
+/;
+intro /G/.
+induction /G/.
+{
+  intro /S/.
+  destructThin /S/ /{}/.
+  reflexivity.
+}
+{
+  intro /A G ih S/.
+  destruct /S/ /{h | A' G' V S h}/ >> injection /h/ >> subst /A' G'/ >> clear /h/.
+  reduce //.
+  rewrite /-> ih at all/.
+  reflexivity.
+}
+qed ();
+
+
+
+(* CANONICAL FORM LEMMAS *)
 
 lemma "diam_canonical_form"
 /
   forall (V : value diam) . V = vdiam : value diam
 /;
 intro /V/.
-destruct /V/ /{h | h | C D V h | C D V h | C D VA VB h | G C D S M h | C V h}/ >> injection /h/.
+destructThin /V/ /{}/.
+reflexivity.
+qed ();
+
+
+lemma "one_canonical_form"
+/
+  forall (V : value one) . V = vtriv : value one
+/;
+intro /V/.
+destructThin /V/ /{}/.
 reflexivity.
 qed ();
 
@@ -132,11 +168,12 @@ qed ();
 lemma "plus_canonical_form"
 /
   forall (A B : tp) (V : value (plus A B)) .
-  (exists (VA : value A) . V = vinj1 VA : value (plus A B)) % (exists (VB : value B) . V = vinj2 VB : value (plus A B))
+  (exists (VA : value A) . V = vinj1 VA : value (plus A B)) %
+  (exists (VB : value B) . V = vinj2 VB : value (plus A B))
 /;
 intro /A B V/.
 (
-  destruct /V/ /{h | h | C D V h | C D V h | C D VA VB h | G C D S M h | C V h}/ >>
+  destruct /V/ /{h | h | C D V h | C D V h | C D VC VD h | G C D S M h | C h | C VC VL h }/ >>
   injection /h/ >> subst /C D/ >> clear /h/
 ) >>> [left, right] >> exists /V/ >> reflexivity.
 qed ();
@@ -148,7 +185,7 @@ lemma "tensor_canonical_form"
   exists (VA : value A) (VB : value B) . V = vpair VA VB : value (tensor A B)
 /;
 intro /A B V/.
-destruct /V/ /{h | h | C D V h | C D V h | C D VA VB h | G C D S M h | C V h}/ >>
+destruct /V/ /{h | h | C D V h | C D V h | C D VA VB h | G C D S M h | C h | C VC VL h }/ >>
 injection /h/ >> subst /C D/ >> clear /h/.
 existses [/VA/, /VB/].
 reflexivity.
@@ -161,47 +198,32 @@ lemma "arrow_canonical_form"
   exists (G : ctx) (M : term (A :: G) B) (S : env G) . V = vlam S M : value (arrow A B)
 /;
 intro /A B V/.
-destruct /V/ /{h | h | C D V h | C D V h | C D VA VB h | G C D S M h | C V h}/ >>
+destruct /V/ /{h | h | C D V h | C D V h | C D VC VD h | G C D S M h | C h | C VC VL h }/ >>
 injection /h/ >> subst /C D/ >> clear /h/.
 existses [/G/, /M/, /S/].
 reflexivity.
 qed ();
 
 
-lemma "dlist_canonical_form_fold"
+lemma "dlist_canonical_form_raw"
 /
   forall (A : tp) (V : value (dlist A)) .
-  (V = vfold (vinj1 vtriv) : value (dlist A)) %
-  (exists (VA : value A) (VL : value (dlist A)) . V = vfold (vinj2 (vpair vdiam (vpair VA VL))) : value (dlist A))
+  (V = vnil : value (dlist A)) %
+  (exists (VA : value A) (VL : value (dlist A)) . V = vcons VA VL : value (dlist A))
 /;
 intro /A V/.
-destruct /V/ /{h | h | C D V h | C D V h | C D VA VB h | G C D S M h | C V h}/ >>
-injection /h/ >> subst /C/ >> clear /h/.
-destruct /V/ /{h | h | C D V h | C D V h | C D VA VB h | G C D S M h | C V h}/ >>
-injection /h/ >> subst /C D/ >> clear /h/.
-{
-  left.
-  repeatn 2 compat.
-  apply /one_canonical_form/.
-}
-{
-  right.
-  destruct /V/ /{h | h | C D V h | C D V h | C D Vdiam Vcons h | G C D S M h | C V h}/ >>
-  injection /h/ >> subst /C D/ >> clear /h/.
-  so /tensor_canonical_form _# 2 Vcons/ /VA VL Vcons_eq/.
-  subst /Vcons/.
-  existses [/VA/, /VL/].
-  repeatn 3 compat.
-  apply /diam_canonical_form/.
-}
+(
+  destruct /V/ /{h | h | C D V h | C D V h | C D VC VD h | G C D S M h | C h | C VA VL h }/ >>
+  injection /h/ >> subst /C/ >> clear /h/
+) >>> [left >> reflexivity, right >> existses [/VA/, /VL/] >> reflexivity].
 qed ();
 
 
 defineInd /A/
 /
   vlist : list [(value A)] -> value (dlist A) of
-  | nil . vfold (vinj1 vtriv)
-  | cons V l . vfold (vinj2 (vpair vdiam (vpair V (vlist l))))
+  | nil . vnil
+  | cons V l . vcons V (vlist l)
 //
   forall (A : tp) . list (value A) -> value (dlist A)
 /;
@@ -219,34 +241,17 @@ revert /B_eq/.
 sinduction /V/.
 reintro /ih/.
 intro /B_eq/.
-destruct /V/ /{h | h | C D V h | C D V h | C D Vdiam Vcons h | G C D S M h | C V h}/ >>
-rewrite /-> B_eq in h/ >> injection /h/ >> clear /h/.
-reintro /C_eq/.
-subst /C/ >>> [auto, idtac].
-so /plus_canonical_form _# 2 V/ /Vone V_eq | Vpair Veq/ >> subst /V/.
+destruct /V/ /{h | h | C D V h | C D V h | C D Vdiam Vcons h | G C D S M h | C h | C VA VL h}/ >>
+rewrite /-> B_eq in h/ >> injection /h/ >> clear /h/ >> subst /C/ >> auto.
 {
-  rewrite /-> one_canonical_form Vone/.
   exists /nil/.
   reflexivity.
 }
 {
-  so /tensor_canonical_form _# 2 Vpair/ /Vdiam VC V_eq/.
-  so /tensor_canonical_form _# 2 VC/ /VA VL VC_eq/.
-  subst /Vpair VC/.
-  so /ih (dlist A) VL __ B_eq/ /(l VL_eq)/.
-  {
-    apply /value_subterm_trans _# 4 __ (vfold_subterm _# 2 (vinj2 (vpair Vdiam (vpair VA VL))) #1)/ >> auto.
-    apply /value_subterm_trans _# 4 __ (vinj2_subterm _# 3 (vpair Vdiam (vpair VA VL)) #1)/ >> auto.
-    apply /value_subterm_trans _# 4 __ (vpair_subterm _# 4 (vpair VA VL) ## 1)/ >> auto.
-    apply /vpair_subterm/. 
-  }
-  {
-    exists /VA :: l/.
-    reduce //.
-    subst /VL/.
-    rewrite /-> diam_canonical_form Vdiam/.
-    reflexivity.
-  }
+  so /ih (dlist A) VL (vcons_subterm _# 2 VA VL ## 1) __/ /l VL_eq/ >>> [auto, idtac, auto].
+  exists /VA :: l/.
+  reduce //.
+  auto.
 }
 qed ();
 
@@ -317,25 +322,33 @@ typedef
       evals GA A N (env_split T S #2) VN cN ->
       evals (A :: G') B M' (env_cons VN S') VM' cM' ->
       evals G B (app T M N) S VM' (1 + cM + cN + cM')
-    | evals_lfold :
-      forall (G : ctx) (A : tp) (M : term G (plus one (tensor diam (tensor A (dlist A))))) (S : env G)
-      (VM : value (plus one (tensor diam (tensor A (dlist A))))) (cM : nat) .
-      evals G (plus one (tensor diam (tensor A (dlist A)))) M S VM cM ->
-      evals G (dlist A) (lfold M) S (vfold VM) cM
+    | evals_lnil :
+      forall (G : ctx) (A : tp) (S : env G) .
+      evals G (dlist A) lnil S vnil 0
+    | evals_lcons :
+      forall (G Gd Ght Gh Gt : ctx) (A : tp) (T1 : split G Gd Ght) (T2 : split Ght Gh Gt)
+      (Md : term Gd diam) (Mh : term Gh A) (Mt : term Gt (dlist A))
+      (S : env G) (cd : nat) (Vh : value A) (ch : nat) (Vt : value (dlist A)) (ct : nat) .
+      evals Gd diam Md (env_split T1 S #1) vdiam cd ->
+      evals Gh A Mh (env_split T2 (env_split T1 S #2) #1) Vh ch ->
+      evals Gt (dlist A) Mt (env_split T2 (env_split T1 S #2) #2) Vt ct ->
+      evals G (dlist A) (lcons T1 T2 Md Mh Mt) S (vcons Vh Vt) (cd + ch + ct)
     | evals_lrec_nil :
-      forall (G : ctx) (A B : tp) (M : term G (dlist A)) (N : term (plus one (tensor diam (tensor A B)) :: nil) B)
+      forall (G Gl Gn : ctx) (A B : tp) (T : split G Gl Gn) (M : term Gl (dlist A))
+      (N1 : term Gn B) (N2 : term (diam :: A :: B :: nil) B)
       (S : env G) (cM : nat) (VN : value B) (cN : nat) .
-      evals G (dlist A) M S (vfold (vinj1 vtriv)) cM ->
-      evals _ B N (env_single (vinj1 vtriv)) VN cN ->
-      evals G B (lrec M N) S VN (1 + cM + cN)
+      evals Gl (dlist A) M (env_split T S #1) vnil cM ->
+      evals Gn B N1 (env_split T S #2) VN cN ->
+      evals G B (lrec T M N1 N2) S VN (1 + cM + cN)
     | evals_lrec_cons :
-      forall (G : ctx) (A B : tp) (M : term G (dlist A)) (N : term (plus one (tensor diam (tensor A B)) :: nil) B)
-      (S : env G) (Vhead : value A) (Vtail : value (dlist A)) (cM : nat) (Vrec : value B) (cRec : nat)
-      (VN : value B) (cN : nat) .
-      evals G (dlist A) M S (vfold (vinj2 (vpair vdiam (vpair Vhead Vtail)))) cM ->
-      evals (dlist A :: nil) B (lrec var N) (env_single Vtail) Vrec cRec ->
-      evals _ B N (env_single (vinj2 (vpair vdiam (vpair Vhead Vrec)))) VN cN ->
-      evals G B (lrec M N) S VN (1 + cM + cRec + cN)
+      forall (G Gl Gn : ctx) (A B : tp) (T : split G Gl Gn) (M : term Gl (dlist A))
+      (N1 : term Gn B) (N2 : term (diam :: A :: B :: nil) B)
+      (S : env G) (Vh : value A) (Vt : value (dlist A)) (cM : nat)
+      (Vrec : value B) (cRec : nat) (VN : value B) (cN : nat) .
+      evals Gl (dlist A) M (env_split T S #1) (vcons Vh Vt) cM ->
+      evals (dlist A :: Gn) B (lrec (left all_right) var N1 N2) (env_cons Vt (env_split T S #2)) Vrec cRec ->
+      evals (diam :: A :: B :: nil) B N2 (env_cons vdiam (env_cons Vh (env_cons Vrec env_nil))) VN cN ->
+      evals G B (lrec T M N1 N2) S VN (1 + cM + cRec + cN)
 /;
 Database.setImplicits (parseConstant /evals/) 2;
 

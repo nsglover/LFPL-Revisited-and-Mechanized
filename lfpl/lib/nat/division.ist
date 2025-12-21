@@ -102,7 +102,7 @@ define /mem_div_helper k/
     nrec all_left var
     (pair all_right (nil_mem (succ k)) (nil_mem (succ k)))
     (
-      letp (left all_right) var
+      letp (right all_left) var
       (
         llet (left (right all_left))
         (
@@ -120,7 +120,7 @@ define /mem_div_helper k/
                 app all_right (mem_append (succ k))
                 (
                   pair (left (left (left all_right)))
-                  (pair (left (left all_right)) (nsucc (right all_left) var var) var) var
+                  (pair (left (left all_right)) (nsucc (left all_right) var var) var) var
                 )
               )
             )
@@ -150,7 +150,8 @@ induction /n/.
 {
   intro /q r p_eq/.
   injection /p_eq/. subst /q r/. clear /p_eq/. reduce //.
-  unfold /mem_div_helper/. reduce //. rewrite /-> nrec_correct/. reduce //.
+  unfold /mem_div_helper/. reduce //.
+  unfold /nrec/. reduce //.
   split >>> [autoWith /nil_mem_correct/, induction /k/ >> auto].
 }
 {
@@ -172,11 +173,10 @@ induction /n/.
     destruct /rec_val/ /mq' mr'/. reduce //.
     intro /(mq'_eq mr'_eq)/.
     unfold /mem_div_helper/. reduce //.
-    rewrite /-> nrec_correct/. reduce //.
     unfold /mem_div_helper in rec_val_eq/. reduce /rec_val_eq/.
-    rewrite /-> nrec_correct in rec_val_eq/. reduce /rec_val_eq/.
-    rewrite /<- rec_val_eq/. clear /rec_val_eq/.
-    subst /mq' mr'/ >>> [typecheck, reduce //].
+    unfold /nrec, nrec in rec_val_eq/. reduce /concl rec_val_eq/.
+    rewrite /<- rec_val_eq/. reduce //. clear /rec_val_eq/.
+    subst /mq' mr'/. reduce //.
     rewrite /-> rotate_mem 1 k/. reduce //.
     rewrite /-> nmatch_correct/. reduce //.
     split >>> [idtac, reflexivity].
@@ -194,11 +194,10 @@ induction /n/.
     destruct /rec_val/ /mq' mr'/. reduce //.
     intro /(mq'_eq mr'_eq)/.
     unfold /mem_div_helper/. reduce //.
-    rewrite /-> nrec_correct/. reduce //.
     unfold /mem_div_helper in rec_val_eq/. reduce /rec_val_eq/.
-    rewrite /-> nrec_correct in rec_val_eq/. reduce /rec_val_eq/.
-    rewrite /<- rec_val_eq/. clear /rec_val_eq/.
-    subst /mq' mr'/ >>> [typecheck, reduce //].
+    unfold /nrec, nrec in rec_val_eq/. reduce /concl rec_val_eq/.
+    rewrite /<- rec_val_eq/. reduce //. clear /rec_val_eq/.
+    subst /mq' mr'/. reduce //.
     rewrite /<- not_full/.
     rewrite /-> rotate_remainder (pred (k - r')) k __/ >>> [omega, idtac].
     reduce //. rewrite /-> nmatch_correct/. reduce //.

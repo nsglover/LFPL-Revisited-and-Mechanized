@@ -86,9 +86,9 @@ define /iter_helper A B M/
         (
           app all_right M
           (
-            app (right (left all_right)) var
+            app (right (right (right all_left))) var
             (
-              lcons (right (right (left none))) (right (left none)) var var var
+              lcons (right (left all_right)) (right all_left) var var var
             )
           )
         )

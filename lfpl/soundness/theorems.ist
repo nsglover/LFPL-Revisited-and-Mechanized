@@ -98,7 +98,6 @@ subst /V/.
 induction /LV/ >>> [unfold /p_eval/ >> reflexivity, idtac].
 intro /V LV ih/.
 rewrite /-> p_plus_correct at all/.
-unfold /p_eval/.
 rewrite /-> heap_free_value_bound_eq_zero A HA V n/.
 rewrite /-> ih/.
 reflexivity.
@@ -112,13 +111,13 @@ lemma "polynomial_time_soundness"
 /
   forall (A B : tp) (HA : heap_free A) (M : term (dlist A :: nil) B) (L : list (value A)) .
   exists (V : value B) (c : nat) .
-  evals M (env_single (vlist L)) V c &
+  evals M (env_cons (vlist L) env_nil) V c &
   c <= p_eval (term_bound M) (length L)
 /;
 intro /A B HA M L/.
 so
 /
-  evals_terminates_with_polynomial_cost _# 2 M (env_single (vlist L)) (length L) __
+  evals_terminates_with_polynomial_cost _# 2 M (env_cons (vlist L) env_nil) (length L) __
 //
   V c h_evals c_bound
 /.

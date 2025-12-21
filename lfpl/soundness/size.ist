@@ -12,13 +12,14 @@ beginModule "Size";
 defineInd //
 /
   size : value A -> nat of
-  | vtriv . 0
   | vdiam . 1
+  | vtriv . 0
   | vinj1 A B V . size V
   | vinj2 A B V . size V
   | vpair A B VA VB . size VA + size VB
   | vlam G A B S M . env_size S
-  | vfold A V . size V
+  | vnil A . 0
+  | vcons A VA VL . 1 + size VA + size VL
   and
   env_size : env G -> nat of
   | env_nil . 0
@@ -121,16 +122,23 @@ induction /M_evals/.
   omega.
 }
 {
-  intro /G A M S VM cM M_evals ih/.
-  exact /ih/.
-}
-{
-  intro /G A B M N S cM VN cN M_evals M_ih N_evals N_ih/.
-  rewrite /-> N_ih/.
+  intro /G A S/.
   omega.
 }
 {
-  intro /G A B M N S V_head V_tail cM V_rec c_rec VN cN M_evals M_ih rec_evals rec_ih N_evals N_ih/.
+  intro /G Gd Ght Gh Gt A T1 T2 Md Mh Mt S cd Vh ch Vt ct _ Md_ih _ Mh_ih _ Mt_ih/.
+  rewrite /-> split_size _# 3 T1/.
+  rewrite /-> split_size _# 3 T2/.
+  omega.
+}
+{
+  intro /G Gl Gn A B T M N1 N2 S cM VN cN M_evals M_ih N_evals N_ih/.
+  rewrite /-> split_size _# 3 T/.
+  omega.
+}
+{
+  intro /G Gl Gn A B T M N1 N2 S Vh Vt cM Vrec cRec VN cN M_evals M_ih rec_evals rec_ih N_evals N_ih/.
+  rewrite /-> split_size _# 3 T/.
   omega.
 }
 qed ();

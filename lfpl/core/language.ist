@@ -12,8 +12,8 @@ typedef
     intersect (i : level) . U i
   of
     tp : type =
-    | one : tp
     | diam : tp
+    | one : tp
     | plus : tp -> tp -> tp
     | tensor : tp -> tp -> tp
     | arrow : tp -> tp -> tp
@@ -114,15 +114,18 @@ typedef
         term G (plus A B)
     | match :
         forall (G GAB GC : ctx) (A B C : tp) .
-        split G GAB GC -> term GAB (plus A B) -> term (A :: GC) C -> term (B :: GC) C ->
+        split G GAB GC ->
+        term GAB (plus A B) -> term (A :: GC) C -> term (B :: GC) C ->
         term G C
     | pair :
         forall (G GA GB : ctx) (A B : tp) .
-        split G GA GB -> term GA A -> term GB B ->
+        split G GA GB ->
+        term GA A -> term GB B ->
         term G (tensor A B)
     | letp :
         forall (G GAB GC : ctx) (A B C : tp) .
-        split G GAB GC -> term GAB (tensor A B) -> term (A :: B :: GC) C ->
+        split G GAB GC ->
+        term GAB (tensor A B) -> term (A :: B :: GC) C ->
         term G C
     | lam :
         forall (G : ctx) (A B : tp) .
@@ -130,15 +133,21 @@ typedef
         term G (arrow A B)
     | app :
         forall (G GAB GA : ctx) (A B : tp) .
-        split G GAB GA -> term GAB (arrow A B) -> term GA A ->
+        split G GAB GA ->
+        term GAB (arrow A B) -> term GA A ->
         term G B
-    | lfold :
+    | lnil :
         forall (G : ctx) (A : tp) .
-        term G (plus one (tensor diam (tensor A (dlist A)))) ->
+        term G (dlist A)
+    | lcons :
+        forall (G Gd Ght Gh Gt : ctx) (A : tp) .
+        split G Gd Ght -> split Ght Gh Gt ->
+        term Gd diam -> term Gh A -> term Gt (dlist A) ->
         term G (dlist A)
     | lrec :
-        forall (G : ctx) (A B : tp) .
-        term G (dlist A) -> term (plus one (tensor diam (tensor A B)) :: nil) B ->
+        forall (G Gl Gn : ctx) (A B : tp) .
+        split G Gl Gn ->
+        term Gl (dlist A) -> term Gn B -> term (diam :: A :: B :: nil) B ->
         term G B
 /;
 Database.setImplicits (parseConstant /drop/) 3;
@@ -151,8 +160,9 @@ Database.setImplicits (parseConstant /pair/) 5;
 Database.setImplicits (parseConstant /letp/) 6;
 Database.setImplicits (parseConstant /lam/) 3;
 Database.setImplicits (parseConstant /app/) 5;
-Database.setImplicits (parseConstant /lfold/) 2;
-Database.setImplicits (parseConstant /lrec/) 3;
+Database.setImplicits (parseConstant /lnil/) 2;
+Database.setImplicits (parseConstant /lcons/) 6;
+Database.setImplicits (parseConstant /lrec/) 5;
 
 
 
@@ -164,9 +174,7 @@ define /llet {G GA GB A B} T M N/
 //
   forall (G GA GB : ctx) (A B : tp) . split G GA GB -> term GA A -> term (A :: GB) B -> term G B
 /;
-withTypecheck (unfold /llet/). 
-
-qed ();
+withTypecheck (unfold /llet/). qed ();
 setOpacity /llet/ Constant.SOFT;
 
 

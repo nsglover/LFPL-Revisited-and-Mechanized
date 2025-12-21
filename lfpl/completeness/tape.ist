@@ -49,21 +49,19 @@ define /stack_init_enc A k impl/
 /
   lam
   (
-    lrec_foldr all_left var (pair all_right nzero (lam (pair all_left var (impl ## 1))))
+    lrec all_left var (pair all_right nzero (lam (pair all_left var (impl ## 1))))
     (
-      letp (left all_right) var
+      letp (right (right all_left)) var
       (
-        pair (left (right (right all_left))) (nsucc (right all_left) var var)
+        pair (left (right (left all_right))) (nsucc (right all_left) var var)
         (
+          lam
           (
-            lam
+            letp (left (left all_right)) (app (right all_left) var var)
             (
-              letp (left (left all_right)) (app (right all_left) var var)
-              (
-                letp all_left
-                (app (left all_right) (app all_right (impl ## 2) var) (pair (right all_left) (inj2 var) var))
-                (letp (right all_left) var (pair (right (right all_left)) var var))
-              )
+              letp all_left
+              (app (left all_right) (app all_right (impl ## 2) var) (pair (right all_left) (inj2 var) var))
+              (letp (right all_left) var (pair (right (right all_left)) var var))
             )
           )
         )
@@ -104,7 +102,6 @@ induction /l/.
 {
   intro /_/.
   unfold /stack_init_enc/. reduceHard //. 
-  rewrite /-> lrec_foldr_correct/. reduceHard //.
   split >>> [reflexivity, split >>> [reflexivity, idtac]].
   unfold /stack_empty_correct in empty_correct/.
   split >>> [exact /empty_correct #1/, intro /_/ >> exact /empty_correct #2 #1/].
@@ -116,8 +113,7 @@ induction /l/.
   revert /m init F_l_eq/.
   remember /F (x :: l)/ /_/ /F_x_l/ /F_x_l_eq/. destruct /F_x_l/ /m' init'/. reduce //.
   unfold /stack_init_enc in F_eq/. reduce /F_eq/. subst /F/.
-  revert /m' init' F_x_l_eq/.
-  reduce //. rewrite /-> lrec_foldr_correct at all/. reduce //.
+  revert /m' init' F_x_l_eq/. reduce //.
   intro /m' init' m_init_eq' m init m_init_eq ih/.
   intro /length_leq/.
   so /ih __/ /length_eq init_correct/ >>> [omega, clear /ih/].
@@ -212,12 +208,12 @@ define /tape_output_enc A k impl/
 /
   lam
   (
-    lrec_foldr all_left var
+    lrec all_left var
     (pair all_right nzero (lam (lam (pair (right all_left) var (pair all_right (lam lnil) var)))))
     (
-      letp (left all_right) var
+      letp (right (right all_left)) var
       (
-        pair (left (right all_left)) (nsucc (right all_left) (drop var) var)
+        pair (left (right all_left)) (nsucc (right all_left) var var)
         (
           lam
           (
@@ -244,7 +240,7 @@ define /tape_output_enc A k impl/
                               (
                                 match (right (right (right all_left))) var lnil
                                 (
-                                  lcons (right (right (left all_right))) (left all_right) var var
+                                  lcons (right (left all_right)) (left all_right) var var
                                   (app (right all_left) var var)
                                 )
                               )
@@ -298,7 +294,6 @@ inference. intro /A k bound impl impl_correct n/.
 induction /n/.
 {
   unfold /tape_output_enc/. reduce //.
-  rewrite /-> lrec_foldr_correct/. reduce //.
   split >>> [reflexivity, idtac].
   intro /q s Valid Items/.
   typecheckLet /Valid/ /_/ /Valid_tp/.
@@ -318,7 +313,6 @@ induction /n/.
   destruct /F_succ_n/ /n_out' output'/. reduce //.
   unfold /tape_output_enc in F_eq/. reduce /F_eq/. subst /F/.
   revert /n_out' output' F_succ_n_eq/. reduce //.
-  rewrite /-> lrec_foldr_correct at all/. reduce //.
   intro /n_out' output' out_eq' n_out output out_eq/.
   moveBefore /n_out output out_eq/ /out_eq'/.
   rewrite /<- out_eq in out_eq'/. clear /out_eq/.

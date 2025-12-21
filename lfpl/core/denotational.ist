@@ -53,16 +53,6 @@ define /env_cons {A G} v S/
 withTypecheck (unfold /env at all, env_cons/). qed ();
 
 
-define /env_single {A} v/
-/
-  env_cons v env_nil
-//
-  forall (A : tp) . tp_sem A -> env (A :: nil)
-/;
-withTypecheck (unfold /env_single/). qed ();
-setOpacity /env_single/ Constant.SOFT_STRICT;
-
-
 define /env_pop {A G} S/
 /
   (
@@ -190,29 +180,25 @@ defineInd //
   | inj2 G A B M . fn S .
     inr (term_sem M S)
   | match G GAB GC A B C T M N1 N2 . fn S .
-    let (SM, SN) = env_split T S in
-    case term_sem M SM of
-    | inl v1 . term_sem N1 (env_cons v1 SN)
-    | inr v2 . term_sem N2 (env_cons v2 SN)
+    case term_sem M (env_split T S #1) of
+    | inl v1 . term_sem N1 (env_cons v1 (env_split T S #2))
+    | inr v2 . term_sem N2 (env_cons v2 (env_split T S #2))
   | pair G GA GB A B T M1 M2 . fn S .
-    let (S1, S2) = env_split T S in
-    (term_sem M1 S1, term_sem M2 S2)
+    (term_sem M1 (env_split T S #1), term_sem M2 (env_split T S #2))
   | letp G GAB GC A B C T M N . fn S .
-    let (SM, SN) = env_split T S in
-    let (v1, v2) = term_sem M SM in
-    term_sem N (env_cons v1 (env_cons v2 SN))
+    let (v1, v2) = term_sem M (env_split T S #1) in
+    term_sem N (env_cons v1 (env_cons v2 (env_split T S #2)))
   | lam G A B M . fn S .
     fn v . term_sem M (env_cons v S)
   | app G GAB GA A B T M N . fn S .
-    let (SM, SN) = env_split T S in
-    (term_sem M SM) (term_sem N SN)
-  | lfold G A M . fn S .
-    case term_sem M S of
-    | inl _ . nil
-    | inr c . let (v, vs) = c #2 in v :: vs
-  | lrec G A B M N . fn S .
-    foldr (term_sem N (env_single (inl ()))) 
-    (fn v acc . term_sem N (env_single (inr ((), v, acc)))) (term_sem M S)
+    (term_sem M (env_split T S #1)) (term_sem N (env_split T S #2))
+  | lnil G A . fn S .
+    nil
+  | lcons G Gd Ght Gh Gt A T1 T2 Md Mh Mt . fn S .
+    term_sem Mh (env_split T2 (env_split T1 S #2) #1) :: term_sem Mt (env_split T2 (env_split T1 S #2) #2)
+  | lrec G Gl Gn A B T M N1 N2 . fn S .
+    foldr (term_sem N1 (env_split T S #2)) 
+    (fn v acc . term_sem N2 (env_cons () (env_cons v (env_cons acc env_nil)))) (term_sem M (env_split T S #1))
 //
   forall (G : ctx) (A : tp) . term G A -> env G -> tp_sem A
 /;

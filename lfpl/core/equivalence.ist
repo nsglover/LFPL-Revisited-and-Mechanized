@@ -24,7 +24,8 @@ defineInd //
   | vinj2 A B V . inr (value_sem V)
   | vpair A B VA VB . (value_sem VA, value_sem VB)
   | vlam G A B S M . fn v . term_sem M (Denotational.env_cons v (env_sem S))
-  | vfold A V . case value_sem V of | inl _ . nil | inr c . let (v, vs) = c #2 in v :: vs
+  | vnil A . nil
+  | vcons A VA VL . value_sem VA :: value_sem VL
   and
   env_sem : Operational.env G -> Denotational.env G of
   | Operational.env_nil . Denotational.env_nil
@@ -157,54 +158,49 @@ induction /M_evals/.
   auto.
 }
 {
-  intro /G A M S VM cM M_evals M_ih V' cM' evals'/.
-  destructThin /evals'/ /{VM' M_evals' h_V'}/.
-  subst /V'/.
-  so /M_ih _# 2 M_evals'/ /goal/.
+  intro /G A S V' c' evals'/.
+  destructThin /evals'/ /{h_V' h_c'}/.
+  subst /V' c'/.
   auto.
 }
 {
-  intro /G A B M N S cM VN cN M_evals M_ih N_evals N_ih VN' c' evals'/.
-  destructThin /evals'/
-  /{cM' cN' M_evals' N_evals' h_c' | Vhead' Vtail' cM' Vrec' cRec' cN' M_evals' rec_evals' N_evals' h_c'}/.
+  intro /G Gd Ght Gh Gt A T1 T2 Md Mh Mt S cd Vh ch Vt ct Md_evals Md_ih Mh_evals Mh_ih Mt_evals Mt_ih V' c' evals'/.
+  destructThin /evals'/ /{cd' Vh' ch' Vt' ct' Md_evals' Mh_evals' Mt_evals' h_V' h_c'}/.
+  subst /V' c'/.
+  auto.
+}
+{
+  intro /G Gl Gn A B T M N1 N2 S cM VN cN M_evals M_ih N_evals N_ih VN' c' evals'/.
+  destructThin /evals'/ /{cM' cN' M_evals' N_evals' h_c' | Vh' Vt' cM' Vr' cr' cN' M_evals' rec_evals' N_evals' h_c'}/.
   {
-    so /M_ih _# 2 M_evals'/ /h_V' h_cM'/.
+    so /M_ih _# 2 M_evals'/ /_ h_cM'/.
     subst /c' cM'/.
-    so /N_ih _# 2 N_evals'/ /goal/.
-    auto.
+    so /N_ih _# 2 N_evals'/ /h_VN' h_CN'/.
+    subst /VN' cN'/.
+    split >> reflexivity.
   }
   {
-    so /M_ih _# 2 M_evals'/ /h_V' h_cM'/.
+    so /M_ih _# 2 M_evals'/ /h_V' _/.
     injection /h_V'/.
-    reintro /_ h/.
-    injection /h/.
   }
 }
 {
-  intro /G A B M N S V_head V_tail cM Vrec cRec VN cN M_evals M_ih rec_evals rec_ih N_evals N_ih VN' c' evals'/.
-  destructThin /evals'/
-  /{cM' cN' M_evals' N_evals' h_c' | Vhead' Vtail' cM' Vrec' cRec' cN' M_evals' rec_evals' N_evals' h_c'}/.
+  intro /G Gl Gn A B T M N1 N2 S Vh Vt cM Vr cr VN cN M_evals M_ih rec_evals rec_ih N_evals N_ih VN' c' evals'/.
+  destructThin /evals'/ /{cM' cN' M_evals' N_evals' h_c' | Vh' Vt' cM' Vr' cr' cN' M_evals' rec_evals' N_evals' h_c'}/.
   {
-    so /M_ih _# 2 M_evals'/ /h_V' h_cM'/.
+    so /M_ih _# 2 M_evals'/ /h_V' _/.
     injection /h_V'/.
-    reintro /_ h/.
-    injection /h/.
   }
-  so /M_ih _# 2 M_evals'/ /h_V' h_cM'/.
-  injection /h_V'/.
-  reintro /_ h/.
-  injection /h/.
-  reintro /_ _ h'/.
-  injection /h'/.
-  reintro /_ _ _ h''/.
-  injection /h''/.
-  reintro /_ _ h_Vhead' h_Vtail'/.
-  clear /h_V' h h' h''/.
-  subst /Vhead' Vtail' cM' c'/.
-  so /rec_ih _# 2 rec_evals'/ /h_Vrec' h_cRec'/.
-  subst /Vrec' cRec'/.
-  so /N_ih _# 2 N_evals'/ /goal/.
-  auto.
+  {
+    so /M_ih _# 2 M_evals'/ /h_VM' h_cM'/.
+    injection /h_VM'/. clear /h_VM'/. reintro /_ h_Vh' h_Vt'/.
+    subst /c' cM' Vh' Vt'/.
+    so /rec_ih _# 2 rec_evals'/ /h_Vr' h_cr'/.
+    subst /Vr' cr'/.
+    so /N_ih _# 2 N_evals'/ /h_VN' h_cN'/.
+    subst /VN' cN'/.
+    split >> reflexivity.
+  }
 }
 qed ();
 
@@ -265,7 +261,6 @@ induction /M_evals/.
 }
 {
   intro /G GAB GC A B C T M N1 N2 S VM cM VN cN M_evals M_ih N_evals N_ih/.
-  unfold /Tuple.letpair/.
   rewrite /-> split_equiv _# 3 T S #1 in M_ih/.
   rewrite /-> split_equiv _# 3 T S #2 in N_ih/.
   rewrite /<- M_ih/.
@@ -274,7 +269,6 @@ induction /M_evals/.
 }
 {
   intro /G GAB GC A B C T M N1 N2 S VM cM VN cN M_evals M_ih N_evals N_ih/.
-  unfold /Tuple.letpair/.
   rewrite /-> split_equiv _# 3 T S #1 in M_ih/.
   rewrite /-> split_equiv _# 3 T S #2 in N_ih/.
   rewrite /<- M_ih/.
@@ -283,14 +277,13 @@ induction /M_evals/.
 }
 {
   intro /G GA GB A B T M1 M2 S V1 c1 V2 c2 M1_evals M1_ih M2_evals M2_ih/.
-  unfold /Tuple.letpair/.
   rewrite /-> split_equiv _# 3 T S #1 in M1_ih/.
   rewrite /-> split_equiv _# 3 T S #2 in M2_ih/.
   auto.
 }
 {
   intro /G GAB GC A B C T M N S VM1 VM2 cM VN cN M_evals M_ih N_evals N_ih/.
-  unfold /Tuple.letpair at all/.
+  unfold /Tuple.letpair/.
   rewrite /-> split_equiv _# 3 T S #1 in M_ih/.
   rewrite /-> split_equiv _# 3 T S #2 in N_ih/.
   rewrite /<- M_ih at all/.
@@ -303,7 +296,6 @@ induction /M_evals/.
 }
 {
   intro /G GAB GA A B T M N S G' S' M' cM VN cN VM' cM' M_evals M_ih N_evals N_ih M'_evals M'_ih/.
-  unfold /Tuple.letpair/.
   rewrite /-> split_equiv _# 3 T S #1 in M_ih/.
   rewrite /-> split_equiv _# 3 T S #2 in N_ih/.
   rewrite /<- M_ih/.
@@ -312,25 +304,30 @@ induction /M_evals/.
   exact /M'_ih/.
 }
 {
-  intro /G A M S VM cM M_evals M_ih/.
-  so /plus_canonical_form _# 2 VM/ /VM_nil VM_eq | VM_cons VM_eq/ >> subst /VM/ >> reduce //.
-  {
-    rewrite /<- M_ih/.
-    reduce //.
-    reflexivity.
-  }
-  unfold /Tuple.letpair at all/.
-  rewrite /<- M_ih/.
-  reduce //.
+  intro /G A S/.
   reflexivity.
 }
 {
-  intro /G A B M N S cM VN cN M_evals M_ih N_evals N_ih/.
+  intro /G Gd Ght Gh Gt A T1 T2 Md Mh Mt S cd Vh ch Vt ct _ _ Mh_evals Mh_ih Mt_evals Mt_ih/.
+  rewrite /-> Mh_ih, -> Mt_ih/.
+  rewrite /-> split_equiv _# 3 T2 (Operational.env_split T1 S #2) #1/.
+  rewrite /-> split_equiv _# 3 T2 (Operational.env_split T1 S #2) #2/.
+  rewrite /-> split_equiv _# 3 T1 S #2 at all/.
+  reflexivity.
+}
+{
+  intro /G Gl Gn A B T M N1 N2 S cM VN cN M_evals M_ih N_evals N_ih/.
+  rewrite /-> split_equiv _# 3 T S #1 in M_ih/.
+  rewrite /-> split_equiv _# 3 T S #2 in N_ih/.
   rewrite /<- M_ih/.
   exact /N_ih/.
 }
 {
-  intro /G A B M N S Vhead Vtail cM Vrec cRec VN cN M_evals M_ih rec_evals rec_ih N_evals N_ih/.
+  intro /G Gl Gn A B T M N1 N2 S Vh Vt cM Vrec cRec VN cN M_evals M_ih rec_evals rec_ih N_evals N_ih/.
+  rewrite /-> split_equiv _# 3 T S #1 in M_ih/.
+  rewrite /-> split_equiv _# 3 T S #2 in rec_ih/.
+  rewrite /-> env_split_all_right in rec_ih/.
+  reduce /rec_ih/.
   rewrite /<- M_ih/.
   reduce //.
   rewrite /<- rec_ih/.

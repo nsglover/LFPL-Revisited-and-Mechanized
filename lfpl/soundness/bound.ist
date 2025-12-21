@@ -26,9 +26,10 @@ defineInd //
   | letp G GAB GC A B C T M N . p_plus p_one (p_plus (term_bound M) (term_bound N))
   | lam G A B M . term_bound M
   | app G GAB GA A B T M N . p_plus p_one (p_plus (term_bound M) (term_bound N))
-  | lfold G A M . term_bound M
-  | lrec G A B M N .
-    p_plus (1, monomial 1 (const 1)) (p_plus (term_bound M) (p_plus (term_bound N) (p_shift (term_bound N))))
+  | lnil G A . p_zero
+  | lcons G Gd Ght Gh Gt A T1 T2 Md Mh Mt . p_plus (term_bound Md) (p_plus (term_bound Mh) (term_bound Mt))
+  | lrec G Gl Gn A B T M N1 N2 .
+    p_plus (1, monomial 1 (const 1)) (p_plus (term_bound M) (p_plus (term_bound N1) (p_shift (term_bound N2))))
 //
   forall (G : ctx) (A : tp) . term G A -> exists (d : nat) . polynomial d
 /;
@@ -38,13 +39,14 @@ Database.setImplicits (parseConstant /term_bound/) 2;
 defineInd //
 /
   value_bound : value A -> exists (d : nat) . polynomial d of
-  | vtriv . p_zero
   | vdiam . p_zero
+  | vtriv . p_zero
   | vinj1 A B V . value_bound V
   | vinj2 A B V . value_bound V
   | vpair A B VA VB . p_plus (value_bound VA) (value_bound VB)
   | vlam G A B S M . p_plus (env_bound S) (term_bound M)
-  | vfold A V . value_bound V
+  | vnil A . p_zero
+  | vcons A VA VL . p_plus (value_bound VA) (value_bound VL)
   and
   env_bound : env G -> exists (d : nat) . polynomial d of
   | env_nil . p_zero
@@ -247,20 +249,39 @@ induction /M/.
   omega.    
 }
 {
-  intro /G A M M_ih S h_n h_fuel/.
-  so /M_ih S h_n h_fuel/ /V c M_evals c_bound/.
-  existses [/vfold V/, /c/].
-  split >>> [apply /evals_lfold/ >> exact /M_evals/, exact /c_bound/].
+  intro /G A S h_n h_fuel/.
+  existses [/vnil/, /0/].
+  split >>> [apply /evals_lnil/, unfold /p_eval at all/].
+  omega.
 }
 {
-  intro /G A B M M_ih N N_ih S h_n/.
+  intro /G Gd Ght Gh Gt A T1 T2 Md Md_ih Mh Mh_ih Mt Mt_ih S h_n/.
+  rewrite /-> p_plus_correct at all/.
+  rewrite /-> split_bound _# 3 T1 S at all, -> split_bound _# 3 T2 _ at all/.
+  intro /h_fuel/.
+  rewrite /-> split_size _# 3 T1 S in h_n, -> split_size _# 3 T2 _ in h_n/.
+  so /Md_ih (env_split T1 S #1) __ __/ /Vd cd Md_evals cd_bound/ >>> [omega, omega, idtac].
+  so /Mh_ih (env_split T2 (env_split T1 S #2) #1) __ __/ /Vh ch Mh_evals ch_bound/ >>> [omega, omega, idtac].
+  so /Mt_ih (env_split T2 (env_split T1 S #2) #2) __ __/ /Vt ct Mt_evals ct_bound/ >>> [omega, omega, idtac].
+  existses [/vcons Vh Vt/, /cd + ch + ct/].
+  destructThin /Vd/ /{}/.
+  split >>> [apply /evals_lcons _# 17 Md_evals Mh_evals Mt_evals/, idtac].
+  reduce /concl cd_bound/.
+  unfold /p_eval in cd_bound/.
+  rewrite /-> p_plus_correct/.
+  omega.
+}
+{
+  intro /G Gl Gn A B T M M_ih N1 N1_ih N2 N2_ih S h_n/.
   rewrite /-> p_plus_correct at all/.
   unfold /p_eval at 6 0/.
   reduce //.
   rewrite /-> times_1_r at all, -> plus_0_r at all/.
   rewrite /-> p_shift_correct at all/.
+  rewrite /-> split_bound _# 3 T S at all/.
   intro /h_fuel/.
-  so /M_ih S h_n __/ /VM cM M_evals cM_bound/ >>> [omega, idtac].
+  rewrite /-> split_size _# 3 T S in h_n/.
+  so /M_ih (env_split T S #1) __ __/ /VM cM M_evals cM_bound/ >>> [omega, omega, idtac].
   clear /ih M_ih/.
   so /non_size_increasing _# 6 M_evals/ /VM_size/.
   so /dlist_canonical_form _ VM/ /LV VM_eq/.
@@ -268,43 +289,32 @@ induction /M/.
   assert /length LV <= n/ /h_len/.
   {
     rewrite /<- h_n, <- VM_size/.
-    clear /fuel G S n h_n B M N N_ih h_fuel cM M_evals cM_bound VM_size/.
+    clear /fuel n h_n B M N1 N1_ih N2 N2_ih h_fuel cM M_evals cM_bound VM_size/.
     induction /LV/ >>> [omega, intro /V LV/ >> omega].
   }
-  rewrite /-> h_n in VM_size/.
-  clear /h_n/.
   rewrite /<- h_len at 4 1/.
   moveAfter /h_fuel/ /h_len/.
   rewrite /<- h_len in h_fuel at 3 0/.
   clear /h_len/.
-  revert /G M S cM M_evals cM_bound h_fuel VM_size/.
+  revert /G Gl Gn T M N1 N1_ih S cM M_evals cM_bound h_n h_fuel VM_size/.
   induction /LV/.
   {
-    intro /G M S cM M_evals cM_bound h_fuel h_size/.
+    intro /G Gl Gn T M N1 N1_ih S cM M_evals cM_bound h_n h_fuel h_size/.
     unfold /p_eval in cM_bound/.
-    so /N_ih (env_cons (vinj1 vtriv) env_nil) __ __/ /VN cN N_evals cN_bound/ >>> [omega, idtac, idtac].
-    {
-      reduce //.
-      rewrite /-> p_plus_correct/.
-      unfold /p_eval at 2 1/.
-      omega.
-    }
+    so /N1_ih (env_split T S #2) __ __/ /VN cN N_evals cN_bound/ >>> [omega, omega, idtac].
     reduce /cN_bound/.
-    rewrite /-> p_plus_correct in cN_bound/.
-    unfold /p_eval in cN_bound at 3 2/.
     existses [/VN/, /1 + cM + cN/].
-    split >>> [exact /evals_lrec_nil _# 9 M_evals N_evals/, omega].
+    split >>> [exact /evals_lrec_nil _# 13 M_evals N_evals/, omega].
   }
   {
-    intro /V LV ih G M S cM M_evals cM_bound h_fuel h_size/.
+    intro /V LV ih G Gl Gn T M N1 N1_ih S cM M_evals cM_bound h_n h_fuel h_size/.
     rewrite /-> p_plus_correct in cM_bound at all/.
-    unfold /p_eval in cM_bound/.
     so
     /
-      ih (dlist A :: nil) var (env_cons (vlist LV) env_nil) 0 (evals_var _# 3) __ __ __
+      ih (dlist A :: Gn) _ _ (left all_right) var N1 N1_ih (env_cons (vlist LV) (env_split T S #2)) 0 (evals_var _# 3) __ __ __ __
     //
       Vrec cRec rec_evals cRec_bound
-    / >>> [idtac, idtac, omega, idtac].
+    / >>> [idtac, idtac, idtac, omega, idtac].
     {
       reduce //.
       rewrite /-> p_plus_correct/.
@@ -313,7 +323,15 @@ induction /M/.
     }
     {
       reduce //.
+      rewrite /-> env_split_all_right at all/.
+      reduce //.
+      omega.
+    }
+    {
+      reduce //.
       rewrite /-> p_plus_correct/.
+      rewrite /-> env_split_all_right at all/.
+      reduce //.
       unfold /p_eval at 4 0/.
       omega.
     }
@@ -321,8 +339,10 @@ induction /M/.
     reduce /Vrec_size/.
     reduce /cRec_bound/.
     rewrite /-> p_plus_correct in cRec_bound/.
+    rewrite /-> env_split_all_right in cRec_bound at all/.
+    reduce /cRec_bound/.
     unfold /p_eval in cRec_bound at 5 1/.
-    so /N_ih (env_cons (vinj2 (vpair vdiam (vpair V Vrec))) env_nil) __ __/ /VN cN N_evals cN_bound/ >>>
+    so /N2_ih (env_cons vdiam (env_cons V (env_cons Vrec env_nil))) __ __/ /VN cN N_evals cN_bound/ >>>
     [omega, idtac, idtac].
     {
       reduce //.
@@ -334,7 +354,7 @@ induction /M/.
     rewrite /-> p_plus_correct in cN_bound at all/.
     unfold /p_eval in cN_bound at 5 2/.
     existses [/VN/, /1 + cM + cRec + cN/].
-    split >>> [exact /evals_lrec_cons _# 13 M_evals rec_evals N_evals/, omega].
+    split >>> [exact /evals_lrec_cons _# 17 M_evals rec_evals N_evals/, omega].
   }
 }
 qed ();

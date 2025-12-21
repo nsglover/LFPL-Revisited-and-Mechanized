@@ -15,8 +15,8 @@ define /lappend A/
 /
   lam
   (
-    lrec_foldr all_left var (lam var)
-    (lam (lcons (right (right (right all_left))) (right (right all_left)) var var (app (right all_left) var var)))
+    lrec all_left var (lam var)
+    (lam (lcons (right (left all_right)) (right (left all_right)) var var (app (right all_left) var var)))
   )
 //
   forall (A : tp) . term nil (arrow (dlist A) (arrow (dlist A) (dlist A)))
@@ -30,7 +30,6 @@ lemma "lappend_correct"
   (`term_sem _ (arrow (dlist A) (arrow _ _)) (lappend A) env_nil) l1 l2 = append l1 l2 : list (tp_sem A)
 /;
 intro /A l1 l2/ >> inference >> unfold /lappend/ >> reduce //.
-rewrite /-> lrec_foldr_correct _# 10/ >> reduce //.
 induction /l1/ >> auto.
 qed ();
 
@@ -42,41 +41,23 @@ define /susp A/
 /
   lam
   (
-    lrec var
+    lrec all_left var
+    (pair none (lam lnil) lnil)
     (
-      match all_left var
+      letp (right (right (all_left))) var
       (
-        drop (pair all_right (lam lnil) lnil)
-      )
-      (
-        letp all_left var
+        pair (left (right (right (all_left))))
         (
-          letp (right all_left) var
+          lam 
           (
-            letp (right (left (all_right))) var
+            lmatch (left all_right) var lnil
             (
-              pair (left (right (left (all_right))))
-              (
-                lam 
-                (
-                  lmatch (left all_right) var lnil
-                  (
-                    drop
-                    (
-                      lcons (right (left all_right)) (right (right all_left)) var var
-                      (
-                        app (right all_left) var var
-                      )
-                    )
-                  )
-                )
-              )
-              (
-                lcons (right all_left) all_right var triv var
-              )
+              lcons (left all_right) (right (right (right all_left))) var var
+              (app (right (right all_left)) var (drop var))
             )
           )
         )
+        (lcons (right all_left) all_right var triv var)
       )
     )
   )

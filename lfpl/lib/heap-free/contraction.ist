@@ -99,7 +99,7 @@ lemma "contract_correct"
 inference.
 intro /G A B s v HA M/ >> unfold /contract/ >> reduce //.
 rewrite /-> env_split_all_right at all/ >> reduce //.
-rewrite /-> dup_correct _# 3 (env_single v) var/ >> reduce //.
+rewrite /-> dup_correct _# 3 (env_cons v env_nil) var/ >> reduce //.
 reflexivity.
 qed ();
 

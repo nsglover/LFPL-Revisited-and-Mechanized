@@ -114,7 +114,7 @@ define /nsucc {G GM GN} T M N/
   forall (G GM GN : ctx) . split G GM GN -> term GM diam -> term GN dnat -> term G dnat
 /;
 withTypecheck (unfold /nsucc/). qed ();
-setOpacity /nsucc/ Constant.SOFT_STRICT;
+setOpacity /nsucc/ Constant.SOFT;
 
 
 
@@ -122,10 +122,10 @@ setOpacity /nsucc/ Constant.SOFT_STRICT;
 
 define /nmatch {G GM GN A} T M N1 N2/
 /
-  lmatch T M N1 (drop N2)
+  lmatch T M N1 (letp (left (left all_right)) (pair (right all_left) var var) (drop N2))
 //
   forall (G GM GN : ctx) (A : tp) .
-  split G GM GN -> term GM dnat -> term GN A -> term (dnat :: diam :: GN) A ->
+  split G GM GN -> term GM dnat -> term GN A -> term (diam :: dnat :: GN) A ->
   term G A
 /;
 withTypecheck (unfold /nmatch/). qed ();
@@ -134,53 +134,32 @@ withTypecheck (unfold /nmatch/). qed ();
 lemma "nmatch_correct"
 /
   forall (G GM GN : ctx) (A : tp) (T : split G GM GN) (S : env G) .
-  forall (M : term GM dnat) (N1 : term GN A) (N2 : term (dnat :: diam :: GN) A) . 
+  forall (M : term GM dnat) (N1 : term GN A) (N2 : term (diam :: dnat :: GN) A) . 
   term_sem (nmatch T M N1 N2) S = 
   (
-    let (SM, SN) = env_split T S in
-    (
-      case term_sem M SM : list of
-      | nil . term_sem N1 SN
-      | cons v vs . term_sem N2 ((env_cons vs (env_cons () SN)))
-    )
+    case term_sem M (env_split T S #1) : list of
+    | nil . term_sem N1 (env_split T S #2)
+    | cons v vs . term_sem N2 ((env_cons () (env_cons vs (env_split T S #2))))
   ) : tp_sem A
 /;
 intro /G GM GN A T S M N1 N2/. inference.
 unfold /nmatch/. rewrite /-> lmatch_correct/.
+reduce //.
+rewrite /-> env_split_all_right/.
 reflexivity.
 qed ();
 
 
 define /nrec {G GM GN A} T M N1 N2/
 /
-  lrec_foldr T M N1 (letp (left (left all_right)) (pair (right all_left) var var) (drop N2))
+  lrec T M N1 (letp (left (left all_right)) (pair (right all_left) var var) (drop N2))
 //
   forall (G GM GN : ctx) (A : tp) .
-  split G GM GN -> term GM dnat -> term GN A -> term (A :: diam :: nil) A ->
+  split G GM GN -> term GM dnat -> term GN A -> term (diam :: A :: nil) A ->
   term G A
 /;
 withTypecheck (unfold /nrec/). qed ();
-
-
-lemma "nrec_correct"
-/
-  forall (G GM GN : ctx) (A : tp) (T : split G GM GN) (S : env G) .
-  forall (M : term GM dnat) (N1 : term GN A) (N2 : term (A :: diam :: nil) A) .
-  term_sem (nrec T M N1 N2) S =
-  (
-    nfold (term_sem N1 (env_split T S #2))
-    (fn acc . term_sem N2 (env_cons acc (env_cons () env_nil)))
-    (length (term_sem M (env_split T S #1)))
-  ) : tp_sem A
-/;
-intro /G GM GN A T S M N1 N2/. inference.
-unfold /nrec/. reduce //.
-rewrite /-> lrec_foldr_correct/.
-remember /term_sem M (env_split T S #1)/ /list unit/ /l/ /l_eq/.
-rewrite /<- l_eq/. clear /l_eq/.
-induction /l/ >>> [reflexivity, idtac].
-intro /() l ih/. repeatn 2 compat. exact /ih/.
-qed ();
+setOpacity /nsucc/ Constant.SOFT;
 
 
 
