@@ -140,7 +140,7 @@ rewrite /-> lunfold_correct _# 4 in h_unfold_v/.
 revert /h_unfold_v/.
 generalize /term_sem M (env_split T S #1)/ /_/ /v/.
 intro /h_unfold_v/.
-destruct /v/ /| v vs/ >> subst /unfold_v/ >> auto.
+(destruct /v/ /| v vs/ >> subst /unfold_v/ >> reduce //) >>> [rewrite /-> drop_correct/, idtac] >> reflexivity.
 qed ();
 
 

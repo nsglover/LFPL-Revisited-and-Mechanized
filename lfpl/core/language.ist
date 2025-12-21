@@ -94,10 +94,6 @@ typedef
     intersect (i : level) . U i
   of
     term : ctx -> tp -> type =
-    | drop :
-        forall (G : ctx) (A B : tp) .
-        term G B ->
-        term (A :: G) B
     | var :
         forall (G : ctx) (A : tp) .
         term (A :: G) A
@@ -150,7 +146,6 @@ typedef
         term Gl (dlist A) -> term Gn B -> term (diam :: A :: B :: nil) B ->
         term G B
 /;
-Database.setImplicits (parseConstant /drop/) 3;
 Database.setImplicits (parseConstant /var/) 2;
 Database.setImplicits (parseConstant /triv/) 1;
 Database.setImplicits (parseConstant /inj1/) 3;
@@ -163,19 +158,6 @@ Database.setImplicits (parseConstant /app/) 5;
 Database.setImplicits (parseConstant /lnil/) 2;
 Database.setImplicits (parseConstant /lcons/) 6;
 Database.setImplicits (parseConstant /lrec/) 5;
-
-
-
-(* LET SUGAR *)
-
-define /llet {G GA GB A B} T M N/
-/
-  app (swap T) (lam N) M
-//
-  forall (G GA GB : ctx) (A B : tp) . split G GA GB -> term GA A -> term (A :: GB) B -> term G B
-/;
-withTypecheck (unfold /llet/). qed ();
-setOpacity /llet/ Constant.SOFT;
 
 
 

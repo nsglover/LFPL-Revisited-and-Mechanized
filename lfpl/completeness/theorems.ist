@@ -125,8 +125,10 @@ so /mem_div_correct (length input) d/ /mem_div_eq/.
 unfold /Tuple.letpair in mem_div_eq/. rewrite /-> mem_div_eq/. reduce //.
 so /output_correct (div (length input) d #1) r r_valid/ /tmp/. clear /output_correct/. reintro /output_correct/.
 revert /output_correct/. generalize /output _# 2/ /_/ /tmp/.
-destruct /tmp/ /m_out (l_susp _)/. reduce //.
 intro /(m_out_eq output_correct)/.
+unfold /Tuple.letpair at all/.
+rewrite /-> drop_correct/.
+destruct /tmp/ /m_out (l_susp _)/. reduce /concl m_out_eq/.
 subst /m_out/. rewrite /-> r_items in output_correct/. clear /r_items/.
 rewrite /<- mem_div_eq/.
 rewrite /-> mem_div_inverse_correct (length input) d/.

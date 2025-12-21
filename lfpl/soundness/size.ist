@@ -60,11 +60,6 @@ lemma "non_size_increasing"
 intro /G A M S V c M_evals/.
 induction /M_evals/.
 {
-  intro /G A B M S VM cM M_evals ih/.
-  destruct /S/ /{h | A' G' V S h}/ >> injection /h/ >> subst /A' G'/ >> clear /h/.
-  omega.
-}
-{
   intro /G A S/.
   destruct /S/ /{h | A' G' V S h}/ >> injection /h/ >> subst /A' G'/ >> clear /h/.
   omega.

@@ -51,14 +51,6 @@ intro /G A M S V V' c c' M_evals/.
 revert /V' c'/.
 induction /M_evals/.
 {
-  intro /G A B M S V cM M_evals ih V' c' evals'/.
-  destructThin /S/ /{Vdrop S}/.
-  destructThin /evals'/ /{M_evals'}/.
-  reduce /M_evals M_evals' ih/.
-  apply /ih/.
-  exact /M_evals'/.  
-}
-{
   intro /G A S V' c' evals'/.
   destructThin /S/ /{Vdrop S}/.
   destructThin /evals'/ /{h_V' h_c'}/.
@@ -234,11 +226,6 @@ lemma "operational_equiv_denotational"
 /;
 intro /G A M S V c M_evals/.
 induction /M_evals/.
-{
-  intro /G A B M S VM cM M_evals M_ih/.
-  destruct /S/ /{h | A' G' Vdrop S h}/ >> injection /h/ >> subst /G' A'/ >> clear /h/.
-  exact /M_ih/.
-}
 {
   intro /G A S/.
   destruct /S/ /{h | A' G' Vdrop S h}/ >> injection /h/ >> subst /A' G'/ >> clear /h/.

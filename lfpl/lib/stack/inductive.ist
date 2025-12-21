@@ -425,7 +425,7 @@ assert
   so /Forall_cons_iff _# 5 #1 substacks_valid/ /s_valid ss_valid/. clear /substacks_valid/.
   so /ih (ss_valid, ss_valid_form)/ /ss' rr (len_ss' ss'_valid ss'_valid_form) ih_eq ih_observed/. clear /ih/.
   so /pop_correct s s_valid/ /(s' r' s'_valid pop_eq pop_observed)/. clear /pop_correct/.
-  rewrite /-> pop_eq/. reduce //. clear /pop_eq/.
+  rewrite /-> drop_correct, -> pop_eq/. reduce //. clear /pop_eq/.
   so /observers_correct s s_valid/ /s_free _/. clear /observers_correct/.
   revert /s_free pop_observed head_valid_form/.
   generalize /Items s/ /_/ /s_items/.
@@ -558,6 +558,7 @@ split.
   induction /n/ >>> [split >>> [split >>> [reflexivity, exact /(Forall_nil _, ())/], split >> reflexivity], idtac].
   intro /n ((ih_len ih_valid ih_valid_form) ih_items ih_free)/.
   unfold /let in empty_correct/. destruct /empty_correct/ /empty_valid empty_items empty_free/.
+  rewrite /-> drop_correct at all/.
   split.
   {
     split >>> [compat >> exact /ih_len/, idtac].

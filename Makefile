@@ -5,7 +5,7 @@ endef
 UNITS = \
 	$(call prepend, math, nfold div exp binom poly) \
 	$(call prepend, turing-machine, tape transition machine) \
-	$(call prepend, lfpl/core, language operational denotational equivalence) \
+	$(call prepend, lfpl/core, language operational denotational sugar equivalence) \
 	$(call prepend, lfpl/soundness, size bound theorems) \
 	$(call prepend, lfpl/lib/heap-free, contraction surjective) \
 	$(call prepend, lfpl/lib/tuple, sugar tools) \

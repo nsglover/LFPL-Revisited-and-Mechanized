@@ -148,7 +148,9 @@ intro /G GM GN A T S M N1 N2/. inference.
 unfold /nmatch/. rewrite /-> lmatch_correct/.
 reduce //.
 rewrite /-> env_split_all_right/.
-reflexivity.
+unfold /dnat at all/.
+generalize /term_sem M (env_split T S #1)/ /_/ /l/.
+(destruct /l/ /| x l/ >> reduce //) >>> [idtac, rewrite /-> drop_correct/] >> reflexivity.
 qed ();
 
 

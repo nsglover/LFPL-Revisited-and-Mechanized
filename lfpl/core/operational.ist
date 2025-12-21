@@ -265,10 +265,6 @@ typedef
     intersect (i : level) . U i
   of
     evals : forall (G : ctx) (A : tp) . term G A -> env G -> value A -> nat -> type =
-    | evals_drop :
-      forall (G : ctx) (A B : tp) (M : term G B) (S : env (A :: G)) (VM : value B) (cM : nat) .
-      evals G B M (env_pop S #2) VM cM ->
-      evals (A :: G) B (drop M) S VM cM
     | evals_var :
       forall (G : ctx) (A : tp) (S : env (A :: G)) .
       evals (A :: G) A var S (env_pop S #1) zero

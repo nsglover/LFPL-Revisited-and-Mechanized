@@ -1,0 +1,161 @@
+openModule /List/;
+
+File.loadWithoutDependencies "language.isto";
+openModule /Language/;
+
+File.loadWithoutDependencies "denotational.isto";
+openModule /Denotational/;
+
+beginModule "Sugar";
+
+
+
+(* LET BINDING *)
+
+define /llet {G GA GB A B} T M N/
+/
+  app (swap T) (lam N) M
+//
+  forall (G GA GB : ctx) (A B : tp) . split G GA GB -> term GA A -> term (A :: GB) B -> term G B
+/;
+withTypecheck (unfold /llet/). qed ();
+setOpacity (parseConstant /llet/) Constant.SOFT;
+
+
+lemma "llet_correct"
+/
+  forall (G GA GB : ctx) (A B : tp) (T : split G GA GB) (M : term GA A) (N : term (A :: GB) B) (S : env G) .
+  term_sem (llet T M N) S = (let x = term_sem M (env_split T S #1) in term_sem N (env_cons x (env_split T S #2))) : _
+/;
+inference.
+intro /G GA GB A B T M N S/.
+unfold /llet, let/.
+reduce //.
+rewrite /-> env_split_swap at all/.
+reflexivity.
+qed ();
+
+
+
+(* WEAKENING *)
+
+defineInd /A/
+/
+  drop : term G B -> term (A :: G) B of
+  | var G B . letp (left (left all_right)) (pair (right all_left) var var) var
+  | triv G . triv
+  | inj1 G A B M . inj1 (drop M)
+  | inj2 G A B M . inj2 (drop M)
+  | match G GAB GC A B C T M N1 N2 . match (left T) (drop M) N1 N2
+  | pair G GA GB A B T M1 M2 . pair (left T) (drop M1) M2
+  | letp G GAB GC A B C T M N . letp (left T) (drop M) N
+  | lam G A B M . lam (letp (left (left all_right)) (pair (right all_left) var var) (drop M))
+  | app G GAB GA A B T M N . app (left T) (drop M) N
+  | lnil G A . lnil
+  | lcons G Gd Ght Gh Gt A T1 T2 Md Mh Mt . lcons (left T1) T2 (drop Md) Mh Mt
+  | lrec G Gl Gn A B T M N1 N2 . lrec (left T) (drop M) N1 N2
+//
+  forall (A : tp) (G : ctx) (B : tp) . term G B -> term (A :: G) B
+/;
+Database.setImplicits (parseConstant /drop/) 3;
+
+
+lemma "drop_correct"
+/
+  forall (G : ctx) (A B : tp) (M : term G B) (S : env (A :: G)) .
+  term_sem (drop M) S = term_sem M (env_pop S #2) : tp_sem B
+/;
+intro /G D B M/.
+induction /M/.
+{
+  intro /G A Sdrop/.
+  so /env_cons_form _# 2 Sdrop/ /vDrop Svar h_Sdrop/.
+  unfold /Tuple.letpair at all/.
+  subst /Sdrop/.
+  so /env_cons_form _# 2 Svar/ /v S h_Svar/.
+  subst /Svar/.
+  reflexivity.
+}
+{
+  intros >>+ reflexivity.
+}
+{
+  intro /G A B M ih S/.
+  compat >> apply /ih/.
+}
+{
+  intro /G A B M ih S/.
+  compat >> apply /ih/.
+}
+{
+  intro /G GAB GC A b C T M ih N1 _ N2 _ S/.
+  unfold /Tuple.letpair at all/.
+  so /ih (env_split (left T) S #1)/ /tmp/. clear /ih/. reintro /ih/.
+  reduce /ih/.
+  unfold /Tuple.letpair in ih at all/.
+  rewrite /-> ih/.
+  reflexivity.
+}
+{
+  intro /G GA GB A B T M1 ih M2 _ S/.
+  unfold /Tuple.letpair at all/.
+  so /ih (env_split (left T) S #1)/ /tmp/. clear /ih/. reintro /ih/.
+  reduce /ih/.
+  unfold /Tuple.letpair in ih at all/.
+  rewrite /-> ih/.
+  reflexivity.
+}
+{
+  intro /G GAB GC A B C T M ih N _ S/.
+  unfold /Tuple.letpair at all/.
+  so /ih (env_split (left T) S #1)/ /tmp/. clear /ih/. reintro /ih/.
+  reduce /ih/.
+  unfold /Tuple.letpair in ih at all/.
+  rewrite /-> ih at all/.
+  reflexivity.
+}
+{
+  intro /G A B M ih Svar/.
+  extensionality.
+  reintro /x/.
+  reduce //.
+  unfold /Tuple.letpair at all/.
+  so /env_cons_form _# 2 Svar/ /v S h_Svar/.
+  subst /Svar/.
+  reduce //.
+  so /ih (env_cons v (env_cons x S))/ /goal/.
+  reduce /goal/.
+  rewrite /-> env_split_all_right/.
+  exact /goal/.
+}
+{
+  intro /G GAB GA A B T M ih N _ S/.
+  unfold /Tuple.letpair at all/.
+  so /ih (env_split (left T) S #1)/ /tmp/. clear /ih/. reintro /ih/.
+  reduce /ih/.
+  unfold /Tuple.letpair in ih at all/.
+  rewrite /-> ih/.
+  reflexivity.
+}
+{
+  intros >>+ reflexivity.
+}
+{
+  intro /G Gd Ght Gh Gt A T1 T2 Md ih Mh _ Mt _ S/.
+  unfold /Tuple.letpair at all/.
+  reflexivity.
+}
+{
+  intro /G Gl Gn A B T M ih N1 _ N2 _ S/.
+  unfold /Tuple.letpair at all/.
+  so /ih (env_split (left T) S #1)/ /tmp/. clear /ih/. reintro /ih/.
+  reduce /ih/.
+  unfold /Tuple.letpair in ih at all/.
+  rewrite /-> ih/.
+  reflexivity.
+}
+qed ();
+
+
+
+endModule ();

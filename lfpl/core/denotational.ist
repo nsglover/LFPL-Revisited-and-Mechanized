@@ -163,14 +163,41 @@ induction /G/.
 qed ();
 
 
+lemma "env_split_swap"
+/
+  forall (G G1 G2 : ctx) (T : split G G1 G2) (S : env G) .
+  env_split (swap T) S = (env_split T S #2, env_split T S #1) : _
+/;
+inference.
+intro /G G1 G2 T/.
+induction /T/ >>> [intros >>+ reflexivity, idtac, idtac].
+{
+  intro /G G1 G2 A T ih S'/.
+  so /env_cons_form _# 2 S'/ /v S h_S/.
+  unfold /Tuple.letpair at all/.
+  subst /S'/.
+  reduce //.
+  rewrite /-> ih at all/.
+  reflexivity.
+}
+{
+  intro /G G1 G2 A T ih S'/.
+  so /env_cons_form _# 2 S'/ /v S h_S/.
+  unfold /Tuple.letpair at all/.
+  subst /S'/.
+  reduce //.
+  rewrite /-> ih at all/.
+  reflexivity.
+}
+qed ();
+
+
 
 (* TERM SEMANTICS *)
 
 defineInd //
 /
   term_sem : term G A -> env G -> tp_sem A of
-  | drop G A B M . fn S .
-    term_sem M (env_pop S #2)
   | var G A . fn S .
     env_pop S #1
   | triv G . fn S .

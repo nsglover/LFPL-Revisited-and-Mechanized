@@ -86,6 +86,8 @@ induction /HA/ >>> [idtac, idtac, idtac, auto].
   extensionality.
   reintro /v/.
   destruct /v/ /()/.
+  reduce //.
+  rewrite /-> drop_correct/.
   exact /enc_correct (f ())/.
 }
 {

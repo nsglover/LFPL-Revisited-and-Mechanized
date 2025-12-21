@@ -159,6 +159,7 @@ destruct /c/ /| c/ >> reduce //.
   destruct /dir/ /|/ >> reduce //.
   {
     so /pop_correct l_enc l_valid/ /l_out x_out l_out_valid pop_eq pop_observed/. revert /pop_eq/.
+    rewrite /-> drop_correct/ >>> [typecheck, reduce //].
     generalize /term_sem pop _# 3/ /_/ /tmp/. intro /pop_eq/.
     destruct /tmp/ /pop_m pop_s pop_r/. reduce //.
     so /push_correct x_write r_enc r_valid/ /r_out error_code r_out_valid push_eq push_observed/.
@@ -192,6 +193,7 @@ destruct /c/ /| c/ >> reduce //.
   }
   {
     so /pop_correct r_enc r_valid/ /r_out x_out r_out_valid pop_eq pop_observed/. revert /pop_eq/.
+    rewrite /-> drop_correct/ >>> [typecheck, reduce //].
     generalize /term_sem pop _# 3/ /_/ /tmp/. intro /pop_eq/.
     destruct /tmp/ /pop_m pop_s pop_r/. reduce //.
     so /push_correct x_write l_enc l_valid/ /l_out error_code l_out_valid push_eq push_observed/.

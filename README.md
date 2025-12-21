@@ -20,6 +20,7 @@ The file structure consists of two general helper libraries (one defining some b
   - `language.ist`: Defines types, contexts, context splitting, well-typed terms, and heap-free types.
   - `operational.ist`: Gives a big-step operational semantics for LFPL. The language for values (to which terms are evaluated) include a value of diamond type so that we can reason about the runtime of programs which use nonempty lists. This is necessary since LFPL does not have any closed terms of diamond type.
   - `denotational.ist`: Gives a denotational semantics from LFPL types and terms into Istari types and terms.
+  - `sugar.ist`: Syntactic sugar for let-bindings and weakening.
   - `equivalence.ist`: Proves that the operational semantics is deterministic, and (assuming the denotational semantics for values is reasonable) that it is equivalent to the denotational semantics.
 - `lfpl/soundness`: Proves that LFPL is polynomial-time sound - all functions encodable in LFPL are computable in polynomal-cost (per the big-step operational cost semantics defined in `lfpl/core`).
   - `size.ist`: Defines the size of an LFPL value, intuitively representing the number of diamonds that value contains, and proves the non-size-increasing theorem - all functions encodable in LFPL do not increase the size of their input. In other words, diamonds are never created, only passed around and possibly destroyed.

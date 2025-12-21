@@ -16,7 +16,6 @@ beginModule "PolynomialCostBound";
 defineInd //
 /
   term_bound : term G A -> exists (d : nat) . polynomial d of
-  | drop G A B M . term_bound M
   | var G A . p_zero
   | triv G . p_zero
   | inj1 G A B M . term_bound M
@@ -94,18 +93,6 @@ sinduction /fuel/.
 reintro /ih/.
 intro /G A M/.
 induction /M/.
-{
-  clear /ih/.
-  intro /G A B M M_ih S h_n h_fuel/.
-  destruct /S/ /{h | A' G' Vdrop S h}/ >> injection /h/ >> subst /A' G'/ >> clear /h/.
-  reduce /h_n h_fuel/.
-  rewrite /-> p_plus_correct in h_fuel/.
-  so /M_ih S __ __/ /V c M_evals c_bound/ >>> [omega, omega, clear /M_ih/].
-  existses [/V/, /c/].
-  reduce //.
-  rewrite /-> p_plus_correct/.
-  split >>> [apply /evals_drop/ >> exact /M_evals/, omega].
-}
 {
   clear /ih/.
   intro /G A S _ _/.

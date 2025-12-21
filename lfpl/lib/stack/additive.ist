@@ -281,8 +281,11 @@ clear /push1_correct push2_correct/.
       destruct /s2_items/ /| x s2_items/ >> reduce /pop2_correct/ >>
       destruct /pop2_correct/ /s2' r2 s2'_valid pop2_eq r2_eq s2'_items s2'_free/ >> reduce // >>
       existses [/(s1', s2')/, /r2/] >> subst /r2/ >> reduce // >>
-      rewrite /-> s1'_items at all, -> s2'_items at all, -> s1'_free at all, -> s2'_free at all/ >>
-      rewrite /-> pop2_eq/ >> reduce //
+      rewrite 
+      /
+        -> s1'_items at all, -> s2'_items at all, -> s1'_free at all, -> s2'_free at all,
+        -> drop_correct, -> pop2_eq
+      / >> reduce //
     ).
     {
       split >>>
