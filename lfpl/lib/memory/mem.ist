@@ -6,9 +6,6 @@ File.import "../../core/load-denotational.iml";
 File.import "../list/load.iml";
 File.import "../tuple/load.iml";
 
-File.loadWithoutDependencies "sugar.isto";
-openModule /NatSugar/;
-
 beginModule "Memory";
 
 

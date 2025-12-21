@@ -3,7 +3,7 @@ File.import "../../turing-machine/load.iml";
 File.import "../core/load-denotational.iml";
 File.import "../lib/heap-free/load.iml";
 File.import "../lib/list/load.iml";
-File.import "../lib/nat/load.iml";
+File.import "../lib/memory/load.iml";
 File.import "../lib/stack/load.iml";
 
 File.loadWithoutDependencies "iteration.isto";

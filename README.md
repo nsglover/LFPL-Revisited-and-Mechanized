@@ -38,11 +38,11 @@ The file structure consists of two general helper libraries (one defining some b
   - `sugar.ist`: Defines the tuple type.
   - `tools.ist`: Tuple rotation.
 - `lfpl/lib/list`: LFPL library for lists.
-  - `sugar.ist`: Derives a friendlier interface for lists (nil, cons, foldr, foldl, and list case) from the primitive fold and rec operations.
-  - `tools.ist`: Append and list suspension (separates the diamonds and values of a list, turns an $L(A)$ into an $L(1) \to L(A)$ and an L(1)).
-- `lfpl/lib/nat`: LFPL library for natural numbers (unit lists).
-  - `sugar.ist`: Derives zero, succ, and primitive recursion from nil, cons, and foldr.
-  - `memory.ist`: Tools for reasoning about tuples of natural numbers, which in LFPL can be viewed as structured chunks of free diamonds. This is primarily used in the stack library.
+  - `sugar.ist`: Derives basic syntactic sugar for lists: a left-oriented recursor (i.e. `foldl`) and case analysis (on whether the list is `nil` or `cons`).
+  - `nat.ist`: Defines the natural number type in LFPL as unit lists and gives some syntactic sugar for working with nats.
+  - `tools.ist`: Append and list suspension (separates the diamonds and values of a list, turns an $L(A)$ into a $\mathbb N \to L(A)$ and an $\mathbb N$).
+- `lfpl/lib/memory`: LFPL library for manipulating unit lists and tuples of unit lists, which intuitively represent diamonds with no important values attached.
+  - `mem.ist`: Tools for reasoning about tuples of natural numbers.
   - `division.ist`: Implements division (by a compile-time constant) for LFPL nats.
 - `lfpl/lib/stack`: LFPL library for $(k, s)$-bounded stacks, where $k : \mathbb{N}$ and $s : \mathbb{N} \to \mathbb{N}$. Whereas LFPL lists can only hold $n$ values given $n$ diamonds, these stacks hold up to $s(n)$ values given $0$ diamonds by suspending them under a lambda abstraction. To actually store and retrieve these values via the stack operations (push and pop), a pool of $nk$ diamonds is needed. These diamonds will only be temporarily borrowed, not consumed, by the stack operations. Notably, we can inductively construct $(k, n \mapsto cn^k)$-stacks, obtaining polynomial storage space with linear expenses.
   - `interface.ist`: Defines an interface for $(k, s)$-bounded stacks and for reasoning about their correctness.

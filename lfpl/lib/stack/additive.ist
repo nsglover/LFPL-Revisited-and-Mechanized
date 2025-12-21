@@ -2,7 +2,7 @@ openModule /Nat/;
 openModule /List/;
 
 File.import "../../core/load-denotational.iml";
-File.import "../nat/load.iml";
+File.import "../memory/load.iml";
 
 File.loadWithoutDependencies "interface.isto";
 

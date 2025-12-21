@@ -1,7 +1,9 @@
 File.import "../../core/load-denotational.iml";
 
 File.loadWithoutDependencies "sugar.isto";
+File.loadWithoutDependencies "nat.isto";
 File.loadWithoutDependencies "tools.isto";
 
 openModule /ListSugar/;
+openModule /NatSugar/;
 openModule /ListTools/;

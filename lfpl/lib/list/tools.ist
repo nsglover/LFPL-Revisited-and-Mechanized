@@ -5,6 +5,9 @@ File.import "../../core/load-denotational.iml";
 File.loadWithoutDependencies "sugar.isto";
 openModule /ListSugar/;
 
+File.loadWithoutDependencies "nat.isto";
+openModule /NatSugar/;
+
 beginModule "ListTools";
 
 
@@ -57,12 +60,12 @@ define /susp A/
             )
           )
         )
-        (lcons (right all_left) all_right var triv var)
+        (nsucc (right all_left) var var)
       )
     )
   )
 //
-  forall (A : tp) . term nil (arrow (dlist A) (tensor (arrow (dlist one) (dlist A)) (dlist one)))
+  forall (A : tp) . term nil (arrow (dlist A) (tensor (arrow dnat (dlist A)) dnat))
 /;
 withTypecheck (unfold /susp/). qed ();
 

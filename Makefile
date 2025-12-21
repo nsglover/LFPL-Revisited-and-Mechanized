@@ -9,8 +9,8 @@ UNITS = \
 	$(call prepend, lfpl/soundness, size bound theorems) \
 	$(call prepend, lfpl/lib/heap-free, contraction surjective) \
 	$(call prepend, lfpl/lib/tuple, sugar tools) \
-	$(call prepend, lfpl/lib/list, sugar tools) \
-	$(call prepend, lfpl/lib/nat, sugar memory division) \
+	$(call prepend, lfpl/lib/list, sugar nat tools) \
+	$(call prepend, lfpl/lib/memory, mem division) \
 	$(call prepend, lfpl/lib/stack, interface weakened additive base inductive polynomial) \
 	$(call prepend, lfpl/completeness, tape step iteration machine theorems) \
 

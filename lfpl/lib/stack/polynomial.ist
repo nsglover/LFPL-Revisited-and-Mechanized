@@ -4,7 +4,7 @@ openModule /List/;
 File.import "../../../math/load.iml";
 File.import "../../core/load-denotational.iml";
 File.import "../list/load.iml";
-File.import "../nat/load.iml";
+File.import "../memory/load.iml";
 
 File.loadWithoutDependencies "interface.isto";
 File.loadWithoutDependencies "base.isto";
