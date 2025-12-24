@@ -472,24 +472,18 @@ define /p_eval P/
 withTypecheck (unfold /p_eval/). qed ();
 
 
-define /p_zero/
+define /p_const c/
 /
-  (0, const 0)
+  (0, const c)
 //
-  (exists (d : nat) . polynomial d)
+  nat -> exists (d : nat) . polynomial d
 /;
-withTypecheck (unfold /p_zero/). qed ();
-setOpacity /p_zero/ Constant.SOFT;
-
-
-define /p_one/
+withTypecheck (unfold /p_const/). qed ();
+reductions
 /
-  (0, const 1)
-//
-  (exists (d : nat) . polynomial d)
+  p_eval (p_const c) n --> c ;
+  unfolding p_const p_eval
 /;
-withTypecheck (unfold /p_one/). qed ();
-setOpacity /p_one/ Constant.SOFT;
 
 
 define /p_plus P Q/

@@ -12,8 +12,8 @@ beginModule "Denotational";
 defineInd //
 /
   tp_sem : tp -> U 0 of
-  | one . unit
   | diam . unit
+  | one . unit
   | plus A B . tp_sem A % tp_sem B
   | tensor A B . tp_sem A & tp_sem B
   | arrow A B . tp_sem A -> tp_sem B

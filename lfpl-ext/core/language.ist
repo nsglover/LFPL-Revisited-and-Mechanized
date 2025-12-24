@@ -14,6 +14,7 @@ typedef
     tp : type =
     | diam : tp
     | one : tp
+    | times : tp -> tp -> tp
     | plus : tp -> tp -> tp
     | tensor : tp -> tp -> tp
     | arrow : tp -> tp -> tp
@@ -53,17 +54,6 @@ Database.setImplicits (parseConstant /right/) 4;
 
 defineInd //
 /
-  all_left : forall (G : list [tp]) . split G G nil of
-  | nil . none
-  | cons A G . left (all_left G)
-//
-  forall (G : ctx) . split G G nil
-/;
-Database.setImplicits (parseConstant /all_left/) 1;
-
-
-defineInd //
-/
   all_right : forall (G : list [tp]) . split G nil G of
   | nil . none
   | cons A G . right (all_right G)
@@ -71,18 +61,6 @@ defineInd //
   forall (G : ctx) . split G nil G
 /;
 Database.setImplicits (parseConstant /all_right/) 1;
-
-
-defineInd //
-/
-  swap : split G G1 G2 -> split G G2 G1 of
-  | none . none
-  | left G G1 G2 A T . right (swap T)
-  | right G G1 G2 A T . left (swap T)
-//
-  forall (G G1 G2 : ctx) . split G G1 G2 -> split G G2 G1
-/;
-Database.setImplicits (parseConstant /swap/) 3;
 
 
 
@@ -95,59 +73,74 @@ typedef
   of
     term : ctx -> tp -> type =
     | var :
-        forall (G : ctx) (A : tp) .
-        term (A :: G) A
+      forall (G : ctx) (A : tp) .
+      term (A :: G) A
     | triv :
-        forall (G : ctx) .
-        term G one
+      forall (G : ctx) .
+      term G one
+    | record :
+      forall (G : ctx) (A B : tp) .
+      term G A -> term G B ->
+      term G (times A B)
+    | proj1 :
+      forall (G : ctx) (A B : tp) .
+      term G (times A B) ->
+      term G A
+    | proj2 : 
+      forall (G : ctx) (A B : tp) .
+      term G (times A B) ->
+      term G B
     | inj1 :
-        forall (G : ctx) (A B : tp) .
-        term G A ->
-        term G (plus A B)
+      forall (G : ctx) (A B : tp) .
+      term G A ->
+      term G (plus A B)
     | inj2 : 
-        forall (G : ctx) (A B : tp) .
-        term G B ->
-        term G (plus A B)
+      forall (G : ctx) (A B : tp) .
+      term G B ->
+      term G (plus A B)
     | match :
-        forall (G GAB GC : ctx) (A B C : tp) .
-        split G GAB GC ->
-        term GAB (plus A B) -> term (A :: GC) C -> term (B :: GC) C ->
-        term G C
+      forall (G GAB GC : ctx) (A B C : tp) .
+      split G GAB GC ->
+      term GAB (plus A B) -> term (A :: GC) C -> term (B :: GC) C ->
+      term G C
     | pair :
-        forall (G GA GB : ctx) (A B : tp) .
-        split G GA GB ->
-        term GA A -> term GB B ->
-        term G (tensor A B)
+      forall (G GA GB : ctx) (A B : tp) .
+      split G GA GB ->
+      term GA A -> term GB B ->
+      term G (tensor A B)
     | letp :
-        forall (G GAB GC : ctx) (A B C : tp) .
-        split G GAB GC ->
-        term GAB (tensor A B) -> term (A :: B :: GC) C ->
-        term G C
+      forall (G GAB GC : ctx) (A B C : tp) .
+      split G GAB GC ->
+      term GAB (tensor A B) -> term (A :: B :: GC) C ->
+      term G C
     | lam :
-        forall (G : ctx) (A B : tp) .
-        term (A :: G) B ->
-        term G (arrow A B)
+      forall (G : ctx) (A B : tp) .
+      term (A :: G) B ->
+      term G (arrow A B)
     | app :
-        forall (G GAB GA : ctx) (A B : tp) .
-        split G GAB GA ->
-        term GAB (arrow A B) -> term GA A ->
-        term G B
+      forall (G GAB GA : ctx) (A B : tp) .
+      split G GAB GA ->
+      term GAB (arrow A B) -> term GA A ->
+      term G B
     | lnil :
-        forall (G : ctx) (A : tp) .
-        term G (dlist A)
+      forall (G : ctx) (A : tp) .
+      term G (dlist A)
     | lcons :
-        forall (G Gd Ght Gh Gt : ctx) (A : tp) .
-        split G Gd Ght -> split Ght Gh Gt ->
-        term Gd diam -> term Gh A -> term Gt (dlist A) ->
-        term G (dlist A)
+      forall (G Gd Ght Gh Gt : ctx) (A : tp) .
+      split G Gd Ght -> split Ght Gh Gt ->
+      term Gd diam -> term Gh A -> term Gt (dlist A) ->
+      term G (dlist A)
     | lrec :
-        forall (G Gl Gn : ctx) (A B : tp) .
-        split G Gl Gn ->
-        term Gl (dlist A) -> term Gn B -> term (diam :: A :: B :: nil) B ->
-        term G B
+      forall (G Gl Gn : ctx) (A B : tp) .
+      split G Gl Gn ->
+      term Gl (dlist A) -> term Gn B -> term (diam :: A :: B :: nil) B ->
+      term G B
 /;
 Database.setImplicits (parseConstant /var/) 2;
 Database.setImplicits (parseConstant /triv/) 1;
+Database.setImplicits (parseConstant /record/) 3;
+Database.setImplicits (parseConstant /proj1/) 3;
+Database.setImplicits (parseConstant /proj2/) 3;
 Database.setImplicits (parseConstant /inj1/) 3;
 Database.setImplicits (parseConstant /inj2/) 3;
 Database.setImplicits (parseConstant /match/) 6;

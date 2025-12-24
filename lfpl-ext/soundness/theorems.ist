@@ -60,15 +60,15 @@ qed ();
 
 lemma "heap_free_value_bound_eq_zero"
 /
-  forall (A : tp) (HA : heap_free A) (V : value A) (n : nat) . p_eval (value_bound V) n = 0 : nat
+  forall (CM : cost_model) (A : tp) (HA : heap_free A) (V : value A) (n : nat) .
+  p_eval (value_bound CM V) n = 0 : nat
 /;
-intro /A HA/.
+intro /CM A HA/.
 induction /HA/.
 {
   intro /V n/.
   rewrite /-> one_canonical_form V/.
   reduce //.
-  unfold /p_eval/.
   reflexivity.
 }
 {
@@ -90,15 +90,16 @@ qed ();
 
 lemma "heap_free_list_bound_eq_zero"
 /
-  forall (A : tp) (HA : heap_free A) (V : value (dlist A)) (n : nat) . p_eval (value_bound V) n = 0 : nat
+  forall (CM : cost_model) (A : tp) (HA : heap_free A) (V : value (dlist A)) (n : nat) .
+  p_eval (value_bound CM V) n = 0 : nat
 /;
-intro /A HA V n/.
+intro /CM A HA V n/.
 so /dlist_canonical_form A V/ /LV V_eq/.
 subst /V/.
-induction /LV/ >>> [unfold /p_eval/ >> reflexivity, idtac].
+induction /LV/ >>> [reflexivity, idtac].
 intro /V LV ih/.
 rewrite /-> p_plus_correct at all/.
-rewrite /-> heap_free_value_bound_eq_zero A HA V n/.
+rewrite /-> heap_free_value_bound_eq_zero CM A HA V n/.
 rewrite /-> ih/.
 reflexivity.
 qed ();
@@ -109,15 +110,15 @@ qed ();
 
 lemma "polynomial_time_soundness"
 /
-  forall (A B : tp) (HA : heap_free A) (M : term (dlist A :: nil) B) (L : list (value A)) .
+  forall (CM : cost_model) (A B : tp) (HA : heap_free A) (M : term (dlist A :: nil) B) (L : list (value A)) .
   exists (V : value B) (c : nat) .
-  evals M (env_cons (vlist L) env_nil) V c &
-  c <= p_eval (term_bound M) (length L)
+  evals CM M (env_cons (vlist L) env_nil) V c &
+  c <= p_eval (term_bound CM M) (length L)
 /;
-intro /A B HA M L/.
+intro /CM A B HA M L/.
 so
 /
-  evals_terminates_with_polynomial_cost _# 2 M (env_cons (vlist L) env_nil) (length L) __
+  evals_terminates_with_polynomial_cost CM _# 2 M (env_cons (vlist L) env_nil) (length L) __
 //
   V c h_evals c_bound
 /.
@@ -129,10 +130,12 @@ so
 existses [/V/, /c/].
 split >>> [exact /h_evals/, clear /h_evals/].
 reduce /c_bound/.
-rewrite /-> p_plus_correct in c_bound at all/.
-unfold /p_eval in c_bound at 3/.
+unfold /env_bound in c_bound/.
 reduce /c_bound/.
-rewrite /-> heap_free_list_bound_eq_zero A HA (vlist L) in c_bound/.
+fold /value_bound CM (vlist L) in c_bound/.
+rewrite /-> p_plus_correct in c_bound/.
+reduce /c_bound/.
+rewrite /-> heap_free_list_bound_eq_zero CM A HA (vlist L) in c_bound/.
 omega.
 qed ();
 

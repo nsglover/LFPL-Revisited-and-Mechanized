@@ -1,0 +1,424 @@
+openModule /Nat/;
+openModule /List/;
+
+File.loadWithoutDependencies "language.isto";
+openModule /Language/;
+
+beginModule "Operational";
+
+
+
+(* VALUE AND EVALUATION ENVIRONMENT *)
+
+typedef
+/
+  datatype
+    intersect (i : level) . U i
+  of
+    value : tp -> type =
+    | vdiam :
+      value diam
+    | vtriv :
+      value one
+    | vrecord :
+      forall (G : ctx) (A B : tp) .
+      env G -> term G A -> term G B ->
+      value (times A B)
+    | vinj1 :
+      forall (A B : tp) .
+      value A ->
+      value (plus A B)
+    | vinj2 :
+      forall (A B : tp) .
+      value B ->
+      value (plus A B)
+    | vpair :
+      forall (A B : tp) .
+      value A -> value B ->
+      value (tensor A B)
+    | vlam :
+      forall (G : ctx) (A B : tp) .
+      env G -> term (A :: G) B ->
+      value (arrow A B)
+    | vnil :
+      forall (A : tp) .
+      value (dlist A)
+    | vcons :
+      forall (A : tp) .
+      value A -> value (dlist A) ->
+      value (dlist A)
+  and
+    env : ctx -> type =
+    | env_nil :
+      env nil
+    | env_cons :
+      forall (A : tp) (G : ctx) .
+      value A -> env G ->
+      env (A :: G)
+/;
+Database.setImplicits (parseConstant /vrecord/) 3;
+Database.setImplicits (parseConstant /vinj1/) 2;
+Database.setImplicits (parseConstant /vinj2/) 2;
+Database.setImplicits (parseConstant /vpair/) 2;
+Database.setImplicits (parseConstant /vlam/) 3;
+Database.setImplicits (parseConstant /vnil/) 1;
+Database.setImplicits (parseConstant /vcons/) 1;
+Database.setImplicits (parseConstant /env_cons/) 2;
+
+
+define /env_pop {A G} S/
+/
+  (
+    fnind case_fn : env G -> value A of
+    | env_nil . Misc.bogus
+    | env_cons A G V S . (V, S)
+  ) (A :: G) S
+//
+  forall (A : tp) (G : ctx) . env (A :: G) -> value A & env G
+/;
+introOf /A G S/.
+destruct /S/ /{h | A' G' V S h}/ >> injection /h/ >> clear /h/.
+unfold /env_pop/.
+typecheck.
+qed ();
+reductions
+/
+  env_pop _ _ (env_cons _ _ V S) --> (V, S) ;
+  unfolding env_pop
+/;
+
+
+defineInd //
+/
+  env_split : split G G1 G2 -> env G -> env G1 & env G2 of
+  | none . fn S .
+    (env_nil, env_nil)
+  | left G G1 G2 A T . fn S .
+    let (v, S) = env_pop S in
+    (env_cons v (env_split T S #1), env_split T S #2)
+  | right G G1 G2 A T . fn S .
+    let (v, S) = env_pop S in
+    (env_split T S #1, env_cons v (env_split T S #2))
+//
+  forall (G G1 G2 : ctx) . split G G1 G2 -> env G -> env G1 & env G2
+/;
+Database.setImplicits (parseConstant /env_split/) 3;
+
+
+lemma "env_split_all_right"
+/
+  forall (G : ctx) (S : env G) . env_split all_right S = (env_nil, S) : (env nil & env G)
+/;
+intro /G/.
+induction /G/.
+{
+  intro /S/.
+  destructThin /S/ /{}/.
+  reflexivity.
+}
+{
+  intro /A G ih S/.
+  destruct /S/ /{h | A' G' V S h}/ >> injection /h/ >> subst /A' G'/ >> clear /h/.
+  reduce //.
+  rewrite /-> ih at all/.
+  reflexivity.
+}
+qed ();
+
+
+
+(* CANONICAL FORM LEMMAS *)
+
+lemma "diam_canonical_form"
+/
+  forall (V : value diam) . V = vdiam : value diam
+/;
+intro /V/.
+destructThin /V/ /{}/.
+reflexivity.
+qed ();
+
+
+lemma "one_canonical_form"
+/
+  forall (V : value one) . V = vtriv : value one
+/;
+intro /V/.
+destructThin /V/ /{}/.
+reflexivity.
+qed ();
+
+
+lemma "times_canonical_form"
+/
+  forall (A B : tp) (V : value (times A B)) .
+  exists (G : ctx) (S : env G) (M1 : term G A) (M2 : term G B) .
+  V = vrecord S M1 M2 : value (times A B)
+/;
+intro /A B V/.
+destruct /V/ /{h | h | G C D S M1 M2 h | C D V h | C D V h | C D VA VB h | G C D S M h | C h | C VC VL h }/
+>> injection /h/ >> subst /C D/ >> clear /h/.
+existses [/G/, /S/, /M1/, /M2/].
+reflexivity.
+qed ();
+
+
+lemma "plus_canonical_form"
+/
+  forall (A B : tp) (V : value (plus A B)) .
+  (exists (VA : value A) . V = vinj1 VA : value (plus A B)) %
+  (exists (VB : value B) . V = vinj2 VB : value (plus A B))
+/;
+intro /A B V/.
+(
+  destruct /V/ /{h | h | G C D S M N h | C D V h | C D V h | C D VA VB h | G C D S M h | C h | C V W h }/
+  >> injection /h/ >> subst /C D/ >> clear /h/
+) >>> [left, right] >> exists /V/ >> reflexivity.
+qed ();
+
+
+lemma "tensor_canonical_form"
+/
+  forall (A B : tp) (V : value (tensor A B)) .
+  exists (VA : value A) (VB : value B) . V = vpair VA VB : value (tensor A B)
+/;
+intro /A B V/.
+destruct /V/ /{h | h | G C D S M1 M2 h | C D V h | C D V h | C D VA VB h | G C D S M h | C h | C VC VL h }/
+>> injection /h/ >> subst /C D/ >> clear /h/.
+existses [/VA/, /VB/].
+reflexivity.
+qed ();
+
+
+lemma "arrow_canonical_form"
+/
+  forall (A B : tp) (V : value (arrow A B)) .
+  exists (G : ctx) (S : env G) (M : term (A :: G) B) . V = vlam S M : value (arrow A B)
+/;
+intro /A B V/.
+destruct /V/ /{h | h | G C D S M1 M2 h | C D V h | C D V h | C D VA VB h | G C D S M h | C h | C VC VL h }/
+>> injection /h/ >> subst /C D/ >> clear /h/.
+existses [/G/, /S/, /M/].
+reflexivity.
+qed ();
+
+
+lemma "dlist_canonical_form_raw"
+/
+  forall (A : tp) (V : value (dlist A)) .
+  (V = vnil : value (dlist A)) %
+  (exists (VA : value A) (VL : value (dlist A)) . V = vcons VA VL : value (dlist A))
+/;
+intro /A V/.
+(
+  destruct /V/ /{h | h | G C D S M N h | C D V h | C D V h | C D V W h | G C D S M h | C h | C VA VL h }/
+  >> injection /h/ >> subst /C/ >> clear /h/
+) >>> [left >> reflexivity, right >> existses [/VA/, /VL/] >> reflexivity].
+qed ();
+
+
+defineInd /A/
+/
+  vlist : list [(value A)] -> value (dlist A) of
+  | nil . vnil
+  | cons V l . vcons V (vlist l)
+//
+  forall (A : tp) . list (value A) -> value (dlist A)
+/;
+Database.setImplicits (parseConstant /vlist/) 1;
+
+
+lemma "dlist_canonical_form"
+/
+  forall (A : tp) (V : value (dlist A)) . exists (l : list (value A)) . V = vlist l : value (dlist A)
+/;
+intro /A/.
+rememberAt /dlist A/ /tp/ /0/ /B/ /B_eq/.
+intro /V/.
+revert /B_eq/.
+sinduction /V/.
+reintro /ih/.
+intro /B_eq/.
+destruct /V/ /{h | h | G C D S M1 M2 h | C D V h | C D V h | C D VA VB h | G C D S M h | C h | C VA VL h }/
+>> rewrite /-> B_eq in h/ >> injection /h/ >> clear /h/ >> subst /C/ >> auto.
+{
+  exists /nil/.
+  reflexivity.
+}
+{
+  so /ih (dlist A) VL (vcons_subterm _# 2 VA VL ## 1) __/ /l VL_eq/ >>> [auto, idtac, auto].
+  exists /VA :: l/.
+  reduce //.
+  auto.
+}
+qed ();
+
+
+
+(* COST MODEL *)
+
+define /cost_model/
+/
+  exists
+    (Cvar : nat)
+    (Ctriv : nat)
+    (Crecord : nat)
+    (Cproj1 : nat)
+    (Cproj2 : nat)
+    (Cinj1 : nat)
+    (Cinj2 : nat)
+    (Cmatch : nat)
+    (Cpair : nat)
+    (Cletp : nat)
+    (Clam : nat)
+    (Capp : nat)
+    (Clnil : nat)
+    (Clcons : nat)
+    (Clrec : nat)
+  . unit
+//
+  intersect (i : level) . U i
+/;
+withTypecheck (unfold /cost_model/). qed ();
+
+
+define /Cvar C/ /C ## 0/ /cost_model -> nat/; withTypecheck (unfold /Cvar/). qed ();
+define /Ctriv C/ /C ## 1/ /cost_model -> nat/; withTypecheck (unfold /Ctriv/). qed ();
+define /Crecord C/ /C ## 2/ /cost_model -> nat/; withTypecheck (unfold /Crecord/). qed ();
+define /Cproj1 C/ /C ## 3/ /cost_model -> nat/; withTypecheck (unfold /Cproj1/). qed ();
+define /Cproj2 C/ /C ## 4/ /cost_model -> nat/; withTypecheck (unfold /Cproj2/). qed ();
+define /Cinj1 C/ /C ## 5/ /cost_model -> nat/; withTypecheck (unfold /Cinj1/). qed ();
+define /Cinj2 C/ /C ## 6/ /cost_model -> nat/; withTypecheck (unfold /Cinj2/). qed ();
+define /Cmatch C/ /C ## 7/ /cost_model -> nat/; withTypecheck (unfold /Cmatch/). qed ();
+define /Cpair C/ /C ## 8/ /cost_model -> nat/; withTypecheck (unfold /Cpair/). qed ();
+define /Cletp C/ /C ## 9/ /cost_model -> nat/; withTypecheck (unfold /Cletp/). qed ();
+define /Clam C/ /C ## 10/ /cost_model -> nat/; withTypecheck (unfold /Clam/). qed ();
+define /Capp C/ /C ## 11/ /cost_model -> nat/; withTypecheck (unfold /Capp/). qed ();
+define /Clnil C/ /C ## 12/ /cost_model -> nat/; withTypecheck (unfold /Clnil/). qed ();
+define /Clcons C/ /C ## 13/ /cost_model -> nat/; withTypecheck (unfold /Clcons/). qed ();
+define /Clrec C/ /C ## 14/ /cost_model -> nat/; withTypecheck (unfold /Clrec/). qed ();
+
+
+
+(* COST-AWARE EVALUATION DYNAMICS *)
+
+typedef
+/
+  datatype
+    intersect (i : level) .
+    forall (CM : cost_model) .
+    U i
+  of
+    evals_raw : forall (G : ctx) (A : tp) . term G A -> env G -> value A -> nat -> type =
+    | evals_var :
+      forall (G : ctx) (A : tp) (S : env G) (V : value A) .
+      evals_raw (A :: G) A var (env_cons V S) V (Cvar CM)
+    | evals_triv :
+      forall (G : ctx) (S : env G) .
+      evals_raw G one triv S vtriv (Ctriv CM)
+    | evals_record :
+      forall (G : ctx) (A B : tp) (M1 : term G A) (M2 : term G B) (S : env G) .
+      evals_raw G (times A B) (record M1 M2) S (vrecord S M1 M2) (Crecord CM)
+    | evals_proj1 :
+      forall (G : ctx) (A B : tp) (M : term G (times A B)) (S : env G)
+      (G' : ctx) (S' : env G') (M1 : term G' A) (M2 : term G' B) (cM : nat) (vM' : value A) (cM' : nat) .
+      evals_raw G (times A B) M S (vrecord S' M1 M2) cM ->
+      evals_raw G' A M1 S' vM' cM' ->
+      evals_raw G A (proj1 M) S vM' (Cproj1 CM + cM + cM')
+    | evals_proj2 :
+      forall (G : ctx) (A B : tp) (M : term G (times A B)) (S : env G)
+      (G' : ctx) (S' : env G') (M1 : term G' A) (M2 : term G' B) (cM : nat) (vM' : value B) (cM' : nat) .
+      evals_raw G (times A B) M S (vrecord S' M1 M2) cM ->
+      evals_raw G' B M2 S' vM' cM' ->
+      evals_raw G B (proj2 M) S vM' (Cproj2 CM + cM + cM')
+    | evals_inj1 :
+      forall (G : ctx) (A B : tp) (M : term G A) (S : env G) (VM : value A) (cM : nat) .
+      evals_raw G A M S VM cM ->
+      evals_raw G (plus A B) (inj1 M) S (vinj1 VM) (Cinj1 CM + cM)
+    | evals_inj2 :
+      forall (G : ctx) (A B : tp) (M : term G B) (S : env G) (VM : value B) (cM : nat) .
+      evals_raw G B M S VM cM ->
+      evals_raw G (plus A B) (inj2 M) S (vinj2 VM) (Cinj2 CM + cM)
+    | evals_match1 :
+      forall (G GAB GC : ctx) (A B C : tp) (T : split G GAB GC)
+      (M : term GAB (plus A B)) (N1 : term (A :: GC) C) (N2 : term (B :: GC) C)
+      (S : env G) (VM : value A) (cM : nat) (VN : value C) (cN : nat) .
+      evals_raw GAB (plus A B) M (env_split T S #1) (vinj1 VM) cM ->
+      evals_raw (A :: GC) C N1 (env_cons VM (env_split T S #2)) VN cN ->
+      evals_raw G C (match T M N1 N2) S VN (Cmatch CM + cM + cN)
+    | evals_match2 :
+      forall (G GAB GC : ctx) (A B C : tp) (T : split G GAB GC)
+      (M : term GAB (plus A B)) (N1 : term (A :: GC) C) (N2 : term (B :: GC) C)
+      (S : env G) (VM : value B) (cM : nat) (VN : value C) (cN : nat) .
+      evals_raw GAB (plus A B) M (env_split T S #1) (vinj2 VM) cM ->
+      evals_raw (B :: GC) C N2 (env_cons VM (env_split T S #2)) VN cN ->
+      evals_raw G C (match T M N1 N2) S VN (Cmatch CM + cM + cN)
+    | evals_pair :
+      forall (G GA GB : ctx) (A B : tp) (T : split G GA GB)
+      (M1 : term GA A) (M2 : term GB B)
+      (S : env G) (V1 : value A) (c1 : nat) (V2 : value B) (c2 : nat) .
+      evals_raw GA A M1 (env_split T S #1) V1 c1 -> evals_raw GB B M2 (env_split T S #2) V2 c2 ->
+      evals_raw G (tensor A B) (pair T M1 M2) S (vpair V1 V2) (Cpair CM + c1 + c2)
+    | evals_letp :
+      forall (G GAB GC : ctx) (A B C : tp) (T : split G GAB GC)
+      (M : term GAB (tensor A B)) (N : term (A :: B :: GC) C)
+      (S : env G) (VM1 : value A) (VM2 : value B) (cM : nat) (VN : value C) (cN : nat) .
+      evals_raw GAB (tensor A B) M (env_split T S #1) (vpair VM1 VM2) cM ->
+      evals_raw (A :: B :: GC) C N (env_cons VM1 (env_cons VM2 (env_split T S #2))) VN cN ->
+      evals_raw G C (letp T M N) S VN (Cletp CM + cM + cN)
+    | evals_lam :
+      forall (G : ctx) (A B : tp) (M : term (A :: G) B) (S : env G) .
+      evals_raw G (arrow A B) (lam M) S (vlam S M) (Clam CM)
+    | evals_app :
+      forall (G GAB GA : ctx) (A B : tp) (T : split G GAB GA)
+      (M : term GAB (arrow A B)) (N : term GA A)
+      (S : env G) (G' : ctx) (S' : env G') (M' : term (A :: G') B) (cM : nat) (VN : value A) (cN : nat)
+      (VM' : value B) (cM' : nat) .
+      evals_raw GAB (arrow A B) M (env_split T S #1) (vlam S' M') cM ->
+      evals_raw GA A N (env_split T S #2) VN cN ->
+      evals_raw (A :: G') B M' (env_cons VN S') VM' cM' ->
+      evals_raw G B (app T M N) S VM' (Capp CM + cM + cN + cM')
+    | evals_lnil :
+      forall (G : ctx) (A : tp) (S : env G) .
+      evals_raw G (dlist A) lnil S vnil (Clnil CM)
+    | evals_lcons :
+      forall (G Gd Ght Gh Gt : ctx) (A : tp) (T1 : split G Gd Ght) (T2 : split Ght Gh Gt)
+      (Md : term Gd diam) (Mh : term Gh A) (Mt : term Gt (dlist A))
+      (S : env G) (cd : nat) (Vh : value A) (ch : nat) (Vt : value (dlist A)) (ct : nat) .
+      evals_raw Gd diam Md (env_split T1 S #1) vdiam cd ->
+      evals_raw Gh A Mh (env_split T2 (env_split T1 S #2) #1) Vh ch ->
+      evals_raw Gt (dlist A) Mt (env_split T2 (env_split T1 S #2) #2) Vt ct ->
+      evals_raw G (dlist A) (lcons T1 T2 Md Mh Mt) S (vcons Vh Vt) (Clcons CM + cd + ch + ct)
+    | evals_lrec_nil :
+      forall (G Gl Gn : ctx) (A B : tp) (T : split G Gl Gn) (M : term Gl (dlist A))
+      (N1 : term Gn B) (N2 : term (diam :: A :: B :: nil) B)
+      (S : env G) (cM : nat) (VN : value B) (cN : nat) .
+      evals_raw Gl (dlist A) M (env_split T S #1) vnil cM ->
+      evals_raw Gn B N1 (env_split T S #2) VN cN ->
+      evals_raw G B (lrec T M N1 N2) S VN (Clrec CM + cM + cN)
+    | evals_lrec_cons :
+      forall (G Gl Gn : ctx) (A B : tp) (T : split G Gl Gn) (M : term Gl (dlist A))
+      (N1 : term Gn B) (N2 : term (diam :: A :: B :: nil) B)
+      (S : env G) (Vh : value A) (Vt : value (dlist A)) (cM : nat)
+      (Vrec : value B) (cRec : nat) (VN : value B) (cN : nat) .
+      evals_raw Gl (dlist A) M (env_split T S #1) (vcons Vh Vt) cM ->
+      evals_raw (dlist A :: Gn) B (lrec (left all_right) var N1 N2) (env_cons Vt (env_split T S #2)) Vrec cRec ->
+      evals_raw (diam :: A :: B :: nil) B N2 (env_cons vdiam (env_cons Vh (env_cons Vrec env_nil))) VN cN ->
+      evals_raw G B (lrec T M N1 N2) S VN (Clrec CM + cM + cRec + cN)
+/;
+
+
+define /evals {G A} CM M/
+/
+  evals_raw CM G A M
+//
+  intersect (i : level) .
+  forall (G : ctx) (A : tp) .
+  cost_model -> term G A -> env G -> value A -> nat -> U i
+/;
+withTypecheck (unfold /evals/). qed ();
+setOpacity (parseConstant /evals/) Constant.SOFT;
+
+
+
+endModule ();

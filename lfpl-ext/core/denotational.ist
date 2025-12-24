@@ -1,0 +1,191 @@
+openModule /List/;
+
+File.loadWithoutDependencies "language.isto";
+openModule /Language/;
+
+beginModule "Denotational";
+
+
+
+(* TYPE SEMANTICS *)
+
+defineInd //
+/
+  tp_sem : tp -> U 0 of
+  | diam . unit
+  | one . unit
+  | times A B . tp_sem A & tp_sem B
+  | plus A B . tp_sem A % tp_sem B
+  | tensor A B . tp_sem A & tp_sem B
+  | arrow A B . tp_sem A -> tp_sem B
+  | dlist A . list (tp_sem A)
+//
+  tp -> U 0
+/;
+
+
+
+(* EVALUATION ENVIRONMENT *)
+
+define /env G/
+/
+  `Forall tp tp_sem G
+//
+  ctx -> U 0
+/;
+withTypecheck (unfold /env/). qed ();
+
+
+define /env_nil/
+/
+  `Forall_nil tp tp_sem
+//
+  env nil
+/;
+withTypecheck (unfold /env, env_nil/). qed ();
+
+
+define /env_cons {A G} v S/
+/
+  `Forall_cons tp tp_sem A G v S
+//
+  forall (A : tp) (G : ctx) . tp_sem A -> env G -> env (A :: G)
+/;
+withTypecheck (unfold /env at all, env_cons/). qed ();
+
+
+define /env_pop {A G} S/
+/
+  (
+    fnind env_fn : Forall [tp tp_sem] G -> tp_sem A & `Forall tp tp_sem (A :: G) of
+    | Forall_nil . Misc.bogus
+    | Forall_cons _ _ v S . (v, S)
+  ) (A :: G) S
+//
+  forall (A : tp) (G : ctx) . env (A :: G) -> tp_sem A & env G
+/;
+unfold /env_pop/.
+introOf /A G S/.
+destruct /S/ /{h_nil | A' G' v S h_cons}/ >>> [injection /h_nil/, idtac].
+injection /h_cons/ >> reintro /h_A h_G/ >> clear /h_cons/ >> reduce //.
+unfold /env/.
+typecheck.
+qed ();
+reductions
+/
+  env_pop _ _ (env_cons _ _ v S) --> (v, S) ;
+  unfolding env_cons env_pop
+/;
+
+
+lemma "env_nil_form"
+/
+  forall (S : env nil) . S = env_nil : env nil
+/;
+intro /S/.
+destructThin /S/ /{}/.
+unfold /env, env_nil/.
+reflexivity.
+qed ();
+
+
+lemma "env_cons_form"
+/
+  forall (A : tp) (G : ctx) (S' : env (A :: G)) . exists (v : tp_sem A) (S : env G) . S' = env_cons v S : env (A :: G)
+/;
+intro /A G S'/.
+destructThin /S'/ /{v S}/ >> attempt (unfold /env/ >> auto).
+existses [/v/, /S/] >> attempt (unfold /env/ >> auto).
+unfold /env_cons/.
+reflexivity.
+qed ();
+
+
+defineInd //
+/
+  env_split : split G G1 G2 -> env G -> env G1 & env G2 of
+  | none . fn S .
+    (env_nil, env_nil)
+  | left G G1 G2 A T . fn S .
+    let (v, S) = env_pop S in
+    (env_cons v (env_split T S #1), env_split T S #2)
+  | right G G1 G2 A T . fn S .
+    let (v, S) = env_pop S in
+    (env_split T S #1, env_cons v (env_split T S #2))
+//
+  forall (G G1 G2 : ctx) . split G G1 G2 -> env G -> env G1 & env G2
+/;
+Database.setImplicits (parseConstant /env_split/) 3;
+
+
+lemma "env_split_all_right"
+/
+  forall (G : ctx) (S : env G) . env_split all_right S = (env_nil, S) : (env nil & env G)
+/;
+intro /G/.
+induction /G/.
+{
+  intro /S/.
+  so /env_nil_form S/ /h_S/.
+  subst /S/.
+  reflexivity.
+}
+{
+  intro /A G ih S'/.
+  so /env_cons_form _# 2 S'/ /v S h_S/.
+  subst /S'/.
+  reduce //.
+  rewrite /-> ih at all/.
+  reflexivity.
+}
+qed ();
+
+
+
+(* TERM SEMANTICS *)
+
+defineInd //
+/
+  term_sem : term G A -> env G -> tp_sem A of
+  | var G A . fn S .
+    env_pop S #1
+  | triv G . fn S .
+    ()
+  | record G A B M1 M2 . fn S .
+    (term_sem M1 S, term_sem M2 S)
+  | proj1 G A B M . fn S .
+    term_sem M S #1
+  | proj2 G A B M . fn S .
+    term_sem M S #2
+  | inj1 G A B M . fn S .
+    inl (term_sem M S)
+  | inj2 G A B M . fn S .
+    inr (term_sem M S)
+  | match G GAB GC A B C T M N1 N2 . fn S .
+    case term_sem M (env_split T S #1) of
+    | inl v1 . term_sem N1 (env_cons v1 (env_split T S #2))
+    | inr v2 . term_sem N2 (env_cons v2 (env_split T S #2))
+  | pair G GA GB A B T M1 M2 . fn S .
+    (term_sem M1 (env_split T S #1), term_sem M2 (env_split T S #2))
+  | letp G GAB GC A B C T M N . fn S .
+    let (v1, v2) = term_sem M (env_split T S #1) in
+    term_sem N (env_cons v1 (env_cons v2 (env_split T S #2)))
+  | lam G A B M . fn S .
+    fn v . term_sem M (env_cons v S)
+  | app G GAB GA A B T M N . fn S .
+    (term_sem M (env_split T S #1)) (term_sem N (env_split T S #2))
+  | lnil G A . fn S .
+    nil
+  | lcons G Gd Ght Gh Gt A T1 T2 Md Mh Mt . fn S .
+    term_sem Mh (env_split T2 (env_split T1 S #2) #1) :: term_sem Mt (env_split T2 (env_split T1 S #2) #2)
+  | lrec G Gl Gn A B T M N1 N2 . fn S .
+    foldr (term_sem N1 (env_split T S #2)) 
+    (fn v acc . term_sem N2 (env_cons () (env_cons v (env_cons acc env_nil)))) (term_sem M (env_split T S #1))
+//
+  forall (G : ctx) (A : tp) . term G A -> env G -> tp_sem A
+/;
+Database.setImplicits (parseConstant /term_sem/) 2;
+
+
+
+endModule ();

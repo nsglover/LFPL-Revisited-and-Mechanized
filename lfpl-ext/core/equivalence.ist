@@ -18,12 +18,13 @@ beginModule "SemanticsEquivalence";
 defineInd //
 /
   value_sem : value A -> tp_sem A of
-  | vtriv . ()
   | vdiam . ()
+  | vtriv . ()
+  | vrecord G A B S M1 M2 . (term_sem M1 (env_sem S), term_sem M2 (env_sem S))
   | vinj1 A B V . inl (value_sem V)
   | vinj2 A B V . inr (value_sem V)
   | vpair A B VA VB . (value_sem VA, value_sem VB)
-  | vlam G A B S M . fn v . term_sem M (Denotational.env_cons v (env_sem S))
+  | vlam G A B S M . (fn v . term_sem M (Denotational.env_cons v (env_sem S)))
   | vnil A . nil
   | vcons A VA VL . value_sem VA :: value_sem VL
   and
@@ -44,37 +45,69 @@ Database.setImplicits (parseConstant /env_sem/) 1;
 
 lemma "evals_deterministic"
 /
-  forall (G : ctx) (A : tp) (M : term G A) (S : Operational.env G) (V V' : value A) (c c' : nat) .
-  evals M S V c -> evals M S V' c' -> V = V' : value A & c = c' : nat
+  forall (CM : cost_model) (G : ctx) (A : tp) (M : term G A) (S : Operational.env G) (V V' : value A) (c c' : nat) .
+  evals CM M S V c -> evals CM M S V' c' -> V = V' : value A & c = c' : nat
 /;
-intro /G A M S V V' c c' M_evals/.
+intro /CM G A M S V V' c c' M_evals/.
 revert /V' c'/.
 induction /M_evals/.
 {
-  intro /G A S V' c' evals'/.
-  destructThin /S/ /{Vdrop S}/.
+  intro /G A S V V' c' evals'/.
   destructThin /evals'/ /{h_V' h_c'}/.
   reduce //.
   auto.
 }
 {
-  intro /G S V' c' M'_evals/.
-  destructThin /M'_evals/ /{h_V' h_c'}/.
+  intro /G S V' c' evals'/.
+  destructThin /evals'/ /{h_V' h_c'}/.
   auto.
 }
 {
-  intro /G A B M S V c M_evals ih VM' c' evals'/.
-  destructThin /evals'/ /{V' M_evals' h_V'}/.
-  subst /VM'/.
-  so /ih V' c' M_evals'/ /goal/.
+  intro /G A B M1 M2 S V' c' evals'/.
+  destructThin /evals'/ /{h_V' h_c'}/.
   auto.
 }
 {
+  intro /G A B M S Gproj Sproj M1 M2 cM vMproj cMproj M_evals M_ih Mproj_evals Mproj_ih V' c' evals'/.
+  destructThin /evals'/ /{Gproj' Sproj' M1' M2' cM' cproj' M_evals' Mproj_evals' h_c'}/.
+  subst /c'/.
+  so /M_ih _# 2 M_evals'/ /h_VM' h_cM'/.
+  subst /cM'/.
+  injection /h_VM'/. clear /h_VM'/.
+  reintro /h_Gproj _ _ h_Sproj h_Mproj' h_M2'/.
+  subst /Gproj' Sproj' M1' M2'/.
+  so /Mproj_ih _# 2 Mproj_evals'/ /h_V' h_cproj'/.
+  subst /V' cproj'/.
+  split >> reflexivity.
+}
+{
+  intro /G A B M S Gproj Sproj M1 M2 cM vMproj cMproj M_evals M_ih Mproj_evals Mproj_ih V' c' evals'/.
+  destructThin /evals'/ /{Gproj' Sproj' M1' M2' cM' cproj' M_evals' Mproj_evals' h_c'}/.
+  subst /c'/.
+  so /M_ih _# 2 M_evals'/ /h_VM' h_cM'/.
+  subst /cM'/.
+  injection /h_VM'/. clear /h_VM'/.
+  reintro /h_Gproj _ _ h_Sproj h_Mproj' h_M2'/.
+  subst /Gproj' Sproj' M1' M2'/.
+  so /Mproj_ih _# 2 Mproj_evals'/ /h_V' h_cproj'/.
+  subst /V' cproj'/.
+  split >> reflexivity.
+}
+{
   intro /G A B M S V c M_evals ih VM' c' evals'/.
-  destructThin /evals'/ /{V' M_evals' h_V'}/.
+  destructThin /evals'/ /{V' cM' M_evals' h_V' h_cM'}/.
   subst /VM'/.
-  so /ih V' c' M_evals'/ /goal/.
-  auto.
+  so /ih _# 2 M_evals'/ /h_V' h_c'/.
+  subst /c' cM' V'/.
+  split >> reflexivity.
+}
+{
+  intro /G A B M S V c M_evals ih VM' c' evals'/.
+  destructThin /evals'/ /{V' cM' M_evals' h_V' h_cM'}/.
+  subst /VM'/.
+  so /ih _# 2 M_evals'/ /h_V' h_c'/.
+  subst /c' cM' V'/.
+  split >> reflexivity.
 }
 {
   intro /G GAB GC A B C T M N1 N2 S VM cM VN cN M_evals M_ih N_evals N_ih VN' c' evals'/.
@@ -146,8 +179,9 @@ induction /M_evals/.
   subst /cM' Gapp' Sapp' Mapp'/.
   so /N_ih _# 2 N_evals'/ /h_VN' h_cN'/.
   subst /VN' cN'/.
-  so /app_ih _# 2 app_evals'/ /goal/.
-  auto.
+  so /app_ih _# 2 app_evals'/ /h_V' h_c'/.
+  subst /V' cMapp'/.
+  split >> reflexivity.
 }
 {
   intro /G A S V' c' evals'/.
@@ -207,34 +241,45 @@ lemma "split_equiv"
   env_sem (Operational.env_split T S #2) = Denotational.env_split T (env_sem S) #2 : (Denotational.env G2)
 /;
 intro /G G1 G2 T/.
-induction /T/ >>> [auto, idtac, idtac] >>
-(
-  intro /G G1 G2 A T ih S/ >>
-  destruct /S/ /{h | A' G' V S h}/ >> injection /h/ >>
-  unfold /Tuple.letpair at all/ >>
-  subst /A' G'/ >> clear /h/ >>
-  so /ih S/ /ih1 ih2/ >>
-  reduce // >> split >> auto
-).
+(induction /T/ >>> [auto, idtac, idtac]) >> intro /G G1 G2 A T ih S/ >>
+destruct /S/ /{h | A' G' V S h}/ >> injection /h/ >>
+unfold /Tuple.letpair at all/ >>
+subst /A' G'/ >> clear /h/ >>
+so /ih S/ /ih1 ih2/ >>
+reduce // >> split >> auto.
 qed ();
 
 
 lemma "operational_equiv_denotational"
 /
-  forall (G : ctx) (A : tp) (M : term G A) (S : Operational.env G) (V : value A) (c : nat) . evals M S V c ->
-  value_sem V = term_sem M (env_sem S) : tp_sem A
+  forall (CM : cost_model) (G : ctx) (A : tp) (M : term G A) (S : Operational.env G) (V : value A) (c : nat) .
+  evals CM M S V c -> value_sem V = term_sem M (env_sem S) : tp_sem A
 /;
-intro /G A M S V c M_evals/.
+intro /CM G A M S V c M_evals/.
 induction /M_evals/.
 {
-  intro /G A S/.
-  destruct /S/ /{h | A' G' Vdrop S h}/ >> injection /h/ >> subst /A' G'/ >> clear /h/.
-  reduce //.
+  intro /G A S V/.
   reflexivity.
 }
 {
   intro /G S/.
   reflexivity.
+}
+{
+  intro /G A B M1 M2 S/.
+  reflexivity.
+}
+{
+  intro /G A B M S G' S' M1 M2 cM vM' cM' M_evals M_ih M'_evals M'_ih/.
+  rewrite /<- M_ih/.
+  reduce //.
+  exact /M'_ih/.
+}
+{
+  intro /G A B M S G' S' M1 M2 cM vM' cM' M_evals M_ih M'_evals M'_ih/.
+  rewrite /<- M_ih/.
+  reduce //.
+  exact /M'_ih/.
 }
 {
   intro /G A B M S VM cM M_evals ih/.

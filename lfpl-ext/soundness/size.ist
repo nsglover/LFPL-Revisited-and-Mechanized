@@ -14,6 +14,7 @@ defineInd //
   size : value A -> nat of
   | vdiam . 1
   | vtriv . 0
+  | vrecord G A B S M1 M2 . env_size S
   | vinj1 A B V . size V
   | vinj2 A B V . size V
   | vpair A B VA VB . size VA + size VB
@@ -39,7 +40,7 @@ lemma "split_size"
   env_size S = env_size (env_split T S #1) + env_size (env_split T S #2) : nat
 /;
 intro /G G1 G2 T/.
-induction /T/ >>> [intro /S/ >> destructThin /S/ /{}/ >> reflexivity, idtac, idtac] >>
+(induction /T/ >>> [intro /S/ >> destructThin /S/ /{}/ >> reflexivity, idtac, idtac]) >>
 (
   intro /G G1 G2 A T ih S/ >>
   destruct /S/ /{h | A' G' V S h}/ >> injection /h/ >>
@@ -54,18 +55,29 @@ qed ();
 
 lemma "non_size_increasing"
 /
-  forall (G : ctx) (A : tp) (M : term G A) (S : env G) (V : value A) (c : nat) .
-  evals M S V c -> size V <= env_size S
+  forall (CM : cost_model) (G : ctx) (A : tp) (M : term G A) (S : env G) (V : value A) (c : nat) .
+  evals CM M S V c -> size V <= env_size S
 /;
-intro /G A M S V c M_evals/.
+intro /CM G A M S V c M_evals/.
 induction /M_evals/.
 {
-  intro /G A S/.
-  destruct /S/ /{h | A' G' V S h}/ >> injection /h/ >> subst /A' G'/ >> clear /h/.
+  intro /G A S V/.
   omega.
 }
 {
   intro /G S/.
+  omega.
+}
+{
+  intro /G A B M1 M2 S/.
+  reflexivity.
+}
+{
+  intro /G A B M S G' S' M1 M2 cM vM' cM' M_evals M_ih M'_evals M'_ih/.
+  omega.
+}
+{
+  intro /G A B M S G' S' M1 M2 cM vM' cM' M_evals M_ih M'_evals M'_ih/.
   omega.
 }
 {

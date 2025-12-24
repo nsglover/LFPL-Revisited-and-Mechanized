@@ -1,0 +1,181 @@
+openModule /List/;
+
+beginModule "Language";
+
+
+
+(* TYPE *)
+
+typedef
+/
+  datatype
+    intersect (i : level) . U i
+  of
+    tp : type =
+    | diam : tp
+    | one : tp
+    | plus : tp -> tp -> tp
+    | tensor : tp -> tp -> tp
+    | arrow : tp -> tp -> tp
+    | dlist : tp -> tp
+/;
+
+
+
+(* CONTEXT *)
+
+define /ctx/
+/
+  list tp
+// 
+  intersect (i : level) . U i
+/;
+withTypecheck (unfold /ctx/). qed ();
+setOpacity /ctx/ Constant.SOFT;
+
+
+
+(* CONTEXT SPLIT *)
+
+typedef
+/
+  datatype
+    intersect (i : level) . U i
+  of
+    split : ctx -> ctx -> ctx -> type =
+    | none : split nil nil nil
+    | left : forall (G G1 G2 : ctx) (A : tp) . split G G1 G2 -> split (A :: G) (A :: G1) G2
+    | right : forall (G G1 G2 : ctx) (A : tp) . split G G1 G2 -> split (A :: G) G1 (A :: G2)
+/;
+Database.setImplicits (parseConstant /left/) 4;
+Database.setImplicits (parseConstant /right/) 4;
+
+
+defineInd //
+/
+  all_left : forall (G : list [tp]) . split G G nil of
+  | nil . none
+  | cons A G . left (all_left G)
+//
+  forall (G : ctx) . split G G nil
+/;
+Database.setImplicits (parseConstant /all_left/) 1;
+
+
+defineInd //
+/
+  all_right : forall (G : list [tp]) . split G nil G of
+  | nil . none
+  | cons A G . right (all_right G)
+//
+  forall (G : ctx) . split G nil G
+/;
+Database.setImplicits (parseConstant /all_right/) 1;
+
+
+defineInd //
+/
+  swap : split G G1 G2 -> split G G2 G1 of
+  | none . none
+  | left G G1 G2 A T . right (swap T)
+  | right G G1 G2 A T . left (swap T)
+//
+  forall (G G1 G2 : ctx) . split G G1 G2 -> split G G2 G1
+/;
+Database.setImplicits (parseConstant /swap/) 3;
+
+
+
+(* TERM *)
+
+typedef
+/
+  datatype
+    intersect (i : level) . U i
+  of
+    term : ctx -> tp -> type =
+    | var :
+      forall (G : ctx) (A : tp) .
+      term (A :: G) A
+    | triv :
+      forall (G : ctx) .
+      term G one
+    | inj1 :
+      forall (G : ctx) (A B : tp) .
+      term G A ->
+      term G (plus A B)
+    | inj2 : 
+      forall (G : ctx) (A B : tp) .
+      term G B ->
+      term G (plus A B)
+    | match :
+      forall (G GAB GC : ctx) (A B C : tp) .
+      split G GAB GC ->
+      term GAB (plus A B) -> term (A :: GC) C -> term (B :: GC) C ->
+      term G C
+    | pair :
+      forall (G GA GB : ctx) (A B : tp) .
+      split G GA GB ->
+      term GA A -> term GB B ->
+      term G (tensor A B)
+    | letp :
+      forall (G GAB GC : ctx) (A B C : tp) .
+      split G GAB GC ->
+      term GAB (tensor A B) -> term (A :: B :: GC) C ->
+      term G C
+    | lam :
+      forall (G : ctx) (A B : tp) .
+      term (A :: G) B ->
+      term G (arrow A B)
+    | app :
+      forall (G GAB GA : ctx) (A B : tp) .
+      split G GAB GA ->
+      term GAB (arrow A B) -> term GA A ->
+      term G B
+    | lnil :
+      forall (G : ctx) (A : tp) .
+      term G (dlist A)
+    | lcons :
+      forall (G Gd Ght Gh Gt : ctx) (A : tp) .
+      split G Gd Ght -> split Ght Gh Gt ->
+      term Gd diam -> term Gh A -> term Gt (dlist A) ->
+      term G (dlist A)
+    | lrec :
+      forall (G Gl Gn : ctx) (A B : tp) .
+      split G Gl Gn ->
+      term Gl (dlist A) -> term Gn B -> term (diam :: A :: B :: nil) B ->
+      term G B
+/;
+Database.setImplicits (parseConstant /var/) 2;
+Database.setImplicits (parseConstant /triv/) 1;
+Database.setImplicits (parseConstant /inj1/) 3;
+Database.setImplicits (parseConstant /inj2/) 3;
+Database.setImplicits (parseConstant /match/) 6;
+Database.setImplicits (parseConstant /pair/) 5;
+Database.setImplicits (parseConstant /letp/) 6;
+Database.setImplicits (parseConstant /lam/) 3;
+Database.setImplicits (parseConstant /app/) 5;
+Database.setImplicits (parseConstant /lnil/) 2;
+Database.setImplicits (parseConstant /lcons/) 6;
+Database.setImplicits (parseConstant /lrec/) 5;
+
+
+
+(* HEAP-FREE TYPE *)
+
+typedef
+/
+  datatype
+    intersect (i : level) . U i
+  of
+    heap_free : tp -> type =
+    | hf_one : heap_free one
+    | hf_plus : forall (A B : tp) . heap_free A -> heap_free B -> heap_free (plus A B)
+    | hf_tensor : forall (A B : tp) . heap_free A -> heap_free B -> heap_free (tensor A B)
+/;
+Database.setImplicits (parseConstant /hf_plus/) 2;
+Database.setImplicits (parseConstant /hf_tensor/) 2;
+
+
+
+endModule ();
