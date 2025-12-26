@@ -18,7 +18,7 @@ defineInd /CM/
   term_bound_raw : term G A -> exists (d : nat) . polynomial d of
   | var G A . p_const (Cvar CM)
   | triv G . p_const (Ctriv CM)
-  | record G A B M1 M2 . p_plus (p_const (Crecord CM)) (p_plus (term_bound_raw M1) (term_bound_raw M2))
+  | record G A B M1 M2 . p_plus (p_const (Crecord CM)) (p_max (term_bound_raw M1) (term_bound_raw M2))
   | proj1 G A B M . p_plus (p_const (max 1 (Cproj1 CM))) (term_bound_raw M)
   | proj2 G A B M . p_plus (p_const (max 1 (Cproj2 CM))) (term_bound_raw M)
   | inj1 G A B M . p_plus (p_const (Cinj1 CM)) (term_bound_raw M)
@@ -56,7 +56,7 @@ defineInd /CM/
   value_bound_raw : value A -> exists (d : nat) . polynomial d of
   | vdiam . p_const 0
   | vtriv . p_const 0
-  | vrecord G A B S M1 M2 . p_plus (env_bound_raw S) (p_plus (term_bound CM M1) (term_bound CM M2))
+  | vrecord G A B S M1 M2 . p_plus (env_bound_raw S) (p_max (term_bound CM M1) (term_bound CM M2))
   | vinj1 A B V . value_bound_raw V
   | vinj2 A B V . value_bound_raw V
   | vpair A B VA VB . p_plus (value_bound_raw VA) (value_bound_raw VB)
@@ -167,6 +167,7 @@ induction /M/.
   reduce /VM_size/.
   so /ih (p_eval (term_bound_raw CM _# 2 M) n + p_eval (env_bound_raw CM G S) n) __/ /tmp/ >>>
   [omega, clear /ih/ >> reintro /ih/].
+  so /p_max_correct (term_bound_raw CM _# 2 M1) (term_bound_raw CM _# 2 M2) n/ /h_max_correct _/.
   so /ih _# 2 M1 S' __ __/ /VM' cM' M'_evals cM'_bound/ >>> [omega, omega, idtac].
   existses [/VM'/, /Cproj1 CM + cM + cM'/].
   split >>> [exact /evals_proj1 _# 13 M_evals M'_evals/, omega].
@@ -185,6 +186,7 @@ induction /M/.
   reduce /VM_size/.
   so /ih (p_eval (term_bound_raw CM _# 2 M) n + p_eval (env_bound_raw CM G S) n) __/ /tmp/ >>>
   [omega, clear /ih/ >> reintro /ih/].
+  so /p_max_correct (term_bound_raw CM _# 2 M1) (term_bound_raw CM _# 2 M2) n/ /_ h_max_correct/.
   so /ih _# 2 M2 S' __ __/ /VM' cM' M'_evals cM'_bound/ >>> [omega, omega, idtac].
   existses [/VM'/, /Cproj2 CM + cM + cM'/].
   split >>> [exact /evals_proj2 _# 13 M_evals M'_evals/, omega].
