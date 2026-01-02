@@ -1,12 +1,21 @@
-# Properties of LFPL - Formalized in the Istari Proof Assistant
+# LFPL: Revisited and Mechanized
 
-This repository defines Martin Hofmann's Linear Function Programming Language (LFPL) within Karl Crary's Istari Proof Assistant and proves two core properties of the language - soundness and completeness with respect to polynomial-time computation. These two together imply that the complexity class of functions definable in LFPL is precisely equal to FP (the class of polynomial-time function problems).
+This repository contains the mechanization and LaTeX source for the working paper "LFPL: Revisited and Mechanized" currently under submission to LICS 2026.
 
-## Layout
+## Paper
 
-The file structure consists of two general helper libraries (one defining some basic mathematical concepts and the other defining Turing machines), a definition of LFPL within Istari, a standard library for LFPL with lots of syntactic sugar and convenient helper functions, the polynomial-time soundness proof, and the polynomial-time completeness proof. See below for more details.
+The directory `paper` contains the TeX source files for the submission. To compile them into a PDF, simply run `make paper` from the root directory.
 
-### Utilities
+## Mechanization
+
+The directory `mechanization` contains a definition for Martin Hofmann's Linear Function Programming Language (LFPL) within Karl Crary's Istari Proof Assistant and proofs of the two core properties of the language - soundness and completeness with respect to polynomial-time computation. These two together imply that the complexity class of functions definable in LFPL is precisely equal to FP (the class of polynomial-time function problems).
+
+### Layout
+
+<!-- TODO: This description is incorrect. -->
+The file structure consists of two general helper libraries (one defining some basic mathematical concepts and the other defining Turing machines), a definition of LFPL within Istari, a standard library for LFPL including syntactic sugar and basic utilities, the polynomial-time soundness proof, and the polynomial-time completeness proof. See below for more details.
+
+#### Utilities
 
 - `math`: Various mathematical definitions and results.
   - `nfold.ist`: Defines $n$-fold and indexed operations (such as the $n$-fold composition of a function $f : A \to A$ with itself or an indexed sum over a sequence of natural numbers).
@@ -19,7 +28,7 @@ The file structure consists of two general helper libraries (one defining some b
   - `transition.ist`: Defines the state and transition function of a Turing machine.
   - `machine.ist`: Defines Turing machines and how to run them for a finite number of steps. A definition of polynomial-time Turing machines is also provided.
 
-### Minimal LFPL
+#### Minimal LFPL
 
 - `lfpl-min/core`: The syntax and semantics of LFPL-Min.
   - `language.ist`: Defines types, contexts, context splitting, well-typed terms, and heap-free types.
@@ -54,7 +63,7 @@ The file structure consists of two general helper libraries (one defining some b
   - `inductive.ist`: The inductive case of the inductive construction; given a $(k, s)$-stack, builds a $(k + 1, n \mapsto n s(n))$-stack.
   - `polynomial.ist`: Puts everything together to construct a $(k, P)$-stack, where $P$ is a polynomial and $k$ is the degree of $P$.
 
-### Extended LFPL
+#### Extended LFPL
 
 - `lfpl-ext/core`: The syntax and semantics of LFPL-Ext.
   - `language.ist`: Defines types, contexts, context splitting, well-typed terms, and heap-free types.

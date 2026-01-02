@@ -1,0 +1,79 @@
+% Type Syntax
+
+\NewDocumentCommand{\tpdiam}{s}{\syn{#1}{\diamondsuit}{\code{diam}}}
+\NewDocumentCommand{\tpunit}{s}{\syn{#1}{\mathbf{1}}{\code{unit}}}
+\NewDocumentCommand{\tpsum}{s m m}{\syn{#1}{#2 + #3}{\code{sum}\left(#2;#3\right)}}
+\NewDocumentCommand{\tptens}{s m m}{\syn{#1}{#2 \otimes #3}{\code{tensor}\left(#2;#3\right)}}
+\NewDocumentCommand{\tparr}{s m m}{\syn{#1}{#2 \multimap #3}{\code{arrow}\left(#2;#3\right)}}
+\NewDocumentCommand{\tplist}{s m}{\syn{#1}{L\left(#2\right)}{\code{list}\left(#2\right)}}
+
+
+
+% Term Syntax
+
+\NewDocumentCommand{\tmnull}{s}{\syn{#1}{\langle \rangle}{\code{null}}}
+\NewDocumentCommand{\tminj}{s m m}{\syn{#1}{#2 \cdot #3}{\code{inj}i \left(#3\right)}}
+\NewDocumentCommand{\tminl}{s m}{\syn{#1}{1 \cdot #1}{\code{inj1}\left(#1\right)}}
+\NewDocumentCommand{\tminr}{s m}{\syn{#1}{2 \cdot #1}{\code{inj2}\left(#1\right)}}
+\NewDocumentCommand{\tmcase}{s m m m m m}{\syn{#1}{\code{case} \; #2 \left\{ #3 . #4 \; | \; #5 . #6 \right\}}{\code{case}\left(#2;#3.#4;#5.#6\right)}}
+\NewDocumentCommand{\tmpair}{s m m}{\syn{#1}{\left\langle #2, #3 \right\rangle}{\code{pair}\left(#2;#3\right)}}
+\NewDocumentCommand{\tmletp}{s m m m m}{\syn{#1}{\code{letp} \; \tmpair{#3}{#4} = #2 \; \code{in} \; #5}{\code{letp}\left(#2;#3.#4.#5\right)}}
+\NewDocumentCommand{\tmlam}{s m m}{\syn{#1}{\lambda #2 . #3}{\code{lam}\left(#2.#3\right)}}
+\NewDocumentCommand{\tmapp}{s m m}{\syn{#1}{#2 \; #3}{\code{app}\left(#2;#3\right)}}
+\NewDocumentCommand{\tmnil}{s}{\code{nil}}
+\NewDocumentCommand{\tmcons}{s m m m}{\code{cons}\left(#2;#3;#4\right)}
+\NewDocumentCommand{\tmrec}{s m m m m m m}{\syn{#1}{\code{rec} \; #2 \left\{ #3 \; | \; #4 . #5 . #6 . #7 \right\}}{\code{rec}\left(#2;#3;#4.#5.#6.#7\right)}}
+
+
+
+% Value Syntax
+
+\NewDocumentCommand{\vdiam}{}{\ensuremath{\code{vdiam}}}
+\NewDocumentCommand{\vnull}{}{\ensuremath{\code{vnull}}}
+\NewDocumentCommand{\vinj}{m m}{\ensuremath{\code{vinj}_{#1} \; #2}}
+\NewDocumentCommand{\vinl}{m}{\vinj{1}{#1}}
+\NewDocumentCommand{\vinr}{m}{\vinj{2}{#1}}
+\NewDocumentCommand{\vpair}{m m}{\ensuremath{\code{vpair}\left(#1 ; #2\right)}}
+\NewDocumentCommand{\vlam}{m m m}{\ensuremath{\code{vlam}\left(#1 ; #2 . #3\right)}}
+\NewDocumentCommand{\vnil}{}{\ensuremath{\code{vnil}}}
+\NewDocumentCommand{\vcons}{m m}{\ensuremath{#1 :: #2}}
+
+
+
+% Judgements and Functions %%
+
+\NewDocumentCommand{\dfree}{m}{#1 \; \text{$\tpdiam$-$\jmt{free}$}}
+
+\NewDocumentCommand{\ctx}{}{\ensuremath{\Gamma}}
+\NewDocumentCommand{\ctxnil}{}{\ensuremath{\cdot}}
+\NewDocumentCommand{\ctxcons}{m m m}{#1, #2 : #3}
+\NewDocumentCommand{\ctxappend}{m m}{#1 ; #2}
+\NewDocumentCommand{\types}{m m m}{#1 \vdash #2 : #3}
+
+\NewDocumentCommand{\valtypes}{m m}{#1 : #2}
+\NewDocumentCommand{\envtypes}{m m}{#1 : #2}
+
+\NewDocumentCommand{\env}{}{\ensuremath{\mathcal V}}
+\NewDocumentCommand{\envnil}{}{\ensuremath{\cdot}}
+\NewDocumentCommand{\envcons}{m m m}{#1 \left[ #2 \mapsto #3 \right]}
+\NewDocumentCommand{\envappend}{m m}{#1 ; #2}
+\NewDocumentCommand{\evals}{m m m m}{#1 \vdash #2 \Downarrow_{#3} #4}
+
+\NewDocumentCommand{\valsize}{m}{\ensuremath{\jmt{size}\left(#1\right)}}
+\NewDocumentCommand{\envsize}{m}{\ensuremath{\jmt{size}\left(#1\right)}}
+
+\NewDocumentCommand{\tpsem}{m}{\ensuremath{\left\llbracket #1 \right\rrbracket}}
+\NewDocumentCommand{\tmsem}{m m}{\ensuremath{{\left\llbracket #2 \right\rrbracket}_{#1}}}
+\NewDocumentCommand{\valsem}{m}{\ensuremath{\left\llbracket #1 \right\rrbracket}}
+
+\newcommand{\Cvar}{\ensuremath{C_{\textsc{var}}}}
+\newcommand{\Cnull}{\ensuremath{C_{\textsc{null}}}}
+\newcommand{\Cinj}[1]{\ensuremath{C_{\textsc{inj}_{#1}}}}
+\newcommand{\Ccase}{\ensuremath{C_{\textsc{case}}}}
+\newcommand{\Cpair}{\ensuremath{C_{\textsc{pair}}}}
+\newcommand{\Cletp}{\ensuremath{C_{\textsc{letp}}}}
+\newcommand{\Clam}{\ensuremath{C_{\textsc{lam}}}}
+\newcommand{\Capp}{\ensuremath{C_{\textsc{app}}}}
+\newcommand{\Cnil}{\ensuremath{C_{\textsc{nil}}}}
+\newcommand{\Ccons}{\ensuremath{C_{\textsc{cons}}}}
+\newcommand{\Crec}{\ensuremath{C_{\textsc{rec}}}}

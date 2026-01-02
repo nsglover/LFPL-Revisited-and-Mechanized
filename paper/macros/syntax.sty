@@ -1,0 +1,31 @@
+%% Judgements and Rules %%
+
+\newcommand{\jmt}[1]{\ensuremath{\mathsf{#1}}}
+\newcommand{\Rule}[3]{\ensuremath{\inferrule[(#1)]{#2 }{#3}}}
+
+
+
+% Code Display
+
+\newcommand{\listing}[1]{\lstinline[breaklines,columns=fullflexible]!#1!}
+\newcommand{\code}[1]{\ensuremath{\mathtt{#1}}}
+
+
+
+% Syntax Display and Environment
+
+\NewDocumentCommand{\syn}{m m m}{\mathop{\IfBooleanTF{#1}{#3}{#2}}\nolimits}
+
+\newenvironment{syntax}[2]
+{
+  \begin{displaymath}
+  \begin{array}{rll}
+  \mathsf{#1} & #2 \quad & ::=
+}
+{
+  \end{array}
+  \end{displaymath}
+}
+
+\newcommand{\sitem}[2]{\ensuremath{\\ | & #1 & \text{#2}}}
+\newcommand{\newsort}[2]{\ensuremath{\\ \mathsf{#1} & #2 & ::=}}

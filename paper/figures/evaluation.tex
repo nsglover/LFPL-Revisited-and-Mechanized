@@ -1,0 +1,31 @@
+\NewDocumentCommand{\evrulename}{m}{\text{Eval}:#1}
+\begin{figure}[htbp]
+\begin{mathpar}
+\Rule{\evrulename{Var}}{}{\evals{\envcons{\env}{x}{v}}{x}{\Cvar}{v}}
+\and
+\Rule{\evrulename{UnitI}}{}{\evals{\env}{\tmnull}{\Cnull}{\vnull}}
+\and
+\Rule{\evrulename{SumI$_i$}}{\evals{\env}{M}{c}{v}}{\evals{\env}{\tminj{i}{M}}{c + \Cinj{i}}{\vinj{i}{v}}}
+\and
+\Rule{\evrulename{SumE$_i$}}{\evals{\env}{M}{c}{\vinj{i}{v}} \\ \evals{\envcons{\env'}{x}{v}}{N_i}{c'}{v'}}{\evals{\envappend{\env}{\env'}}{\tmcase{M}{x}{N_1}{x}{N_2}}{c + c' + \Ccase}{v'}}
+\and
+\Rule{\evrulename{TensorI}}{\evals{\env_1}{M_1}{c_1}{v_1} \\ \evals{\env_2}{M_2}{c_2}{v_2}}{\evals{\envappend{\env_1}{\env_2}}{\tmpair{M_1}{M_2}}{c_1 + c_2 + \Cpair}{\vpair{v_1}{v_2}}}
+\and
+\Rule{\evrulename{TensorE}}{\evals{\env}{M}{c}{\vpair{v_1}{v_2}} \\ \evals{\env'[x_1 \mapsto v_1, x_2 \mapsto v_2]}{N}{c'}{v}}{\evals{\envappend{\env}{\env'}}{\tmletp{M}{x_1}{x_2}{N}}{c + c' + \Cletp}{v}}
+\and
+\Rule{\evrulename{ArrowI}}{}{\evals{\env}{\tmlam{x}{M}}{\Clam}{\vlam{\env}{x}{M}}}
+\and
+\Rule{\evrulename{ArrowE}}{\evals{\env_1}{M}{c_1}{\vlam{\env'}{x}{M'}} \\ \evals{\env_2}{N}{c_2}{v} \\ \evals{\envcons{\env'}{x}{v}}{M'}{c'}{v'}}{\evals{\envappend{\env_1}{\env_2}}{\tmapp{M}{N}}{c_1 + c_2 + c' + \Capp}{v'}}
+\and
+\Rule{\evrulename{ListI$_1$}}{}{\evals{\env}{\tmnil}{\Cnil}{\vnil}}
+\and
+\Rule{\evrulename{ListI$_1$}}{\evals{\env_0}{M_0}{c_0}{\vdiam} \\ \evals{\env_1}{M_1}{c_1}{v_1} \\ \evals{\env_2}{M_2}{c_2}{v_2}}{\evals{\envappend{\env_0}{\envappend{\env_1}{\env_2}}}{\tmcons{M_0}{M_1}{M_2}}{c_0 + c_1 + c_2 + \Ccons}{\vcons{v_1}{v_2}}}
+\and
+\Rule{\evrulename{ListE1}}{\evals{\env_1}{M}{c_1}{\vnil} \\ \evals{\env_2}{N_1}{c_2}{v}}{\evals{\envappend{\env_1}{\env_2}}{\tmrec{M}{N_1}{x_1}{x_2}{x_3}{N_2}}{c_1 + c_2 + \Crec}{v}}
+\and
+\Rule{\evrulename{ListE2}}{\evals{\env_1}{M}{c_1}{\vcons{v_h}{v_t}} \\ \evals{\envcons{\env_2}{y}{v_t}}{\tmrec{y}{N_1}{x_1}{x_2}{x_3}{N_2}}{c_r}{v_r} \\ \evals{\cdot[x_1 \mapsto \vdiam, x_2 \mapsto v_h, x_3 \mapsto v_r]}{N_2}{c_2}{v_2}}{\evals{\envappend{\env_1}{\env_2}}{\tmrec{M}{N_1}{x_1}{x_2}{x_3}{N_2}}{c_1 + c_r + c_2 + \Crec}{v_2}}
+\end{mathpar}
+\Description{An inductive definition of the evaluation judgement for LFPL's big-step operational cost semantics}
+\caption{LFPL's cost-annotated evaluation judgement}
+\label{fig:evaluation}
+\end{figure}

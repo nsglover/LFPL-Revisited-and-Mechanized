@@ -1,2 +1,18 @@
-*.isto
+# macOS
 .DS_Store
+
+# Istari
+*.isto
+
+# LaTeX
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.pdf
+*.synctex.gz
+*.xcp

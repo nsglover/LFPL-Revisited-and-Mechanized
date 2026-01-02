@@ -1,0 +1,54 @@
+\documentclass[sigconf]{acmart}
+
+% \setcopyright{acmlicensed}
+% \copyrightyear{2018}
+% \acmYear{2018}
+% \acmDOI{XXXXXXX.XXXXXXX}
+%% These commands are for a PROCEEDINGS abstract or paper.
+% \acmConference[LICS]{The Forty-First Annual Symposium on Logic in Computer Science}{July 20--23, 2026}{Lisbon, Portugal}
+%%
+%%  Uncomment \acmBooktitle if the title of the proceedings is different
+%%  from ``Proceedings of ...''!
+%%
+%%\acmBooktitle{Woodstock '18: ACM Symposium on Neural Gaze Detection,
+%%  June 03--05, 2018, Woodstock, NY}
+% \acmISBN{978-1-4503-XXXX-X/2018/06}/
+%%
+%% Submission ID.
+%% Use this when submitting an article to a sponsored event. You'll
+%% receive a unique submission ID from the organizers
+%% of the event, and this ID should be used as the parameter to this command.
+%%\acmSubmissionID{123-A56-BU3}
+
+\usepackage{packages}
+
+\usepackage{macros/syntax}
+\usepackage{macros/lfpl}
+
+
+
+\begin{document}
+
+\title{LFPL: Revisited and Mechanized}
+
+\input{title/authors}
+\input{title/abstract}
+\input{title/concepts}
+
+\maketitle
+
+
+
+\input{sections/introduction}
+\input{sections/lfpl}
+\input{sections/completeness}
+\input{sections/soundness}
+\input{sections/mechanization}
+\input{sections/related-work}
+\input{sections/conclusion}
+
+
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+\end{document}

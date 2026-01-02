@@ -1,0 +1,25 @@
+\begin{figure}[htbp]
+\begin{syntax}{Type}{A,B}
+\sitem{\tpdiam}{diamond}
+\sitem{\tpunit}{unit}
+\sitem{\tpsum{A}{B}}{sum}
+\sitem{\tptens{A}{B}}{tensor}
+\sitem{\tparr{A}{B}}{arrow}
+\sitem{\tplist{A}}{list}
+\\
+\newsort{Term}{M,N}
+\sitem{\tmnull}{unit intro}
+\sitem{\tminj{i}{M} \quad\quad\text{($i \in \{1,2\}$)}}{sum intro}
+\sitem{\tmcase{M}{x_1}{N_1}{x_2}{N_2}}{sum elim}
+\sitem{\tmpair{M_1}{M_2}}{tensor intro}
+\sitem{\tmletp{M}{x_1}{x_2}{N}}{tensor elim}
+\sitem{\tmlam{x}{M}}{arrow intro}
+\sitem{\tmapp{M}{N}}{arrow elim}
+\sitem{\tmnil}{list intro}
+\sitem{\tmcons{M_0}{M_1}{M_2}}{list intro}
+\sitem{\tmrec{M}{N_1}{x_0}{x_1}{x_2}{N_2}}{list elim}
+\end{syntax}
+\Description{An inductive definition of the syntax for LFPL types and terms}
+\caption{LFPL's type and term syntax}
+\label{fig:tp-tm-syntax}
+\end{figure}

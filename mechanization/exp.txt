@@ -1,0 +1,79 @@
+
+exp : nat -> unit
+exp zero = tick 1
+exp (succ n) = exp n ; exp n
+
+
+
+
+
+!G |- M : A
+-----------------
+!G |- wrap M : !A
+
+
+G |- M : !A
+-----------------
+G |- unwrap M : A
+
+
+. |- exp_helper : nat -> !(unit -> unit)
+exp_helper = lam n .
+  rec n with
+    zero => wrap (lam x . x)
+  | succ(_, r) => wrap (lam x . (unwrap r) ((unwrap r) x))
+
+. |- exp : nat -> unit
+exp = lam n . (unwrap (exp_helper n)) ()
+
+
+
+
+# Mention in paper (in a "contraction" subsection):
+# - Top level structural functions can be easily compiled into this language
+# - Nonempty context !A is unsound
+
+
+
+
+
+P_(wrap M)(n) = P_M(n)
+P_(vwrap V)(n) = P_(# of times V is called)(n) * P_V(n)
+
+
+
+Property 1:
+P_(S1 ; S2)(n) = P_S1(n) + P_S2(n)
+this implies P_(vwrap V)(n) = 0
+
+
+Property 2:
+app (unwrap x) null must be costly when x is mapped to a costly function
+
+
+
+
+
+. |- M : A -> B
+-----------------------
+G |- wrap M : !(A -> B)
+
+
+G |- M : !A
+-----------------
+G |- unwrap M : A
+
+
+
+
+
+
+mu (t . P(t))  -->   mu (t . P(diamond * t))
+
+
+# Note: Discuss the inductive type difficulties in the paper
+mu (t . 1 + diamond * A * t * t * t * t)
+P_(rec M x.N)(n) = (4n + 1) * P_N(n) + ...
+
+
+P_(rec M x.N)(n) = (n + 1) * P_N(n) + ...
