@@ -33,34 +33,60 @@ In a system which disallows nested iterations, expressing a program like this ca
 
 The defining property of LFPL is its non-size-increasing property. Consider a list resulting from the evaluation of an  LFPL program with some lists as inputs. The non-size-increasing theorem intuitively states that the length of this output list is (roughly) no greater than the sum of the lengths of the input lists. We will present all of this in full detail later, but for now the important takeaway is that the language does not support problematic size-increasing functions like \lstinline{double}. As one might expect of the defining property of the language, the non-size-increasing theorem is an important tool in showing that LFPL is polynomial-time sound.
 
-The most complete version of the polynomial-time soundness theorem states that any function on the natural numbers expressible in LFPL is also computable by a polynomial-time Turing machine. We only prove one step in the path from LFPL to Turing machines: In a high-level cost semantics, given an LFPL program and some inputs with size $n$, there exists a polynomial $P : \mathbb N \to \mathbb N$ such that evaluating the program costs at most $P(n)$. Our theorem is actually the only step in this path which contains reasoning specific to LFPL; given this theorem, it is a well-known and standard procedure to justify the polynomial bound for our high-level cost semantics in terms of a low-level model such as a Turing machine (TODO: Citations here?).
+The most complete version of the polynomial-time soundness theorem states that any function on the natural numbers expressible in LFPL is also computable by a polynomial-time Turing machine. We only prove one step in the path from LFPL to Turing machines: In a high-level cost semantics, given an LFPL program and some inputs with size $n$, there exists a polynomial $P : \mathbb N \to \mathbb N$ such that evaluating the program costs at most $P(n)$. Our theorem is actually the only step in this path which contains reasoning specific to LFPL; given this theorem, it is a well-known and standard procedure to justify the polynomial bound for our high-level cost semantics in terms of a low-level model such as a Turing machine. \comment{Jan}{Give two citations for this final sentence; you mentioned a survey paper and something by Guy Blelloch.}
 
-The polynomial-time completeness theorem states the logical inverse of soundness: Any function on the natural numbers which is computable by a polynomial-time Turing machine is expressible in LFPL. As stated, this is blatantly false for LFPL; \lstinline{double} is computable in linear-time yet is not expressible in LFPL. We can fix this by intead proving that the theorem holds for all polynomial-time computable functions which do not increase the size of their input. Surprisingly, we will see later that the original theorem statement is only \textit{barely} false; there is still a very perspective in which LFPL is able to express all polynomial-time computations, even the size-increasing ones.
+The polynomial-time completeness theorem states the logical inverse of soundness: Any function on the natural numbers which is computable by a polynomial-time Turing machine is expressible in LFPL. As stated, this is blatantly false for LFPL; \lstinline{double} is computable in linear-time yet is not expressible in LFPL. We can fix this by intead proving that the theorem holds for all polynomial-time computable functions which do not increase the size of their input. Surprisingly, we will see later that the original theorem statement is only \textit{barely} false; there is a very reasonable perspective in which LFPL is able to express all polynomial-time computations, even the size-increasing ones.
 
 
 
 \subsection{Syntax and Statics}
 
-The syntax of LFPL is given in Figure \ref{fig:tp-tm-syntax}. Other than the $\tpdiam$ type for controlling list size and the additional argument and variable appearing in the list introduction and elimination forms respectively, the syntax is standard for System T with lists. The first argument $M_0$ in the second list introduction form $\tmcons{M_0}{M_1}{M_2}$ is intended to have type $\tpdiam$; to add an element to a list, we are forced to pay a diamond. Likewise, the first variable $x_0$ in the list elimination $\tmrec{M}{N_1}{x_0}{x_1}{x_2}{N_2}$ is intended to have type $\tpdiam$; when eliminating a list, we earn back the diamonds we paid to construct it, allowing us to construct new lists during recursion.
+The syntax of LFPL is given in \pref{fig:syntax-tp-tm}. Other than the $\tpdiam$ type and the additional argument and variable appearing in the list introduction and elimination forms respectively, the syntax looks like System T with lists. The first argument $M_0$ in the second list introduction form $\tmcons{M_0}{M_1}{M_2}$ is intended to have type $\tpdiam$; to add an element to a list, we are forced to pay a diamond. Likewise, the first variable $x_0$ in the list elimination $\tmrec{M}{N_1}{x_0}{x_1}{x_2}{N_2}$ is intended to have type $\tpdiam$; when eliminating a list, we earn back the diamonds we paid to construct it, allowing us to construct new lists during recursion. This way, we use elements of type $\tpdiam$ to control the lengths of lists, ensuring that the number of diamonds available to us bounds the maximum length of a list that we can construct at any point.
 
-\input{figures/tp-tm-syntax}
+\input{figures/syntax-tp-tm}
 
-The static typing judgement, written $\types{\ctx}{M}{A}$ and read as ``$M$ has type $A$ under context $\ctx$'', is also entirely standard aside from the presence of $\tpdiam$. It is important to note that we want LFPL to have an \textit{affine} type system, so we must partition the context into $n$ parts when we are typing an expression containing $n$ subexpressions. The typing rules are given in Figure \ref{fig:typing}. Notice again that for $\tmcons{M_0}{M_1}{M_2}$ to be typed under $\ctx$, we must have $\types{\ctx}{M_0}{\tpdiam}$. Likewise, notice that for $\tmrec{M}{N_1}{x_0}{x_1}{x_2}{N_2}$ to be typed under $\ctx$, we must type $N_2$ under a context including $x_0 : \tpdiam$.
+The static typing judgement, written $\types{\ctx}{M}{A}$ and read as ``$M$ has type $A$ under context $\ctx$'', is also entirely standard aside from the presence of $\tpdiam$. It is important to note that we want LFPL to have an \textit{affine} type system, so we must partition the context into $n$ parts when we are typing an expression containing $n$ subexpressions. The typing rules are given in \pref{fig:jmt-ty}. Notice again that for $\tmcons{M_0}{M_1}{M_2}$ to be typed under $\ctx$, we must have $\types{\ctx}{M_0}{\tpdiam}$. Likewise, notice that for $\tmrec{M}{N_1}{x_0}{x_1}{x_2}{N_2}$ to be typed under $\ctx$, we must type $N_2$ under a context including $x_0 : \tpdiam$.
 
-% TODO: Automatic rule naming, see https://tex.stackexchange.com/questions/340788/cross-referencing-inference-rules
-Another subtle but important detail of the static typing rules is that, in the list elimination rule, $N_2$ is typed under a context containing \textit{only} the variables $x_0$, $x_1$, and $x_2$. It is not allowed to use additional variables from the surrounding environment. This is because $N_2$ represents the body of the structural recursor and therefore, despite appearing once statically, may be run many times during the execution of a program. Therefore, even if $N_2$ would statically appear to use a variable once, at runtime that variable would be used many times and thus violate the main principle of affine type theory. More concretely, $N_2$ could take just one diamond from the context and use it to create a list of length $10$, which would break LFPL's non-size-increasing property.
+Another important subtlety is in \pref{rule:ty-ListE}, where $N_2$ is typed under a context containing \textit{only} the variables $x_0$, $x_1$, and $x_2$. It is not allowed to use additional variables from the surrounding environment. This is because $N_2$ represents the body of the structural recursor and therefore, despite appearing once statically, may be run many times during the execution of a program. Therefore, even if $N_2$ would statically appear to use a variable once, at runtime that variable would be used many times and thus violate the main principle of affine type theory. More concretely, $N_2$ could take just one diamond from the context and use it to create a list of length $10$, which would break LFPL's non-size-increasing property.
 
-\input{figures/typing}
+\input{figures/jmt-ty}
 
 
-\subsection{Diamond-Free Types}
 
-Placeholder.
+\subsection{Contraction}
+
+The defining trait of an affine type system is that contraction, the use of a variable more than once, is not permitted. The importance of disallowing contraction in LFPL is immediately evident; if we could use a variable of diamond type more than once, then we could easily create lists of arbitrary length and break the non-size-increasing property.
+
+Despite this restriction, there are types which still enjoy contraction. We define the judgement $\hspace{-0.25em}\dfree{}$ on types as follows:
+\begin{mathpar}
+\ARule{\dfree{\tpunit}}{}
+\and
+\ARule{\dfree{\tpsum{A}{B}}}{\dfree{A} \\ \dfree{B}}
+\and
+\ARule{\dfree{\tptens{A}{B}}}{\dfree{A} \\ \dfree{B}}
+\end{mathpar}
+Going by induction on $\dfree{A}$, it is straightforward to define a closed term $\code{dup}_A : \tparr{A}{\tptens{A}{A}}$ that returns two copies of its input, effectively implementing contraction at type $A$.
+
+\comment{Nathan}{Talk about how $!A$ is unsound, say how to fix it with top-level functions, and explain why that is easy to compile to our presentation of LFPL.}
+
 
 
 \subsection{Denotational Semantics}
 
-Placeholder.
+In order to reason about the behavior of LFPL programs, we give them a simple set-theoretic denotational semantics. To each type $A$ we assign a set $\tpsem{A}$, and to each well-typed term $\types{\Gamma}{M}{A}$ to be interpreted under an environment $\env$ such that $\envtypes{\env}{\Gamma}$ (meaning that $\env(x) \in \tpsem{A}$ is defined for every $x : A \in \Gamma$), we assign an element $\tmsem{M}{\env}$ of $\tpsem{A}$.
+
+To define the semantics the LFPL list type, we make use of the Kleene star operator. Given a set $S$, the set $S^*$ is the set of finite strings of elements of $S$. We write $[]$ for the empty string, and given $x \in S$ and $\ell \in S^*$, we write $x :: \ell$ for the element of $S^*$ obtained by putting $x$ before the sequence of elements in $\ell$. Given $\ell \in S^*$, let $|\ell| \in \mathbb N$ denote the length of the string $\ell$. Lastly, for every set $T$, we inductively define the iteration operator on elements of $S^*$:
+
+\begin{align*}
+&\text{iter} : S^* \times T \times (S \times T \to T) \to T \\
+&\text{iter}([], b, f) = b \\
+&\text{iter}(x :: \ell, b, f) = f(x, \text{iter}(\ell, b, f))
+\end{align*}
+
+For the semantics of the sum type, we make use of the disjoint union operator $S \sqcup T := (S \times \{ 1 \}) \cup (T \times \{ 2 \})$. The definitions of $\tpsem{A}$ and $\tmsem{M}{\env}$ are given in \pref{fig:sem-tp-tm}, inspired by Hofmann's set-theoretic interpretation in \cite{hofmannStrengthNonsizeIncreasing2002}. Notice that the argument of type $\tpdiam$ to $\code{cons}$ is ignored here; the presence of elements of type $\tpdiam$ in lists is purely a means of statically enforcing the non-size-increasing property, so $\blacklozenge$ does not need to show up in the dynamic semantics for $\code{cons}$.
+
+\input{figures/sem-tp-tm}
+
 
 
 \subsection{Example Programs}

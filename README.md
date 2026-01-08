@@ -4,7 +4,7 @@ This repository contains the mechanization and LaTeX source for the working pape
 
 ## Paper
 
-The directory `paper` contains the TeX source files for the submission. To compile them into a PDF, simply run `make paper` from the root directory.
+The directory `paper` contains the TeX source files for the submission. To compile them into a PDF (`paper/paper.pdf`), simply run `make paper` from the root directory.
 
 ## Mechanization
 

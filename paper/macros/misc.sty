@@ -1,0 +1,32 @@
+% Comments and edits
+\renewcommand{\comment}[2]{{\color{red} \textbf{@#1: #2}}}
+
+
+
+% Better mathcal font
+
+\DeclareMathAlphabet{\pazocal}{OMS}{zplm}{m}{n}
+\renewcommand{\mathcal}[1]{\pazocal{#1}}
+
+
+
+% References
+
+\newcommand{\pref}[1]{\prettyref{#1}}
+\newrefformat{sec}{\hyperref[#1]{Section~\ref{#1}}}
+\newrefformat{app}{\hyperref[#1]{Appendix~\ref{#1}}}
+\newrefformat{fig}{\hyperref[#1]{Figure~\ref{#1}}}
+\newrefformat{rule}{\hyperref[#1]{Rule~\nameref{#1}}}
+\newrefformat{def}{\hyperref[#1]{Definition~\ref{#1}}}
+\newrefformat{lem}{\hyperref[#1]{Lemma~\ref{#1}}}
+\newrefformat{thm}{\hyperref[#1]{Theorem~\ref{#1}}}
+\newrefformat{cor}{\hyperref[#1]{Corollary~\ref{#1}}}
+
+
+
+% Theorem environments
+
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}

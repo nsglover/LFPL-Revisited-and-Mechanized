@@ -1,0 +1,29 @@
+\NewDocumentCommand{\RuleTy}{m m m}{\Rule{\text{Ty}:#1}{#2}{#3}\label{rule:ty-#1}}
+\begin{figure}[htbp]
+\begin{mathpar}
+\RuleTy{Var}{\types{\ctxcons{\ctx}{x}{A}}{x}{A}}{}
+\and
+\RuleTy{UnitI}{\types{\ctx}{\tmnull}{\tpunit}}{}
+\and
+\RuleTy{SumI$_i$}{\types{\ctx}{\tminj{i}{M}}{\tpsum{A_1}{A_2}}}{\types{\ctx}{M}{A_i}}
+\and
+\RuleTy{SumE}{\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmcase{M}{x_1}{N_1}{x_2}{N_2}}{B}}{\types{\ctx_1}{M}{\tpsum{A_1}{A_2}} \\ \types{\ctxcons{\ctx_2}{x_1}{A_1}}{N_1}{B} \\ \types{\ctxcons{\ctx_2}{x_2}{A_2}}{N_2}{B}}
+\and
+\RuleTy{TensorI}{\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmpair{M_1}{M_2}}{\tptens{A_1}{A_2}}}{\types{\ctx_1}{M_1}{A_1} \\ \types{\ctx_2}{M_2}{A_2}}
+\and
+\RuleTy{TensorE}{\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmletp{M}{x_1}{x_2}{N}}{B}}{\types{\ctx_1}{M}{\tptens{A_1}{A_2}} \\ \types{\ctxcons{\ctxcons{\ctx_2}{x_1}{A_1}}{x_2}{A_2}}{N}{B}}
+\and
+\RuleTy{ArrowI}{\types{\ctx}{\tmlam{x}{M}}{\tparr{A}{B}}}{\types{\ctxcons{\ctx}{x}{A}}{M}{B}}
+\and
+\RuleTy{ArrowE}{\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmapp{M}{N}}{B}}{\types{\ctx_1}{M}{\tparr{A}{B}} \\ \types{\ctx_2}{N}{A}}
+\and
+\RuleTy{ListI$_1$}{\types{\ctx}{\tmnil}{\tplist{A}}}{}
+\and
+\RuleTy{ListI$_2$}{\types{\ctxappend{\ctx_0}{\ctxappend{\ctx_1}{\ctx_2}}}{\tmcons{M_0}{M_1}{M_2}}{\tplist{A}}}{\types{\ctx_0}{M_0}{\tpdiam} \\ \types{\ctx_1}{M_1}{A} \\ \types{\ctx_2}{M_2}{\tplist{A}}}
+\and
+\RuleTy{ListE}{\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmrec{M}{N_1}{x_0}{x_1}{x_2}{N_2}}{B}}{\types{\ctx_1}{M}{\tplist{A}} \\ \types{\ctx_2}{N_1}{B} \\ \types{\ctxcons{\ctxcons{\ctxcons{\ctxnil}{x_0}{\tpdiam}}{x_1}{A}}{x_2}{B}}{N_2}{B}}
+\end{mathpar}
+\Description{An inductive definition of the affine typing judgement for LFPL}
+\caption{LFPL's affine typing rules}
+\label{fig:jmt-ty}
+\end{figure}

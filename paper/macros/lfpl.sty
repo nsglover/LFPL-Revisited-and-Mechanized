@@ -1,6 +1,6 @@
 % Type Syntax
 
-\NewDocumentCommand{\tpdiam}{s}{\syn{#1}{\diamondsuit}{\code{diam}}}
+\NewDocumentCommand{\tpdiam}{s}{\syn{#1}{\lozenge}{\code{diam}}}
 \NewDocumentCommand{\tpunit}{s}{\syn{#1}{\mathbf{1}}{\code{unit}}}
 \NewDocumentCommand{\tpsum}{s m m}{\syn{#1}{#2 + #3}{\code{sum}\left(#2;#3\right)}}
 \NewDocumentCommand{\tptens}{s m m}{\syn{#1}{#2 \otimes #3}{\code{tensor}\left(#2;#3\right)}}
@@ -28,15 +28,15 @@
 
 % Value Syntax
 
-\NewDocumentCommand{\vdiam}{}{\ensuremath{\code{vdiam}}}
-\NewDocumentCommand{\vnull}{}{\ensuremath{\code{vnull}}}
+\NewDocumentCommand{\vdiam}{}{\code{vdiam}}
+\NewDocumentCommand{\vnull}{}{\code{vnull}}
 \NewDocumentCommand{\vinj}{m m}{\ensuremath{\code{vinj}_{#1} \; #2}}
 \NewDocumentCommand{\vinl}{m}{\vinj{1}{#1}}
 \NewDocumentCommand{\vinr}{m}{\vinj{2}{#1}}
 \NewDocumentCommand{\vpair}{m m}{\ensuremath{\code{vpair}\left(#1 ; #2\right)}}
 \NewDocumentCommand{\vlam}{m m m}{\ensuremath{\code{vlam}\left(#1 ; #2 . #3\right)}}
-\NewDocumentCommand{\vnil}{}{\ensuremath{\code{vnil}}}
-\NewDocumentCommand{\vcons}{m m}{\ensuremath{#1 :: #2}}
+\NewDocumentCommand{\vnil}{}{\code{vnil}}
+\NewDocumentCommand{\vcons}{m m}{\ensuremath{\code{vcons}\left(#1 ; #2\right)}}
 
 
 
@@ -63,7 +63,7 @@
 \NewDocumentCommand{\envsize}{m}{\ensuremath{\jmt{size}\left(#1\right)}}
 
 \NewDocumentCommand{\tpsem}{m}{\ensuremath{\left\llbracket #1 \right\rrbracket}}
-\NewDocumentCommand{\tmsem}{m m}{\ensuremath{{\left\llbracket #2 \right\rrbracket}_{#1}}}
+\NewDocumentCommand{\tmsem}{m m}{\ensuremath{{\left\llbracket #1 \right\rrbracket}\left(#2\right)}}
 \NewDocumentCommand{\valsem}{m}{\ensuremath{\left\llbracket #1 \right\rrbracket}}
 
 \newcommand{\Cvar}{\ensuremath{C_{\textsc{var}}}}

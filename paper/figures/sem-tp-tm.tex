@@ -1,0 +1,30 @@
+\begin{figure}[htbp]
+\begin{align*}
+\tpsem{\tpdiam} &= \{ \blacklozenge \} \\
+\tpsem{\tpunit} &= \{ \ast \} \\
+\tpsem{\tpsum{A}{B}} &= \tpsem{A} \sqcup \tpsem{B} \\
+\tpsem{\tptens{A}{B}} &= \tpsem{A} \times \tpsem{B} \\
+\tpsem{\tparr{A}{B}} &= \tpsem{A} \to \tpsem{B} \\
+\tpsem{\tplist{A}} &= \tpsem{A}^* \\
+\\
+\tmsem{x}{\env} &= \env(x) \\
+\tmsem{\tmnull}{\env} &= \ast \\
+\tmsem{\tminj{i}{M}}{\env} &= (i, \tmsem{M}{\env}) \\
+\tmsem{\tmcase{M}{x_1}{N_1}{x_2}{N_2}}{\envappend{\env}{\env'}} &= \tmsem{N_i}{\envcons{\env'}{x_i}{v}} \\
+&\quad \text{where} \quad \tmsem{M}{\env} = (i, v) \\
+\tmsem{\tmpair{M_1}{M_2}}{\envappend{\env_1}{\env_2}} &= (\tmsem{M_1}{\env_1}, \tmsem{M_2}{\env_2}) \\
+\tmsem{\tmletp{M}{x_1}{x_2}{N}}{\envappend{\env}{\env'}} &= \tmsem{N}{\env'[x_1 \mapsto v_1, x_2 \mapsto v_2]} \\
+&\quad \text{where} \quad \tmsem{M}{\env} = (v_1, v_2) \\
+\tmsem{\tmlam{x}{M}}{\env} &= \lambda \, v . \; \tmsem{M}{\envcons{\env}{x}{v}} \; \\
+\tmsem{\tmapp{M}{N}}{\envappend{\env}{\env'}} &= \tmsem{M}{\env} \left( \tmsem{N}{\env'} \right) \\
+\tmsem{\tmnil}{\env} &= [] \\
+\tmsem{\tmcons{M_0}{M_1}{M_2}}{\envappend{\env_0}{\envappend{\env_1}{\env_2}}} &= \tmsem{M_1}{\env_1} :: \tmsem{M_2}{\env_2} \\
+\tmsem{\tmrec{M}{N_1}{x_0}{x_1}{x_2}{N_2}}{\envappend{\env}{\env'}} &= \text{iter}(\tmsem{M}{\env}, \tmsem{N_1}{\env'}, f)
+\end{align*}
+$$\text{where} \quad f(v, w) = \tmsem{N_2}{\envnil[x_0 \mapsto \blacklozenge, x_1 \mapsto v, x_2 \mapsto w]}$$
+\Description{An inductive definition of the set-theoretic interpretation of LFPL types and terms}
+\caption{LFPL's denotational semantics}
+\label{fig:sem-tp-tm}
+\end{figure}
+
+% TODO: Are the environment splits here too informal?

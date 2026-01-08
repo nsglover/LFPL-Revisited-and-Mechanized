@@ -8,8 +8,9 @@
 \sitem{\tplist{A}}{list}
 \\
 \newsort{Term}{M,N}
+\sitem{x}{variable}
 \sitem{\tmnull}{unit intro}
-\sitem{\tminj{i}{M} \quad\quad\text{($i \in \{1,2\}$)}}{sum intro}
+\sitem{\tminj{i}{M}}{sum intro ($i \in \{1,2\}$)}
 \sitem{\tmcase{M}{x_1}{N_1}{x_2}{N_2}}{sum elim}
 \sitem{\tmpair{M_1}{M_2}}{tensor intro}
 \sitem{\tmletp{M}{x_1}{x_2}{N}}{tensor elim}
@@ -21,5 +22,5 @@
 \end{syntax}
 \Description{An inductive definition of the syntax for LFPL types and terms}
 \caption{LFPL's type and term syntax}
-\label{fig:tp-tm-syntax}
+\label{fig:syntax-tp-tm}
 \end{figure}

@@ -1,11 +1,22 @@
 \section{Polynomial-Time Completeness}
 
-Placeholder.
+Now that we have a denotational semantics, we can concretely state what it means for LFPL to be complete with respect to polynomial-time computation. We focus on polynomial-time computations on the natural number. Since $\tpsem{\tplist{\tpunit}} = \{\ast\}^*$ is the set of finite-length strings from a unary alphabet, it is can be viewed as the set of unary-encoded natural numbers. However, we could just as easily have used the binary representation $\tpsem{\tplist{\tpsum{\tpunit}{\tpunit}}}$ for $\mathbb N$. So, instead of choosing a particular encoding, we can let the ``digits'' of the number be encoded by any type $A$ such that $\dfree{A}$. We require $\dfree{A}$ because plenty of polynomial-time computable functions (even non-size-increasing ones) duplicate the digits of their input, which is impossible in LFPL if $A$ contains diamonds.
+
+\begin{theorem}[Size-Restricted Polynomial-Time Completeness]
+\label{thm:completeness-main}
+Let $A$ be a type such that $\dfree{A}$. For every polynomial-time computable function $f : \tpsem{A}^* \to \tpsem{A}^*$ such that $|f(x)| \le |x|$ for all $x \in \tpsem{A}^*$, there exists a closed term $M : \tparr{\tplist{A}}{\tplist{A}}$ such that $\tmsem{M}{\envnil} = f$.
+\end{theorem}
+
+The constraint that $f$ does not increase the length of its input is necessary because of the non-size-increasing property; a closed LFPL function on unit lists has no source of diamonds other than the elements of the input list, so the output list cannot have more diamonds (and therefore more elements) than the input list. As we will see later, this constraint is relatively superficial and becomes unnecessary if we don't enforce that the output type of $M$ is an LFPL list. % TODO: Add a forward reference to the later section about this
+
+Proving \pref{thm:completeness-main} boils down to simulating the polynomial-time Turing machine which computes $f$. 
+
 
 
 \subsection{The Bounded Stack Data Structure}
 
 Placeholder.
+
 
 
 \subsection{Simulating a Turing Machine}

@@ -1,0 +1,13 @@
+% The following is adapted from https://tex.stackexchange.com/questions/340788/cross-referencing-inference-rules.
+
+\makeatletter
+\let\originferrule\inferrule
+\DeclareDocumentCommand{\inferrule}{s O {} m m}
+{
+  \IfBooleanTF{#1}{\mpr@inferstar*[#2]{#4}{#3}}{\mpr@inferrule[#2]{#4}{#3}}
+  \def\@currentlabelname{\textsc{#2}}
+}
+\makeatother
+
+\NewDocumentCommand{\Rule}{m m m}{\ensuremath{\inferrule[#1]{#2}{#3 }}}
+\NewDocumentCommand{\ARule}{m m}{\ensuremath{\inferrule*{#1}{#2 }}}
