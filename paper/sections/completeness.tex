@@ -2,23 +2,58 @@
 
 Now that we have a denotational semantics, we can concretely state what it means for LFPL to be complete with respect to polynomial-time computation. We focus on polynomial-time computations on the natural number. Since $\tpsem{\tplist{\tpunit}} = \{\ast\}^*$ is the set of finite-length strings from a unary alphabet, it is can be viewed as the set of unary-encoded natural numbers. However, we could just as easily have used the binary representation $\tpsem{\tplist{\tpsum{\tpunit}{\tpunit}}}$ for $\mathbb N$. So, instead of choosing a particular encoding, we can let the ``digits'' of the number be encoded by any type $A$ such that $\dfree{A}$. We require $\dfree{A}$ because plenty of polynomial-time computable functions (even non-size-increasing ones) duplicate the digits of their input, which is impossible in LFPL if $A$ contains diamonds.
 
+% TODO: What's the right way to attribute this to Hofmann?
 \begin{theorem}[Size-Restricted Polynomial-Time Completeness]
 \label{thm:completeness-main}
 Let $A$ be a type such that $\dfree{A}$. For every polynomial-time computable function $f : \tpsem{A}^* \to \tpsem{A}^*$ such that $|f(x)| \le |x|$ for all $x \in \tpsem{A}^*$, there exists a closed term $M : \tparr{\tplist{A}}{\tplist{A}}$ such that $\tmsem{M}{\envnil} = f$.
 \end{theorem}
 
-The constraint that $f$ does not increase the length of its input is necessary because of the non-size-increasing property; a closed LFPL function on unit lists has no source of diamonds other than the elements of the input list, so the output list cannot have more diamonds (and therefore more elements) than the input list. As we will see later, this constraint is relatively superficial and becomes unnecessary if we don't enforce that the output type of $M$ is an LFPL list. % TODO: Add a forward reference to the later section about this
+The constraint that $f$ does not increase the length of its input is necessary because of the non-size-increasing property; a closed LFPL function on unit lists has no source of diamonds other than the elements of the input list, so the output list cannot have more diamonds (and therefore more elements) than the input list. As we will see later in \pref{sec:completeness-general-thm}, this constraint is relatively superficial and becomes unnecessary if we don't enforce that the output type of $M$ is an LFPL list.
 
-Proving \pref{thm:completeness-main} boils down to simulating the polynomial-time Turing machine which computes $f$. 
+Proving \pref{thm:completeness-main} boils down to simulating the polynomial-time Turing machine which computes $f$. This immediately presents two challenges. Say that $P : \mathbb N \to \mathbb N$ is the polynomial function encoding how many steps the Turing machine takes to compute $f$. The first challenge is to simulate the tape of the machine, which for an input list of size $n$ could contain up to $P(n)$ additional values by the time the machine halts. We will only have $n$ diamonds from the input list, yet somehow we have to store up to $P(n)$ additional values; clearly a list will not work for this, since every element of a list must be accompanied by a diamond.
+
+The second challenge is to simulate running the Turing machine for $P(n)$ steps. At first glance, it seems that LFPL is only really suited for performing $kn$ iterations given $n$ diamonds and some constant $k$. This can be acheived for $k = 1$ by iterating down a list and building it back up during the iteration process, and then it is easy to repeat this for any constant $k$ number of times. This is useful but offers no real insight into how to perform, say, $n^2$ iterations.
 
 
 
 \subsection{The Bounded Stack Data Structure}
+\label{sec:completeness-bounded-stack}
+
+% TODO: Discuss Hofmann's array data structure briefly at the end of this.
+
+We first address the challenge of simulating the tape of the Turing machine. A common approach to this is to use a data structure consisting of a head element and two stacks, each representing one side of the tape relative to the head element. Concretely, in LFPL, if we use the type $A$ for tape symbols, then the type of our tape data structure would be $\tptens{\tplist{A}}{\tptens{A}{\tplist{A}}}$. The first element represents the section of the tape to the left of the head, the second element represents the symbol at the head of the tape, and the third element represents the right section of the tape. Treating elements of $L(A)$ like stacks, we can shift the head to the left by popping a symbol from the left list and pushing the current head symbol to the right list.
+
+Of course, we cannot actually use the above data structure; given $n$ diamonds, it can only hold $n + 1$ values. Instead, we construct a type $S(A)$ (which may depend on $P$) that supports a stack-like interface, at least as long as it doesn't have to hold more than $P(n)$ elements. Then, we can use something of type $\tptens{S(A)}{\tptens{A}{S(A)}}$ to encode the tape.
+
+We have actually already seen the first key insight into how to construct such a type in \pref{example:susp}. This shows us that we really don't need any diamonds to store data, we just need them to interact with it. Using this idea, we can design our data structure to remain fully suspended by default, requiring zero diamonds to store it. The push and pop functions will have to temporarily borrow some diamonds to interface with the suspended data.
+
+The second key insight is that we do not need to un-suspend the entire data structure to interface with it. This is good, because if the stack held $P(n)$ values, we would still need $P(n)$ diamonds to un-suspend the whole thing during the push and pop operations. Since both push and pop work at the front of the stack, we just need to be able to un-suspend enough of our data structure to expose the front, which will save on the amount of diamonds we need for these operations. This amount may of course depend on $P$ and $n$. With these two insights in mind, we lay out our desired interface.
+
+\begin{definition}[Bounded Stack Interface]
+Given $k \in \mathbb N$ and an element type $A$, a $k$-stack implementation is a type $S$ together with the following operations:
+\begin{itemize}
+  \item $\code{empty} : S$
+  \item $\code{push} : \tparr{(\tplist{\tpunit})^k}{\tparr{\tptens{A}{S}}{\tptens{(\tplist{\tpunit})^k}{\tptens{S}{(\tpsum{A}{\tpunit})}}}}$
+  \item $\code{pop} : \tparr{(\tplist{\tpunit})^k}{\tparr{S}{\tptens{(\tplist{\tpunit})^k}{\tptens{S}{(\tpsum{\tpunit}{A})}}}}$
+\end{itemize}
+\end{definition}
+
+By $(\tplist{\tpunit})^k$ we mean the type of $k$-tuples $\tplist{\tpunit} \otimes \cdots \otimes \tplist{\tpunit}$.
+
+
+
+
+
+\subsection{Polynomial Iteration}
+\label{sec:completeness-poly-iter}
 
 Placeholder.
 
 
 
-\subsection{Simulating a Turing Machine}
+\subsection{Simulating the Turing Machine}
+\label{sec:completeness-general-thm}
+
+% TODO: Discuss issues in Hofmann's proof here.
 
 Placeholder.

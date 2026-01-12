@@ -83,7 +83,7 @@ To define the semantics the LFPL list type, we make use of the Kleene star opera
 &\text{iter}(x :: \ell, b, f) = f(x, \text{iter}(\ell, b, f))
 \end{align*}
 
-For the semantics of the sum type, we make use of the disjoint union operator $S \sqcup T := (S \times \{ 1 \}) \cup (T \times \{ 2 \})$. The definitions of $\tpsem{A}$ and $\tmsem{M}{\env}$ are given in \pref{fig:sem-tp-tm}, inspired by Hofmann's set-theoretic interpretation in \cite{hofmannStrengthNonsizeIncreasing2002}. Notice that the argument of type $\tpdiam$ to $\code{cons}$ is ignored here; the presence of elements of type $\tpdiam$ in lists is purely a means of statically enforcing the non-size-increasing property, so $\blacklozenge$ does not need to show up in the dynamic semantics for $\code{cons}$.
+For the semantics of the sum type, we make use of the disjoint union operator $S \sqcup T := (S \times \{ 1 \}) \cup (T \times \{ 2 \})$. The definitions of $\tpsem{A}$ and $\tmsem{M}{\env}$ are given in \pref{fig:sem-tp-tm}, inspired by Hofmann's set-theoretic interpretation in \cite{hofmannStrengthNonsizeIncreasing2002}. Notice the argument of type $\tpdiam$ to $\code{cons}$ is ignored; the presence of elements of type $\tpdiam$ in lists is purely a means of statically enforcing the non-size-increasing property, so $\blacklozenge$ does not need to show up in the dynamic semantics for $\code{cons}$.
 
 \input{figures/sem-tp-tm}
 
@@ -91,4 +91,17 @@ For the semantics of the sum type, we make use of the disjoint union operator $S
 
 \subsection{Example Programs}
 
-Placeholder.
+\begin{lstlisting}
+lunfold : L(A) -o 1 + A * L(A)
+\end{lstlisting}
+
+\begin{example}[List Suspension]
+\label{example:susp}
+Given a list, we can temporarily suspend its values and obtain the diamonds within the list for use elsewhere. We of course need those diamonds to un-suspend the list.
+\begin{lstlisting}
+susp : L(A) -o (L(1) -o L(A)) * L(1)
+
+unsusp : (L(1) -o L(A)) -o L(1) -o L(A)
+unsusp = lam f . lam m . f m
+\end{lstlisting}
+\end{example}

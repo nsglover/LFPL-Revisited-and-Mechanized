@@ -1,3 +1,16 @@
+% Code Listing Settings
+\lstset
+{
+  numbers=none, numberstyle=\tiny, stepnumber=1, numbersep=5pt,
+  basicstyle=\tt\small, escapechar=\%, mathescape,
+  columns=flexible, xleftmargin=\leftmargini,
+  morekeywords={mod,div,matchD},
+  literate={-o}{$\multimap$ }{3} {*}{$\otimes$ }{3},
+  firstnumber=auto
+}
+
+
+
 % Code and Judgement Fonts
 
 \newcommand{\listing}[1]{\lstinline[breaklines,columns=fullflexible]!#1!}
