@@ -1,14 +1,14 @@
 \begin{abstract}
-  LFPL, by Hofmann (1999), uses an affine type system to characterize the functions on natural numbers computable in polynomial time.
+  Hofmann (1999) introduced the functional programming language LFPL to characterize the functions computable in polynomial time using an affine type system.
   %
-  It enables a natural programming style, including nested recursion; has inspired the development of type systems for automatic cost analysis, linear dependent type theories, and efficient memory management in functional programming languages.
+  LFPL enables a natural programming style, including nested recursion, and has inspired the development of type systems for automatic cost analysis, linear dependent type theories, and efficient memory management in functional programming languagesƒ.
   %
   Despite its prominence, there does not exist a self-contained presentation, let alone a full mechanization, of LFPL and its core metatheory.
   
   This article presents a modern account and mechanization of LFPL and its metatheory with the goal of being self-contained and accessible while presenting the strongest-known soundness and completeness results.
   %
   % TODO: Make macros for names (LFPL, LFPL+, AARA, etc).
-  The soundness proof works with a language $\text{LFPL}^+$, which extends LFPL with several powerful language features, thereby providing a stronger theorem than pre-existing results.
+  The soundness proof works with the language $\text{LFPL}^+$, which extends LFPL with additional language features, thereby providing a stronger theorem than pre-existing results.
   %
   The proof is novel, using a technique by Aehlig and Schwichtenberg (2002) to construct explicit polynomials that bound the cost of an $\text{LFPL}^+$ expression with respect to a big-step cost semantics.
   %
