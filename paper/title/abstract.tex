@@ -1,35 +1,22 @@
 \begin{abstract}
-  LFPL by Hofmann 1999, uses an affine type system to characterize the functions computable in polynomial time.
+  LFPL, by Hofmann (1999), uses an affine type system to characterize the functions on natural numbers computable in polynomial time.
   %
   It enables a natural programming style, including nested recursion; has inspired the development of type systems for automatic cost analysis, linear dependent type theories, and efficient memory management in functional programming languages.
   %
-  Despite its prominence, there does not exist a self-contained
-  presentation, let alone a mechanization, of LFPL and its core
-  metatheory.
+  Despite its prominence, there does not exist a self-contained presentation, let alone a full mechanization, of LFPL and its core metatheory.
   
-  This articles presents a modern account and mechanization of LFPL
-  and its metatheory with the goal of being self-contained and
-  accessible while presenting the strongest-known soundness and
-  completeness results.
+  This article presents a modern account and mechanization of LFPL and its metatheory with the goal of being self-contained and accessible while presenting the strongest-known soundness and completeness results.
   %
-  A novel soundness proof uses a technique by Aehlig and
-  Schwichtenberg (2002) to construct explicit polynomials that bound the cost of an LFPL expression with respect to a big-step cost semantics. (Is strong because more language features.)
+  % TODO: Make macros for names (LFPL, LFPL+, AARA, etc).
+  The soundness proof works with a language $\text{LFPL}^+$, which extends LFPL with several powerful language features, thereby providing a stronger theorem than pre-existing results.
   %
-  The completeness proof shows that LFPL programs can simulate
-  polynomial-time Turing machines while only relying on linear lists
-  and functions.
+  The proof is novel, using a technique by Aehlig and Schwichtenberg (2002) to construct explicit polynomials that bound the cost of an $\text{LFPL}^+$ expression with respect to a big-step cost semantics.
   %
-  It has the same structure as Hofmann's original proof but greatly
-  simplifies the core argument with a novel stack datastructure, which is implemented with first-class functions and lists.
+  The completeness proof shows that LFPL programs can simulate polynomial-time Turing machines while only relying on restricted forms of linear functions and lists.
   %
-  The mechanization includes the full soundness and completeness
-  proofs and serves as one of the first case studies of mechanized
-  metatheory in the recently-developed proof assistant Istari.
+  It has the same structure as the original proof by Hofmann (2002) but greatly simplifies the core argument with a novel stack-like data structure, implemented with first-class functions and lists.
+  %
+  The mechanization includes the full soundness and completeness proofs and serves as one of the first case studies of mechanized metatheory in the recently-developed proof assistant Istari.
   %
   Takeaway?
 \end{abstract}
-
-%%% Local Variables:
-%%% mode: LaTeX
-%%% TeX-master: "../paper"
-%%% End:

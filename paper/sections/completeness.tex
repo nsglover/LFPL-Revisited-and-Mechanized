@@ -2,7 +2,8 @@
 
 Now that we have a denotational semantics, we can concretely state what it means for LFPL to be complete with respect to polynomial-time computation. We focus on polynomial-time computations on the natural number. Since $\tpsem{\tplist{\tpunit}} = \{\ast\}^*$ is the set of finite-length strings from a unary alphabet, it is can be viewed as the set of unary-encoded natural numbers. However, we could just as easily have used the binary representation $\tpsem{\tplist{\tpsum{\tpunit}{\tpunit}}}$ for $\mathbb N$. So, instead of choosing a particular encoding, we can let the ``digits'' of the number be encoded by any type $A$ such that $\dfree{A}$. We require $\dfree{A}$ because plenty of polynomial-time computable functions (even non-size-increasing ones) duplicate the digits of their input, which is impossible in LFPL if $A$ contains diamonds.
 
-% TODO: What's the right way to attribute this to Hofmann?
+% TODO: What's the right way to attribute this to Hofmann?. Answer: Say it in the paragraph before or after.
+% If I need to cite it in the title, it can just be <title> \cite{citation}.
 \begin{theorem}[Size-Restricted Polynomial-Time Completeness]
 \label{thm:completeness-main}
 Let $A$ be a type such that $\dfree{A}$. For every polynomial-time computable function $f : \tpsem{A}^* \to \tpsem{A}^*$ such that $|f(x)| \le |x|$ for all $x \in \tpsem{A}^*$, there exists a closed term $M : \tparr{\tplist{A}}{\tplist{A}}$ such that $\tmsem{M}{\envnil} = f$.
