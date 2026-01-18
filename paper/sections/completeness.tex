@@ -40,7 +40,7 @@ By $(\tplist{\tpunit})^k$ we mean the type of $k$-tuples $\tplist{\tpunit} \otim
 
 Intuitively, both $\code{push}$ and $\code{pop}$ take in some diamonds and the return all of them as their first return value. They both also return a stack and a sum as their second and third return values. The left branch of the sum is intended to signal failure of the operation (in which case the input stack is returned unmodified), and the right branch signals success (in which case the returned stack has been successfully modified). For $\code{push}$, which takes in an element and a stack, failure means that the input stack is full, and so the input element is returned to us. For $\code{pop}$, which just takes in a stack, failure means the input stack is empty. If the input stack has at least one element, it is returned to us via the right injection.
 
-To formalize this intuitive specification, we use the denotational semantics. We first define the element $m_{n,k} \in \llbracket (\tplist{\tpunit})^k \rrbracket$ to be the tuple $(\ell, \ldots, \ell)$, where $\ell$ is the unique element of $\tpsem{\tplist{\tpunit}}$ such that $\ell = n$. This way, an \lfpl term representing $m_{n,k}$ contains exactly $nk$ diamonds.
+To formalize this intuitive specification, we use the denotational semantics. We first define the element $m_{n,k} \in \llbracket (\tplist{\tpunit})^k \rrbracket$ to be the tuple $(\ell, \ldots, \ell)$, where $\ell$ is the unique element of $\tpsem{\tplist{\tpunit}}$ such that $|\ell| = n$. This way, an \lfpl term representing $m_{n,k}$ contains exactly $nk$ diamonds.
 
 \begin{definition}[Bounded Stack Correctness]
 \label{def:stack-correctness}
@@ -75,17 +75,19 @@ To summarize, a correct $k$-stack bounded by $B : \mathbb N \to \mathbb N$ is a 
 \subsection{Bounded Stack Implementations}
 \label{sec:completeness-bounded-stack-implementation}
 
-We now provide a concrete implementation of a bounded stack and several ways to build better implementations on top of pre-existing ones. These can ultimately be combined to give us a stack bounded by our choice of a polynomial $P$, which is exactly what we want for simulating the tape of a polynomial-time Turing machine. While most of the proofs in this section focus on the high-level intuition and avoid writing or reasoning about concrete \lfpl programs, everything is formalized in the mechanization (see \pref{sec:mechanization-soundness-completeness}).
+We now provide a concrete implementation of a bounded stack and several ways to build better implementations on top of pre-existing ones. These can ultimately be combined to give us a stack bounded by our choice of a polynomial $P$, which is exactly what we want for simulating the tape of a polynomial-time Turing machine. While most of the proofs in this section focus on the high-level intuition and avoid writing or reasoning about concrete \lfpl programs, everything is formalized in the mechanization (see \pref{sec:mechanization}).
 
 \begin{lemma}[Constant Stack Construction]
 \label{lem:stack-constant}
 For any element type $A$ and $c \in \mathbb N$, there exists a correct $0$-stack implementation which is bounded by $B(n) = c$.
 \end{lemma}
 \begin{proof}
-We take the implementation type to be $S = (1 + A)^c$. Intuitively, a left injection represents an open space in the stack, and a right injection represents a stored element. A stack $(x_1, \ldots, x_c) \in \tpsem{S}$ is considered valid when there is some $0 \le i \le c$ such that $x_j = (1, \ast)$ for $1 \le j \le i$, and $x_j$ is a right injection for $i < j \le c$.
+We take the implementation type to be $S = (1 + A)^c$. Intuitively, a left injection represents an open space in the stack, and a right injection represents a stored element. A stack $(x_1, \ldots, x_c) \in \tpsem{S}$ is considered valid when there is some index $0 \le j \le c$ such that $x_i = (1, \ast)$ for $1 \le i \le j$, and $x_i$ is a right injection for $j < i \le c$. In other words, there should be an uninterrupted chunk of open slots at the front of the stack, and the rest of the slots afterwards should be filled.
 
 To find the head of the stack, find the first $i$ such that $x_i = (2, a)$ for some $a \in \tpsem{A}$; the value $a$ is the head element. If $i$ is $1$, then the stack is full. If no such $i$ exists, the stack is empty. Since $c$ is a known constant, this procedure of locating the stack head does not require \lfpl iteration, so indeed no diamonds are required for the $\code{push}$ and $\code{pop}$ operations.
 \end{proof}
+
+The main difficulty is obtaining stacks with non-constant bounds. Surprisingly, the proof of \pref{lem:stack-constant} contains the right intuition for how to do that. The following lemma is essentially the non-constant version of \pref{lem:stack-constant}; instead of storing things in a fixed-size tuple, we store them in a list. That list can be ``suspended'' as seen in \pref{example:susp} so that it doesn't require any diamonds to store.
 
 
 \begin{lemma}[Inductive Stack Construction]
@@ -93,17 +95,24 @@ To find the head of the stack, find the first $i$ such that $x_i = (2, a)$ for s
 Fix an element type $A$ and some $k \in \mathbb N$. Suppose $(S, \code{empty}, \code{push}, \code{pop})$ is a $k$-stack implementation with element type $A$ that is correct and bounded by $B : \mathbb N \to \mathbb N$. Then, there is a $(k + 1)$-stack implementation with element type $A$ that is correct and bounded by $B'(n) = n B(n)$. 
 \end{lemma}
 \begin{proof}
+We choose $S' = \tparr{\tplist{\tpunit}}{\tplist{S}}$, the type of suspended lists with element type $S$ (we will these elements ``sub-stacks''), to be our implementation type. Let $\ell$ be the unique element of $\tpsem{\tplist{\tpunit}}$ with $|\ell| = n$. To unsuspend a stack $s \in \tpsem{S'}$ we just call $s(\ell)$. We say $s$ is valid whenever $s(\ell) = s_1 :: \cdots :: s_n :: []$, where $s_i$ is valid for all $1 \le i \le n$ and, much like in the proof \pref{lem:stack-constant}, there exists some index $0 \le j \le n$ such that $s_i$ is empty for $1 \le i < j$, $s_j$ is unconstrained, and $s_i$ is full for $j < i \le n$. In other words, there should be an uninterrupted chunk of empty sub-stacks at the front of the stack, followed by a nonempty sub-stack, and then all remaining sub-stacks should be full. The items $I'(S')$ are simply the item lists $I(s_i)$ of each sub-stack appended together.
 
+It remains to correctly implement the three stack operations. Let's call them $\code{empty}'$, $\code{push}'$, and $\code{pop}'$. Implementing $\code{empty}'$ is quite straightforward; it is simply the suspended empty list, i.e. the function of type $\tparr{\tplist{\tpunit}}{\tplist{S}}$ which always returns the empty list.
+
+When implementing $\code{push}'$, we are given as our source of diamonds an input of type $(\tplist{\tpunit})^{k+1} = \tptens{\tplist{\tpunit}}{(\tplist{\tpunit})^k}$, so we can use the first element of this tuple, call it $\ell$, to un-suspend the input stack $s \in \tpsem{S'}$ and obtain a list of sub-stacks $s(\ell) = s_1 :: \cdots :: s_n :: []$. Starting from the last element of this list, $s_n$, attempt pushing to it using the function $\code{push}$, which is correct by assumption. If this succeeds, we are done. Otherwise, $s_n$ must be full, so we should try $s_{n-1}$. We can do this all the way up to $s_1$; if push still fails on $s_1$ then the whole stack must be full. This process can be implemented using \lfpl's list recursor. Afterwards, we use \pref{example:susp} to re-suspend the modified list and return the results.
+
+The implementation of $\code{pop}'$ is similar, but instead we start from $s_1$. If popping $s_1$ fails, it must be empty, so we should try $s_2$. We go all the way down the list, and if popping $s_n$ still fails, then the whole stack must be empty.
 \end{proof}
 
+
+Now that we've established the main result of this subsection, all it takes is a straightforward induction to combine the above two lemmas to produce stacks with monomial bounds of arbitrary degree.
 
 \begin{lemma}[Monomial Stack Construction]
 \label{lem:stack-monomial}
 Given $c,k \in \mathbb N$, there exists a $k$-stack implementation with element type $A$ that is correct and bounded by $B(n) = cn^k$.
 \end{lemma}
-\begin{proof}
-Going by induction on $k$, \pref{lem:stack-constant} and \pref{lem:stack-inductive} are precisely the base and inductive cases we need, respectively.
-\end{proof}
+
+Since every polynomial $P : \mathbb N \to \mathbb N$ is eventually bounded by some monomial $B(n) = cn^k$, it is technically enough to stop here, which is what Hofmann's original proof does \cite{hofmannStrengthNonsizeIncreasing2002}. However, this introduces an annoying edge case when $n = 0$ because $P(0)$ could be nonzero but $B(0) = 0$ for any choice of $c$ and $k$. Due to the simplicity of our stack data structure, this annoyance can be sidestepped and we can combine monomially-bounded stacks to get polynomially-bounded stacks with a few more relatively straightforward implementations. % TODO: Elaborate on why this is inescapable in his case due to the array data structure.
 
 
 \begin{lemma}[Weakened Stack Construction]
@@ -115,6 +124,7 @@ This construction is relatively obvious; if $\code{push}$ and $\code{pop}$ need 
 \end{proof}
 
 
+% TODO: Mention that this is a huge pain with Hofmann's array data structure
 \begin{lemma}[Additive Stack Construction]
 \label{lem:stack-additive}
 Fix an element type $A$ and some $k \in \mathbb N$. For $i \in \{1,2\}$, suppose $(S_i, \code{empty}_i, \code{push}_i, \code{pop}_i)$ is a $k$-stack implementation with element type $A$ that is correct and bounded by $B_i : \mathbb N \to \mathbb N$. Then, there is a $k$-stack implementation with element type $A$ that is correct and bounded by $B(n) = B_1(n) + B_2(n)$. 
