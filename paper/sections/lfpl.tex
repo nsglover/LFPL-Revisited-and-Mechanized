@@ -70,22 +70,22 @@ Going by induction on $\dfree{A}$, it is straightforward to define a closed term
 A common approach to safely reintroducing contraction into affine type systems is the exponential modality $!$. The syntax and typing rules for it might look something like the following:
 
 \begin{mathpar}
-\Rule{ExpI}{\types{!\ctx}{\code{wrap}(M)}{\; !A}}{\types{!\ctx}{M}{A}}
+\ARule{\types{!\ctx}{\code{wrap}(M)}{\; !A}}{\types{!\ctx}{M}{A}}
 \and
-\Rule{ExpE}{\types{\ctx}{\code{unwrap}(M)}{A}}{\types{\ctx}{M}{\; !A}}
+\ARule{\types{\ctx}{\code{unwrap}(M)}{A}}{\types{\ctx}{M}{\; !A}}
 \and
-\Rule{Contr}{\types{\ctxcons{\ctx}{x}{\; !A}}{[x/y]M}{B}}{\types{\ctxcons{\ctxcons{\ctx}{x}{\; !A}}{y}{\; !A}}{M}{B}}
+\ARule{\types{\ctxcons{\ctx}{x}{\; !A}}{[x/y]M}{B}}{\types{\ctxcons{\ctxcons{\ctx}{x}{\; !A}}{y}{\; !A}}{M}{B}}
 \end{mathpar}
 
 By $!\ctx$ we mean the context obtained by replacing $x : A$ with $x : \; !A$ for every $x$ in $\ctx$. It is tempting to add something like this to \lfpl; if we say that all values of type $!A$ have size $0$, then these operations are non-size-increasing. Unfortunately, that is not enough to guarantee polynomial-time soundness. Consider the following \lfpl (extended with the !-modality) pseudocode:
 \begin{lstlisting}
-expCalls : L(1) -> !(L(1) -> L(1)) -> !(L(1) -> L(1))
+expCalls : L(1) -o !(L(1) -o L(1)) -o !(L(1) -o L(1))
 expCalls nil f = f
-expCalls (cons (_, _, l)) =
-  let r = expCalls l f in
+expCalls (cons (_, _, n)) =
+  let r = expCalls n f in
   wrap (lam x . unwrap(r) (unwrap(r) x))
 \end{lstlisting}
-Calling $\tmapp{\tmapp{\code{expCalls}}{\ell}}{f}$ yields a function which calls $f$ on itself $2^{|\ell|}$ times. If $f$ incurs any cost, then the resulting function will definitely not run in polynomial time.
+Calling $\tmapp{\tmapp{\code{expCalls}}{n}}{f}$ yields a function which calls $f$ on itself $2^{|n|}$ times. If $f$ incurs any cost, then the resulting function will definitely not run in polynomial time.
 
 A simple way to deal with this that doesn't hinder the programmer too much is simply to add top-level metavariables, much like how we have been writing closed terms in pseudocode. No recursion or mutual dependency is allowed, of course. A program consisting of some top-level metavariables is very straightforward to compile away into one big \lfpl expression; simply paste in the code for metavariable $f$ every time metavariable $f$ appears after it is declared. Since this compilation step is very simple, and clearly preserves cost and semantics, we do not explore properties of this language with top-level declarations.
 

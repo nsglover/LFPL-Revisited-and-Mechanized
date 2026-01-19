@@ -143,10 +143,40 @@ Write $P(n)$ as $\sum_{i=0}^k c_i n^i$. For each $0 \le i \le k$, we can use \pr
 
 
 
-\subsection{Polynomial Iteration}
+\subsection{Polynomial Iteration of the Step Function}
 \label{sec:completeness-poly-iter}
 
-Placeholder.
+We now address the challenge of simulating the process of running the transition function of a $P$-time Turing machine for $P(n)$ steps when given an input list of length $n$. Additionally, we need to figure out how to simulate the transition function itself. Fortunately, both of these tasks require comparably simpler solutions to the issue of polynomial storage presented in the previous section.
+
+The following two lemmas are inspired by Proposition 4.1 of \cite{hofmannLinearTypesNonsizeincreasing1999}.
+
+\begin{lemma}[Linear Iteration]
+\label{lem:linear-iterator}
+Let $f : \tparr{\tptens{A}{\tplist{\tpunit}}}{\tptens{A}{\tplist{\tpunit}}}$ be a closed term. Then, there exists a closed term $f^{\sharp} : \tparr{\tptens{A}{\tplist{\tpunit}}}{\tptens{A}{\tplist{\tpunit}}}$ such that $\llbracket f^{\sharp} \rrbracket(\envnil) (x, n) = (\tmsem{f}{\envnil})^{|n|}(x, n)$.
+\end{lemma}
+\begin{proof}
+We define $f^{\sharp}$ as \lstinline{fSharp} from the following pseudocode:
+\begin{lstlisting}
+g : L(1) -o A * L(1) -o A * L(1)
+g nil s = s
+g (cons d <> m) (x, n) = f(g(m)(x, cons d <> n))
+
+fSharp : A * L(1) -o A * L(1)
+fSharp (x, n) = g n (x, nil)
+\end{lstlisting}
+It is straightforward to translate this into structural recursion so it can be expressed as proper \lfpl.
+\end{proof}
+
+\begin{lemma}[Polynomial Iteration]
+\label{lem:poly-iterator}
+Let $f : \tparr{\tptens{A}{\tplist{\tpunit}}}{\tptens{A}{\tplist{\tpunit}}}$ be a closed term and $P : \mathbb N \to \mathbb N$ be a polynomial. Then, there exists a closed term $f^{\sharp P} : \tparr{\tptens{A}{\tplist{\tpunit}}}{\tptens{A}{\tplist{\tpunit}}}$ such that:
+$$\llbracket f^{\sharp P} \rrbracket(\envnil) (x, n) = (\tmsem{f}{\envnil})^{P(|n|)}(x, n)$$
+\end{lemma}
+\begin{proof}
+This is relatively straightforward given \pref{lem:linear-iterator}. To get monomials, we can use the $\sharp$ operation multiple times. For example, $\llbracket (f^{\sharp})^{\sharp} \rrbracket(\envnil) (x, n) = (\tmsem{f}{\envnil})^{|n|^2}(x, n)$. To add these monomials together to obtain any polynomial, we can just compose functions, since $g^m \circ g^k = g^{m + k}$ for any $g : X \to X$ and $m,k \in \mathbb N$.
+\end{proof}
+
+
 
 
 
