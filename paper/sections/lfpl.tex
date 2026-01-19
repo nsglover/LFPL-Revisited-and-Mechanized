@@ -93,7 +93,7 @@ A simple way to deal with this that doesn't hinder the programmer too much is si
 
 \subsection{Denotational Semantics}
 
-In order to reason about the behavior of \lfpl programs, we give them a simple set-theoretic denotational semantics. To each type $A$ we assign a set $\tpsem{A}$, and to each well-typed term $\types{\Gamma}{M}{A}$ to be interpreted under an environment $\env$ such that $\envtypes{\env}{\Gamma}$ (meaning that $\env(x) \in \tpsem{A}$ is defined for every $x : A \in \Gamma$), we assign an element $\tmsem{M}{\env}$ of $\tpsem{A}$.
+To reason about the behavior of \lfpl programs, we give them a simple set-theoretic denotational semantics. To each type $A$ we assign a set $\tpsem{A}$, and to each well-typed term $\types{\Gamma}{M}{A}$ to be interpreted under an environment $\env$ such that $\envtypes{\env}{\Gamma}$ (meaning that $\env(x) \in \tpsem{A}$ is defined for every $x : A \in \Gamma$), we assign an element $\tmsem{M}{\env}$ of $\tpsem{A}$.
 
 To define the semantics the \lfpl list type, we make use of the Kleene star operator. Given a set $S$, the set $S^*$ is the set of finite strings of elements of $S$. We write $[]$ for the empty string, and given $x \in S$ and $\ell \in S^*$, we write $x :: \ell$ for the element of $S^*$ obtained by putting $x$ before the sequence of elements in $\ell$. Given $\ell \in S^*$, let $|\ell| \in \mathbb N$ denote the length of the string $\ell$. Lastly, for every set $T$, we inductively define the iteration operator on elements of $S^*$:
 
