@@ -2,8 +2,22 @@
 
 The goal of implicit computational complexity (ICC) is to provide a programming language which characterizes a given complexity class. Concretely, this means that a procedure is representable in the language if and only if it inhabits the desired complexity class. ICC has been extensively studied for many complexity classes including P \cite{hofmannLinearTypesNonsizeincreasing1999,hofmannTypeSystemBounded2000,hofmannLinearTypesNonsizeincreasing2003,gaboardiSoftLinearLogic2008}, PSPACE \cite{hofmannLinearTypesNonsizeincreasing2003, gaboardiSoftLinearLogic2008,gaboardiImplicitCharacterizationPSPACE2012}, EXPTIME \cite{hofmannStrengthNonsizeIncreasing2002}, and LOGSPACE \cite{schoppStratifiedBoundedAffine2007, ramyaaRamifiedCorecurrenceLogspace2011}. Such languages often achieve their desired complexity class via a slight modification to a standard linear or affine type system \cite{dallagoImplicitComputationComplexity2022}.
 
-One prominent such programming language for the complexity classes P and FP is Martin Hofmann's Linear Function Programming Language (\lfpl), first presented in \cite{hofmannLinearTypesNonsizeincreasing1999}, where it is shown that \lfpl is polynomial-time sound. That is, all functions definable in \lfpl belong to FP. The logical inverse of this statement, polynomial-time completeness, is later proven in \cite{hofmannStrengthNonsizeIncreasing2002}. \lfpl is notable for characterizing FP while also supporting a very natural programming style. Recently, there has been some renewed interest in \lfpl. Atkey \cite{atkeyPolynomialTimeDependent2024} extends \lfpl with dependent types and unrestricted computation at the type level, creating a language equipped with the powerful guaranteees of dependent type theory while still enforcing that computation is polynomial-time at the term level. Lorenzen et al. \cite{lorenzenFP2FullyInPlace2023} utilizes the type system of \lfpl in their language Koka to ensure that certain functional programs can be executed fully in-place.
-\comment{Jan}{also mention the \lfpl was the start of AARA}
+One prominent such programming language for the complexity classes P and FP is Martin Hofmann's Linear Function Programming Language (\lfpl).
+%
+It was first presented in \cite{hofmannLinearTypesNonsizeincreasing1999}, where it is shown that \lfpl is polynomial-time sound. That is, all functions definable in \lfpl belong to FP.
+%
+The logical inverse of this statement, polynomial-time completeness, is later proven in \cite{hofmannStrengthNonsizeIncreasing2002}.
+%
+\lfpl is notable for characterizing FP while also supporting a natural programming style and giving rise to the development of automatic amortized resource analysis~\cite{HoffmJ22}.
+%
+Recently, there has been some renewed interest in \lfpl. Atkey
+\cite{atkeyPolynomialTimeDependent2024} extends \lfpl with dependent
+types and unrestricted computation at the type level, creating a
+language equipped with the powerful guaranteees of dependent type
+theory while still enforcing that computation is polynomial-time at
+the term level. Lorenzen et al. \cite{lorenzenFP2FullyInPlace2023}
+utilizes the type system of \lfpl in their language Koka to ensure
+that certain functional programs can be executed fully in-place.
 
 Despite its prominence, we are not aware of a fully self-contained presentation of \lfpl and its core metatheory. The original presentation by Hofmann \cite{hofmannLinearTypesNonsizeincreasing1999} contains a semantic soundness proof but and only a weak completeness result for linear-space polynomial-time Turing machines. A full but somewhat informal completeness result is given as a corollary in \cite{hofmannStrengthNonsizeIncreasing2002}, but polynomial-time is not the main focus. Aehlig et al. \cite{aehligSyntacticalAnalysisNonsizeincreasing2002} provides a syntactic soundness proof for a small-step semantics and a weaker completeness proof for a strong extension of \lfpl. Atkey \cite{atkeyPolynomialTimeDependent2024} presents a similar completeness proof, as well as a soundness proof for \lfpl extended with dependent type theory. Lorenzen et al. \cite {lorenzenFP2FullyInPlace2023} presents \lfpl's type system but no metatheory. None of these works contain both a soundness and completeness proof of the original \lfpl system, and moreover we are not aware of any fully correct completeness proofs.
 
@@ -16,3 +30,8 @@ The mechanized completeness proof is a simplified and streamlined version of the
 The mechanized soundness proof is inspired by Aehlig et al \cite{aehligSyntacticalAnalysisNonsizeincreasing2002}. We give a modern presentation of their result for a big-step operational cost semantics for an extended language \lfplplus. Using such a semantics allows us to reason about concrete program executions and avoids the substitution-related challenges that arise in mechanizing a small-step semantics. While a big-step operational cost semantics is farther away from a concrete machine model, it is well-known how to link it to a small-step cost semantics, which have been shown to be reasonable with respect to lower-level semantic models (see \cite{blellochProvableTimeSpace1996}). To our knowledge, ours is the strongest soundness proof for \lfpl; we strengthen it by extending the language with several powerful features such as a built-in stack data structure and an exponential modality.
 
 In summary, we make the following contributions: The first complete presentation of the \lfpl metatheory, a novel completeness proof, a novel soundness proof, and the first complete mechanization of the \lfpl metatheory. These novelties make our proofs accessible and amenable to mechanization; our desire to mechanize the \lfpl metatheory is partially responsible for driving us to discover these proofs. Our completeness proof resolves some errors we discovered in the only other completeness proof of equal strength to ours.
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: "../paper"
+%%% End:
