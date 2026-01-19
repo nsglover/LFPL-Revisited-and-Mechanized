@@ -18,7 +18,7 @@ The second challenge is to simulate running the Turing machine for $P(n)$ steps.
 \subsection{The Bounded Stack Data Structure}
 \label{sec:completeness-bounded-stack-definition}
 
-We first address the challenge of simulating the tape of the Turing machine. A common approach to this is to use a data structure consisting of a head element and two stacks, each representing one side of the tape relative to the head element. \comment{Jan}{Do you know a citation for this?} Concretely, in \lfpl, if we use the type $A$ for tape symbols, then the type of our tape data structure would be $\tptens{\tplist{A}}{\tptens{A}{\tplist{A}}}$. The first element represents the section of the tape to the left of the head, the second element represents the symbol at the head of the tape, and the third element represents the right section of the tape. Treating elements of $L(A)$ like stacks, we can shift the head to the left by popping a symbol from the left list and pushing the current head symbol to the right list.
+We first address the challenge of simulating the tape of the Turing machine. A common approach to this is to use a data structure consisting of a head element and two stacks, each representing one side of the tape relative to the head element \cite{Okasaki99}. Concretely, in \lfpl, if we use the type $A$ for tape symbols, then the type of our tape data structure would be $\tptens{\tplist{A}}{\tptens{A}{\tplist{A}}}$. The first element represents the section of the tape to the left of the head, the second element represents the symbol at the head of the tape, and the third element represents the right section of the tape. Treating elements of $L(A)$ like stacks, we can shift the head to the left by popping a symbol from the left list and pushing the current head symbol to the right list.
 
 Of course, we cannot actually use the above data structure; given $n$ diamonds, it can only hold $n + 1$ values. Instead, we construct a type $S(A)$ (which may depend on $P$) that supports a stack-like interface, at least as long as it doesn't have to hold more than $P(n)$ elements. Then, we can use something of type $\tptens{S(A)}{\tptens{A}{S(A)}}$ to encode the tape.
 
@@ -186,3 +186,7 @@ This is relatively straightforward given \pref{lem:linear-iterator}. To get mono
 % TODO: Discuss issues in Hofmann's proof here.
 
 Placeholder.
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: "../paper"
+%%% End:
