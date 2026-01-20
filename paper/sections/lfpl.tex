@@ -13,7 +13,7 @@ exp (succ n) = double (exp n)
 
 The main idea of \lfpl is to enforce non-size-increasing computation. In the above example, the exponential behavior relies on the fact that \lstinline{double} increases the size of its input. \lfpl forbids such size-increasing computations. This non-size-increasing property is enforced with an affine type system, thereby treats input size as a limited resource which cannot be duplicated. Formally, size is represented by a type $\tpdiam$, so that one variable of type $\tpdiam$ corresponds to one unit of size. The natural number $n$ requires $n$ elements of type $\tpdiam$ to construct. These resources, which we shall henceforth call diamonds, are returned when the number is consumed. The program \code{double} is no longer possible to write; in the \code{succ} case, one diamond is made available to us, yet we need two diamonds due to the two calls to \code{succ}.
 
-In contrast to other polynomial-time systems that might restrict iteration such that nested iterations are impossible, \lfpl enables a fairly natural programming style. While many polynomial-time languages are complete with respect to polynomial-time \textit{computations}, they are often unable to express many natural \textit{algorithms}. Consider the following psuedocode for an inefficient identity function on lists:
+In contrast to other polynomial-time systems that might restrict iteration such that nested iterations are impossible, \lfpl enables a fairly natural programming style. While many polynomial-time languages are complete with respect to polynomial-time \textit{computations}, they are often unable to express many natural \textit{algorithms}. Consider this psuedocode for a slow identity function on lists:
 \begin{lstlisting}
 append : nat list -> nat list -> nat list
 append nil l2 = l2
@@ -33,7 +33,7 @@ The defining property of \lfpl is its non-size-increasing property. Consider a l
 
 The most complete version of the polynomial-time soundness theorem states that any function on the natural numbers expressible in \lfpl is also computable by a polynomial-time Turing machine. We only prove one step in the path from \lfpl to Turing machines: In a high-level cost semantics, given an \lfpl program and some inputs with size $n$, there exists a polynomial $P : \mathbb N \to \mathbb N$ such that evaluating the program costs at most $P(n)$. Our theorem is actually the only step in this path which contains reasoning specific to \lfpl; given this theorem, it is a well-known and standard procedure to justify the polynomial bound for our high-level cost semantics in terms of a low-level model such as a Turing machine \cite{BlellG96,Accattoli2019}.
 
-The polynomial-time completeness theorem states the logical inverse of soundness: Any function on the natural numbers which is computable by a polynomial-time Turing machine is expressible in \lfpl. As stated, this is blatantly false for \lfpl; \lstinline{double} is computable in linear-time yet is not expressible in \lfpl. We can fix this by intead proving that the theorem holds for all polynomial-time computable functions which do not increase the size of their input. Surprisingly, we will see later that the original theorem statement is only \textit{barely} false; there is a very reasonable perspective in which \lfpl is able to express all polynomial-time computations, even the size-increasing ones.
+The polynomial-time completeness theorem states the logical inverse of soundness: Any function on the natural numbers which is computable by a polynomial-time Turing machine is expressible in \lfpl. As stated, this is blatantly false for \lfpl; $\code{double}$ is computable in linear-time yet is not expressible in \lfpl. We can fix this by instead proving completeness for all polynomial-time computable functions which do not increase the size of their input. Surprisingly, we will see later that the original theorem statement is only \textit{barely} false; there is a very reasonable perspective in which \lfpl is able to express all polynomial-time computations, even the size-increasing ones.
 
 
 
@@ -105,28 +105,63 @@ For the semantics of the sum type, we make use of the disjoint union operator $S
 
 
 
-\subsection{Example Function}
+\subsection{Example Functions}
 
-To build an intuition about the expressivity of \lfpl{}, we implement
-a few examples functions that demonstrate how you can program in the
-language.
-
+To build intuition about the expressivity of \lfpl, we implement some example functions that demonstrate to program in the language. Firstly, given any element type $A$, let's implement the slow identity function from earlier. We use the syntax
+$$\text{\lstinline{rec M | nil => N1 | cons (x0, x1, x2) => N2}}$$
+for $\tmrec{M}{N_1}{x_0}{x_1}{x_2}{N_2}$.
 \begin{lstlisting}
-lunfold : L(A) -o 1 + A * L(A)
+append : L(A) -o L(A) -o L(A)
+append = lam l1 . rec l1
+| nil => lam l2 . l2
+| cons (d, x, r) => lam l2 . cons (d, x, r l2)
+
+id : L(A) -o L(A)
+id = lam x . append (append x nil) nil
 \end{lstlisting}
+
+\begin{example}[Linear-Time Reverse]
+It is similarly straightforward to implement the standard linear-time reverse seen in introductory functional programming.
+\begin{lstlisting}
+revAppend : L(A) -o L(A) -o L(A)
+revAppend = lam l1 . rec l1
+| nil => lam l2 . l2
+| cons (d, x, r) => lam l2 . r (cons (d, x, l2))
+
+reverse : L(A) -o L(A)
+reverse = lam x . revAppend x nil
+\end{lstlisting}
+\end{example}
+
+\begin{example}[List Case Analysis]
+Importantly, both for the general convenience of the programmer and for the very important example following this one, we can inspect whether a list is empty, which is often seen as pattern matching on the list data structure in standard functional programming languages.
+\begin{lstlisting}
+lfold : 1 + diam * A * L(A) -o L(A)
+lfold = lam x . case x .
+| inj1 _ => nil
+| inj2 p => letp (d, q) = p in
+            letp (x, xs) = q in cons (d, x, xs)
+
+lunfold : L(A) -o 1 + diam * A * L(A)
+lunfold = lam x . rec x .
+| nil => inj1 <>
+| cons (d, x, r) => inj2 (d, x, lfold r)
+\end{lstlisting}
+\end{example}
 
 \begin{example}[List Suspension]
 \label{example:susp}
 Given a list, we can temporarily suspend its values and obtain the diamonds within the list for use elsewhere. We of course need those diamonds to un-suspend the list.
 \begin{lstlisting}
 susp : L(A) -o (L(1) -o L(A)) * L(1)
-
-unsusp : (L(1) -o L(A)) -o L(1) -o L(A)
-unsusp = lam f . lam m . f m
+susp = lam x . rec x .
+| nil => (lam _ . nil, nil)
+| cons (d, x, r) => letp (f, m) = r in
+  (lam n . case (lunfold n) .
+    | inj1 _ => nil
+    | inj2 p => letp (d', q) = p in
+                letp (_, n') = q in cons (d', x, f n')
+    , cons (d, <>, m))
 \end{lstlisting}
+This example is very important for the completeness proof, so it is worth stating its semantics: If $x \in \tpsem{A}^*$, then $\tmsem{susp}{\envnil}(x) = (f, m)$, where $f(m) = x$. Note that $m$ is the unique element of $\tpsem{\tpunit}^*$ with length $|m|$, so we can recover $x$ as long as we give $f$ the right number of diamonds.
 \end{example}
-
-%%% Local Variables:
-%%% mode: LaTeX
-%%% TeX-master: "../paper"
-%%% End:
