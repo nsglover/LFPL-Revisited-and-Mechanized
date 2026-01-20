@@ -1,7 +1,6 @@
 \section{LFPL}
 
 In G\"odel's System T, recursion is controlled in such a way as to ensure the language is still terminating. This is known as primitive or structural recursion. The only way to write variable-time programs in \lfpl is using structural recursion, but that alone is not enough to achieve polynomial time. The following pseudocode is an example of an exponential time program using only structural recursion:
-
 \begin{lstlisting}
 double : nat -> nat
 double zero = zero
@@ -15,7 +14,6 @@ exp (succ n) = double (exp n)
 The main idea of \lfpl is to enforce non-size-increasing computation. In the above example, the exponential behavior relies on the fact that \lstinline{double} increases the size of its input. \lfpl forbids such size-increasing computations. This non-size-increasing property is enforced with an affine type system, thereby treats input size as a limited resource which cannot be duplicated. Formally, size is represented by a type $\tpdiam$, so that one variable of type $\tpdiam$ corresponds to one unit of size. The natural number $n$ requires $n$ elements of type $\tpdiam$ to construct. These resources, which we shall henceforth call diamonds, are returned when the number is consumed. The program \code{double} is no longer possible to write; in the \code{succ} case, one diamond is made available to us, yet we need two diamonds due to the two calls to \code{succ}.
 
 In contrast to other polynomial-time systems that might restrict iteration such that nested iterations are impossible, \lfpl enables a fairly natural programming style. While many polynomial-time languages are complete with respect to polynomial-time \textit{computations}, they are often unable to express many natural \textit{algorithms}. Consider the following psuedocode for an inefficient identity function on lists:
-
 \begin{lstlisting}
 append : nat list -> nat list -> nat list
 append nil l2 = l2
@@ -68,7 +66,6 @@ Despite this restriction, there are types which still enjoy contraction. We defi
 Going by induction on $\dfree{A}$, it is straightforward to define a closed term $\code{dup}_A : \tparr{A}{\tptens{A}{A}}$ that returns two copies of its input, effectively implementing contraction at type $A$.
 
 A common approach to safely reintroducing contraction into affine type systems is the exponential modality $!$. The syntax and typing rules for it might look something like the following:
-
 \begin{mathpar}
 \ARule{\types{!\ctx}{\code{wrap}(M)}{\; !A}}{\types{!\ctx}{M}{A}}
 \and
@@ -96,7 +93,6 @@ A simple way to deal with this that doesn't hinder the programmer too much is si
 To reason about the behavior of \lfpl programs, we give them a simple set-theoretic denotational semantics. To each type $A$ we assign a set $\tpsem{A}$, and to each well-typed term $\types{\Gamma}{M}{A}$ to be interpreted under an environment $\env$ such that $\envtypes{\env}{\Gamma}$ (meaning that $\env(x) \in \tpsem{A}$ is defined for every $x : A \in \Gamma$), we assign an element $\tmsem{M}{\env}$ of $\tpsem{A}$.
 
 To define the semantics the \lfpl list type, we make use of the Kleene star operator. Given a set $S$, the set $S^*$ is the set of finite strings of elements of $S$. We write $[]$ for the empty string, and given $x \in S$ and $\ell \in S^*$, we write $x :: \ell$ for the element of $S^*$ obtained by putting $x$ before the sequence of elements in $\ell$. Given $\ell \in S^*$, let $|\ell| \in \mathbb N$ denote the length of the string $\ell$. Lastly, for every set $T$, we inductively define the iteration operator on elements of $S^*$:
-
 \begin{align*}
 &\text{iter} : S^* \times T \times (S \times T \to T) \to T \\
 &\text{iter}([], b, f) = b \\

@@ -9,7 +9,7 @@
 % Type Syntax
 
 \NewDocumentCommand{\tpdiam}{s}{\syn{#1}{\lozenge}{\code{diam}}}
-\NewDocumentCommand{\tpunit}{s}{\syn{#1}{\mathbf{1}}{\code{unit}}}
+\NewDocumentCommand{\tpunit}{s}{\syn{#1}{\code{1}}{\code{unit}}}
 \NewDocumentCommand{\tpsum}{s m m}{\syn{#1}{#2 + #3}{\code{sum}\left(#2;#3\right)}}
 \NewDocumentCommand{\tptens}{s m m}{\syn{#1}{#2 \otimes #3}{\code{tensor}\left(#2;#3\right)}}
 \NewDocumentCommand{\tparr}{s m m}{\syn{#1}{#2 \multimap #3}{\code{arrow}\left(#2;#3\right)}}
@@ -70,9 +70,9 @@
 \NewDocumentCommand{\valsize}{m}{\ensuremath{\jmt{size}\left(#1\right)}}
 \NewDocumentCommand{\envsize}{m}{\ensuremath{\jmt{size}\left(#1\right)}}
 
-\NewDocumentCommand{\tpsem}{m}{\ensuremath{\left\llbracket #1 \right\rrbracket}}
-\NewDocumentCommand{\tmsem}{m m}{\ensuremath{{\left\llbracket #1 \right\rrbracket}\left(#2\right)}}
-\NewDocumentCommand{\valsem}{m}{\ensuremath{\left\llbracket #1 \right\rrbracket}}
+\NewDocumentCommand{\tpsem}{m}{\ensuremath{\llbracket #1 \rrbracket}}
+\NewDocumentCommand{\tmsem}{m m}{\ensuremath{{\llbracket #1 \rrbracket}\left(#2\right)}}
+\NewDocumentCommand{\valsem}{m}{\ensuremath{\llbracket #1 \rrbracket}}
 
 \newcommand{\Cvar}{\ensuremath{C_{\textsc{var}}}}
 \newcommand{\Cnull}{\ensuremath{C_{\textsc{null}}}}
