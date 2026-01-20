@@ -2,6 +2,7 @@
 \begin{syntax}{Val}{v}
 \sitem{\vdiam}{diamond value}
 \sitem{\vnull}{unit value}
+\sitem{\vrecord{\env}{M_1}{M_2}}{lazy pair closure}
 \sitem{\vinj{i}{v}}{injection}
 \sitem{\vpair{v_1}{v_2}}{pair}
 \sitem{\vlam{\env}{x}{M}}{function closure}
@@ -11,8 +12,11 @@
 \sitem{\vcons{v_1}{v_2}}{nonempty list}
 \sitem{\vleaf}{empty tree}
 \sitem{\vnode{v}{v_l}{v_r}}{nonempty tree}
+\newsort{Env}{\env}
+\sitem{\envnil}{empty environment}
+\sitem{\envcons{\env}{x}{v}}{nonempty environment}
 \end{syntax}
 \Description{An inductive definition of the syntax for LFPL plus values}
-\caption{\lfplplus's value syntax}
+\caption{\lfplplus's value and environment syntax}
 \label{fig:syntax-val}
 \end{figure}
