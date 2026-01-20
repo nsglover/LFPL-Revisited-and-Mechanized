@@ -5,10 +5,14 @@
 \sitem{\vinj{i}{v}}{injection}
 \sitem{\vpair{v_1}{v_2}}{pair}
 \sitem{\vlam{\env}{x}{M}}{function closure}
+\sitem{\vempty}{empty stack}
+\sitem{\vpush{v_1}{v_2}}{nonempty stack}
 \sitem{\vnil}{empty list}
 \sitem{\vcons{v_1}{v_2}}{nonempty list}
+\sitem{\vleaf}{empty tree}
+\sitem{\vnode{v}{v_l}{v_r}}{nonempty tree}
 \end{syntax}
-\Description{An inductive definition of the syntax for LFPL values}
-\caption{LFPL's value syntax}
+\Description{An inductive definition of the syntax for LFPL plus values}
+\caption{\lfplplus's value syntax}
 \label{fig:syntax-val}
 \end{figure}

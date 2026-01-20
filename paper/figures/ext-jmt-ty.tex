@@ -1,0 +1,24 @@
+\begin{figure}[htbp]
+\begin{mathpar}
+\RuleTy{ProdI}{\types{\ctx}{\tmrecord{M_1}{M_2}}{\tpprod{A_1}{A_2}}}{\types{\ctx}{M_1}{A_1} \\ \types{\ctx}{M_2}{A_2}}
+\and
+\RuleTy{ProdE$_i$}{\types{\ctx}{\tmproj{i}{M}}{A_i}}{\types{\ctx}{M}{\tpprod{A_1}{A_2}}}
+\and
+\RuleTy{ProdE$_i$}{\types{\ctx}{\tmproj{i}{M}}{A_i}}{\types{\ctx}{M}{\tpprod{A_1}{A_2}}}
+\and
+\RuleTy{StackI$_1$}{\types{\ctx}{\tmempty}{\tpstack{A}}}{}
+\and
+\RuleTy{StackI$_2$}{\types{\ctxappend{\ctx}{\ctx'}}{\tmpush{M}{N}}{\tpstack{A}}}{\types{\ctx}{M}{A} \\ \types{\ctx'}{N}{\tpstack{A}}}
+\and
+\RuleTy{StackE}{\types{\ctxappend{\ctx}{\ctx'}}{\tmpop{M}{N_1}{x_1}{x_2}{N_2}}{B}}{\types{\ctx}{M}{\tpstack{A}} \\ \types{\ctx'}{N_1}{B} \\ \types{\ctxcons{\ctxcons{\ctx'}{x_1}{A}}{x_2}{\tpstack{A}}}{N_2}{B}}
+\and
+\RuleTy{TreeI$_1$}{\types{\ctx}{\tmleaf}{\tptree{A}}}{}
+\and
+\RuleTy{TreeI$_2$}{\types{\ctxappend{\ctx_d}{\ctxappend{\ctx_x}{\ctxappend{\ctx_l}{\ctx_r}}}}{\tmnode{M_d}{M_x}{M_l}{M_r}}{\tptree{A}}}{\types{\ctx_d}{M_d}{\tpdiam} \\ \types{\ctx_x}{M_x}{A} \\ \types{\ctx_l}{M_l}{\tptree{A}} \\ \types{\ctx_r}{M_r}{\tptree{A}}}
+\and
+\RuleTy{TreeE}{\types{\ctx}{\tmtrec{M}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{B}}{\types{\ctx}{M}{\tptree{A}} \\ \types{\ctxnil}{N_1}{B} \\ \types{\ctxcons{\ctxcons{\ctxcons{\ctxcons{\ctxnil}{x_d}{\tpdiam}}{x}{A}}{x_l}{B}}{x_r}{B}}{N_2}{B}}
+\end{mathpar}
+\Description{An inductive definition of the affine typing judgement for LFPL plus}
+\caption{\lfplplus's typing rules}
+\label{fig:ext-jmt-ty}
+\end{figure}

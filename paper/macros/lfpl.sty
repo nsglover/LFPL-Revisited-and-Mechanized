@@ -9,27 +9,40 @@
 
 \NewDocumentCommand{\tpdiam}{s}{\syn{#1}{\lozenge}{\code{diam}}}
 \NewDocumentCommand{\tpunit}{s}{\syn{#1}{\code{1}}{\code{unit}}}
+\NewDocumentCommand{\tpprod}{s m m}{\syn{#1}{#2 \times #3}{\code{prod}\left(#2;#3\right)}}
 \NewDocumentCommand{\tpsum}{s m m}{\syn{#1}{#2 + #3}{\code{sum}\left(#2;#3\right)}}
 \NewDocumentCommand{\tptens}{s m m}{\syn{#1}{#2 \otimes #3}{\code{tensor}\left(#2;#3\right)}}
 \NewDocumentCommand{\tparr}{s m m}{\syn{#1}{#2 \multimap #3}{\code{arrow}\left(#2;#3\right)}}
+\NewDocumentCommand{\tpstack}{s m}{\syn{#1}{\code{S}(#2)}{\code{list}\left(#2\right)}}
 \NewDocumentCommand{\tplist}{s m}{\syn{#1}{\code{L}(#2)}{\code{list}\left(#2\right)}}
+\NewDocumentCommand{\tptree}{s m}{\syn{#1}{\code{T}(#2)}{\code{list}\left(#2\right)}}
 
 
 
 % Term Syntax
 
 \NewDocumentCommand{\tmnull}{s}{\syn{#1}{\langle \rangle}{\code{null}}}
-\NewDocumentCommand{\tminj}{s m m}{\syn{#1}{#2 \cdot #3}{\code{inj}i \left(#3\right)}}
-\NewDocumentCommand{\tminl}{s m}{\syn{#1}{1 \cdot #1}{\code{inj1}\left(#1\right)}}
-\NewDocumentCommand{\tminr}{s m}{\syn{#1}{2 \cdot #1}{\code{inj2}\left(#1\right)}}
+\NewDocumentCommand{\tmrecord}{m m}{\left( #1, #2 \right)}
+\NewDocumentCommand{\tmproj}{s m m}{\syn{#1}{#3 \cdot #2}{\code{proj}#2 \left(#3\right)}}
+\NewDocumentCommand{\tmprojl}{s m}{\syn{#1}{#2 \cdot 1}{\code{proj1}\left(#1\right)}}
+\NewDocumentCommand{\tmprojr}{s m}{\syn{#1}{#2 \cdot 2}{\code{proj2}\left(#1\right)}}
+\NewDocumentCommand{\tminj}{s m m}{\syn{#1}{#2 \cdot #3}{\code{inj}#2 \left(#3\right)}}
+\NewDocumentCommand{\tminl}{s m}{\syn{#1}{1 \cdot #2}{\code{inj1}\left(#1\right)}}
+\NewDocumentCommand{\tminr}{s m}{\syn{#1}{2 \cdot #2}{\code{inj2}\left(#1\right)}}
 \NewDocumentCommand{\tmcase}{s m m m m m}{\syn{#1}{\code{case} \; #2 \left\{ #3 . #4 \; | \; #5 . #6 \right\}}{\code{case}\left(#2;#3.#4;#5.#6\right)}}
 \NewDocumentCommand{\tmpair}{s m m}{\syn{#1}{\left\langle #2, #3 \right\rangle}{\code{pair}\left(#2;#3\right)}}
 \NewDocumentCommand{\tmletp}{s m m m m}{\syn{#1}{\code{letp} \; \tmpair{#3}{#4} = #2 \; \code{in} \; #5}{\code{letp}\left(#2;#3.#4.#5\right)}}
 \NewDocumentCommand{\tmlam}{s m m}{\syn{#1}{\lambda #2 . #3}{\code{lam}\left(#2.#3\right)}}
 \NewDocumentCommand{\tmapp}{s m m}{\syn{#1}{#2 \; #3}{\code{app}\left(#2;#3\right)}}
+\NewDocumentCommand{\tmempty}{}{\code{empty}}
+\NewDocumentCommand{\tmpush}{m m}{\code{push}\left(#1 ; #2\right)}
+\NewDocumentCommand{\tmpop}{m m m m m}{\code{pop}\; #1 \left\{#2 \; | \; #3 . #4 . #5\right\}}
 \NewDocumentCommand{\tmnil}{s}{\code{nil}}
 \NewDocumentCommand{\tmcons}{s m m m}{\code{cons}\left(#2;#3;#4\right)}
-\NewDocumentCommand{\tmrec}{s m m m m m m}{\syn{#1}{\code{rec} \; #2 \left\{ #3 \; | \; #4 . #5 . #6 . #7 \right\}}{\code{rec}\left(#2;#3;#4.#5.#6.#7\right)}}
+\NewDocumentCommand{\tmrec}{s m m m m m m}{\syn{#1}{\code{lrec} \; #2 \left\{ #3 \; | \; #4 . #5 . #6 . #7 \right\}}{\code{rec}\left(#2;#3;#4.#5.#6.#7\right)}}
+\NewDocumentCommand{\tmleaf}{}{\code{leaf}}
+\NewDocumentCommand{\tmnode}{m m m m}{\code{node}\left(#1;#2;#3;#4\right)}
+\NewDocumentCommand{\tmtrec}{m m m m m m m}{\code{trec} \; #1 \left\{ #2 \; | \; #3 . #4 . #5 . #6 . #7 \right\}}
 
 
 
@@ -37,13 +50,18 @@
 
 \NewDocumentCommand{\vdiam}{}{\code{vdiam}}
 \NewDocumentCommand{\vnull}{}{\code{vnull}}
+\NewDocumentCommand{\vrecord}{m m m}{\ensuremath{\code{vrecord}\left(#1 ; (#2 , #3)\right)}}
 \NewDocumentCommand{\vinj}{m m}{\ensuremath{\code{vinj}_{#1} \; #2}}
 \NewDocumentCommand{\vinl}{m}{\vinj{1}{#1}}
 \NewDocumentCommand{\vinr}{m}{\vinj{2}{#1}}
 \NewDocumentCommand{\vpair}{m m}{\ensuremath{\code{vpair}\left(#1 ; #2\right)}}
 \NewDocumentCommand{\vlam}{m m m}{\ensuremath{\code{vlam}\left(#1 ; #2 . #3\right)}}
+\NewDocumentCommand{\vempty}{}{\code{vempty}}
+\NewDocumentCommand{\vpush}{m m}{\ensuremath{\code{vpush}\left(#1 ; #2\right)}}
 \NewDocumentCommand{\vnil}{}{\code{vnil}}
 \NewDocumentCommand{\vcons}{m m}{\ensuremath{\code{vcons}\left(#1 ; #2\right)}}
+\NewDocumentCommand{\vleaf}{}{\code{vleaf}}
+\NewDocumentCommand{\vnode}{m m m}{\ensuremath{\code{vnode}\left(#1 ; #2 ; #3\right)}}
 
 
 
@@ -81,6 +99,12 @@
 \newcommand{\Cletp}{\ensuremath{C_{\textsc{letp}}}}
 \newcommand{\Clam}{\ensuremath{C_{\textsc{lam}}}}
 \newcommand{\Capp}{\ensuremath{C_{\textsc{app}}}}
+\newcommand{\Cempty}{\ensuremath{C_{\textsc{empty}}}}
+\newcommand{\Cpush}{\ensuremath{C_{\textsc{push}}}}
+\newcommand{\Cpop}{\ensuremath{C_{\textsc{pop}}}}
 \newcommand{\Cnil}{\ensuremath{C_{\textsc{nil}}}}
 \newcommand{\Ccons}{\ensuremath{C_{\textsc{cons}}}}
-\newcommand{\Crec}{\ensuremath{C_{\textsc{rec}}}}
+\newcommand{\Crec}{\ensuremath{C_{\textsc{lrec}}}}
+\newcommand{\Cleaf}{\ensuremath{C_{\textsc{leaf}}}}
+\newcommand{\Cnode}{\ensuremath{C_{\textsc{node}}}}
+\newcommand{\Ctrec}{\ensuremath{C_{\textsc{trec}}}}

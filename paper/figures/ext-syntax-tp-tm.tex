@@ -1,0 +1,20 @@
+\begin{figure}[htbp]
+\begin{extsyntax}{Type}{A,B}{\; \cdots}
+\sitem{\tpprod{A}{B}}{product}
+\sitem{\tpstack{A}}{stack}
+\sitem{\tptree{A}}{binary tree}
+\\
+\newsortext{Term}{M,N}{\; \cdots}
+\sitem{\tmrecord{M}{N}}{product intro}
+\sitem{\tmproj{i}{M}}{product elim ($i \in \{1,2\}$)}
+\sitem{\tmempty{}}{stack intro}
+\sitem{\tmpush{M}{N}}{stack intro}
+\sitem{\tmpop{M}{N_1}{x_1}{x_2}{N_2}}{stack elim}
+\sitem{\tmleaf{}}{tree intro}
+\sitem{\tmnode{M_d}{M_x}{M_l}{M_r}}{tree intro}
+\sitem{\tmtrec{M}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{tree elim}
+\end{extsyntax}
+\Description{An inductive definition of the syntax for the types and terms of LFPL plus}
+\caption{\lfplplus's type and term syntax}
+\label{fig:ext-syntax-tp-tm}
+\end{figure}

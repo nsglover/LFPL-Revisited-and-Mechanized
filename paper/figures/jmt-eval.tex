@@ -1,3 +1,5 @@
+% TODO: Add rules for products, stacks, and trees
+
 \NewDocumentCommand{\RuleEval}{m m m}{\Rule{\text{Eval}:#1}{#2}{#3}\label{rule:eval-#1}}
 \begin{figure}[htbp]
 \begin{mathpar}
@@ -25,7 +27,7 @@
 \and
 \RuleEval{ListE$_2$}{\evals{\envappend{\env_1}{\env_2}}{\tmrec{M}{N_1}{x_1}{x_2}{x_3}{N_2}}{c_1 + c_r + c_2 + \Crec}{v_2}}{\evals{\env_1}{M}{c_1}{\vcons{v_h}{v_t}} \\ \evals{\envcons{\env_2}{y}{v_t}}{\tmrec{y}{N_1}{x_1}{x_2}{x_3}{N_2}}{c_r}{v_r} \\ \evals{\cdot[x_1 \mapsto \vdiam, x_2 \mapsto v_h, x_3 \mapsto v_r]}{N_2}{c_2}{v_2}}
 \end{mathpar}
-\Description{An inductive definition of the evaluation judgement for LFPL's big-step operational cost semantics}
-\caption{LFPL's cost-annotated evaluation judgement}
+\Description{An inductive definition of the evaluation judgement for LFPL plus's big-step operational cost semantics}
+\caption{\lfplplus's cost-annotated evaluation judgement}
 \label{fig:jmt-eval}
 \end{figure}

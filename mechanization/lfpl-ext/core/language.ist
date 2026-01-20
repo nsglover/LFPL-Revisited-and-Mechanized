@@ -18,7 +18,9 @@ typedef
     | plus : tp -> tp -> tp
     | tensor : tp -> tp -> tp
     | arrow : tp -> tp -> tp
+    | stack : tp -> tp
     | dlist : tp -> tp
+    | dtree : tp -> tp
 /;
 
 
@@ -126,6 +128,19 @@ typedef
       split G GAB GA ->
       term GAB (arrow A B) -> term GA A ->
       term G B
+    | sempty :
+      forall (G : ctx) (A : tp) .
+      term G (stack A)
+    | spush :
+      forall (G Gh Gt : ctx) (A : tp) .
+      split G Gh Gt ->
+      term Gh A -> term Gt (stack A) ->
+      term G (stack A)
+    | spop :
+      forall (G GA GB : ctx) (A B : tp) .
+      split G GA GB ->
+      term GA (stack A) -> term GB B -> term (A :: stack A :: GB) B ->
+      term G B
     | lnil :
       forall (G : ctx) (A : tp) .
       term G (dlist A)
@@ -138,6 +153,18 @@ typedef
       forall (G Gl Gn : ctx) (A B : tp) .
       split G Gl Gn ->
       term Gl (dlist A) -> term Gn B -> term (diam :: A :: B :: nil) B ->
+      term G B
+    | tleaf :
+      forall (G : ctx) (A : tp) .
+      term G (dtree A)
+    | tnode :
+      forall (G Gd Gxlr Gx Glr Gl Gr : ctx) (A : tp) .
+      split G Gd Gxlr -> split Gxlr Gx Glr -> split Glr Gl Gr ->
+      term Gd diam -> term Gx A -> term Gl (dtree A) -> term Gr (dtree A) ->
+      term G (dtree A)
+    | trec :
+      forall (G : ctx) (A B : tp) .
+      term G (dlist A) -> term nil B -> term (diam :: A :: B :: B :: nil) B ->
       term G B
 /;
 Database.setImplicits (parseConstant /drop/) 3;
@@ -156,6 +183,9 @@ Database.setImplicits (parseConstant /app/) 5;
 Database.setImplicits (parseConstant /lnil/) 2;
 Database.setImplicits (parseConstant /lcons/) 6;
 Database.setImplicits (parseConstant /lrec/) 5;
+Database.setImplicits (parseConstant /tleaf/) 2;
+Database.setImplicits (parseConstant /tnode/) 8;
+Database.setImplicits (parseConstant /trec/) 3;
 
 
 
