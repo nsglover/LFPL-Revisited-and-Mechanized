@@ -1,9 +1,11 @@
+File.loadWithoutDependencies "tree.isto";
 File.loadWithoutDependencies "nfold.isto";
 File.loadWithoutDependencies "div.isto";
 File.loadWithoutDependencies "exp.isto";
 File.loadWithoutDependencies "binom.isto";
 File.loadWithoutDependencies "poly.isto";
 
+openModule /Tree/;
 openModule /NFold/;
 openModule /Division/;
 openModule /Exponential/;

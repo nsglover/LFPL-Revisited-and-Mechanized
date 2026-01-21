@@ -1,6 +1,8 @@
 openModule /Nat/;
 openModule /List/;
 
+File.import "../../math/load.iml";
+
 File.import "../core/load-operational.iml";
 
 beginModule "Size";
@@ -19,8 +21,12 @@ defineInd //
   | vinj2 A B V . size V
   | vpair A B VA VB . size VA + size VB
   | vlam G A B S M . env_size S
+  | vempty A . 0
+  | vpush A VA VL . size VA + size VL
   | vnil A . 0
   | vcons A VA VL . 1 + size VA + size VL
+  | vleaf A . 0
+  | vnode A VA VL VR . 1 + size VA + size VL + size VR
   and
   env_size : env G -> nat of
   | env_nil . 0
@@ -60,6 +66,10 @@ lemma "non_size_increasing"
 /;
 intro /CM G A M S V c M_evals/.
 induction /M_evals/.
+{
+  intro /G A B M S V VM cM M_evals M_ih/.
+  omega.
+}
 {
   intro /G A S V/.
   omega.
@@ -133,6 +143,25 @@ induction /M_evals/.
   omega.
 }
 {
+  intro /G Gh Gt A T Mh Mt S Vh ch Vt ct M_evals M_ih N_evals N_ih/.
+  rewrite /-> split_size _# 3 T/.
+  omega.
+}
+{
+  intro /G GA GB A B T M N1 N2 S cM VN cN M_evals M_ih N_evals N_ih/.
+  rewrite /-> split_size _# 3 T/.
+  omega.
+}
+{
+  intro /G GA GB A B T M N1 N2 S VA VM cM VN cN M_evals M_ih N_evals N_ih/.
+  rewrite /-> split_size _# 3 T/.
+  omega.
+}
+{
+  intro /G A S/.
+  omega.
+}
+{
   intro /G Gd Ght Gh Gt A T1 T2 Md Mh Mt S cd Vh ch Vt ct _ Md_ih _ Mh_ih _ Mt_ih/.
   rewrite /-> split_size _# 3 T1/.
   rewrite /-> split_size _# 3 T2/.
@@ -146,6 +175,26 @@ induction /M_evals/.
 {
   intro /G Gl Gn A B T M N1 N2 S Vh Vt cM Vrec cRec VN cN M_evals M_ih rec_evals rec_ih N_evals N_ih/.
   rewrite /-> split_size _# 3 T/.
+  omega.
+}
+{
+  intro /G A S/.
+  omega.
+}
+{
+  intro /G Gd Gxlr Gx Glr Gl Gr A Td Tx Tl Md Mx Ml Mr S cd Vx cx Vl cl Vr cr/.
+  intro /Md_evals Md_ih Mx_evals Mx_ih Ml_evals Ml_ih Mr_evals Mr_ih/.
+  rewrite /-> split_size _# 3 Td/.
+  rewrite /-> split_size _# 3 Tx/.
+  rewrite /-> split_size _# 3 Tl/.
+  omega.
+}
+{
+  intro /G A B M N1 N2 S cM VN cN M_evals M_ih N_evals N_ih/.
+  omega.
+}
+{
+  intro /G A B M N1 N2 S Vx Vl Vr cM VL VR cL cR VN cN M_evals M_ih L_evals L_ih R_evals R_ih N_evals N_ih/.
   omega.
 }
 qed ();

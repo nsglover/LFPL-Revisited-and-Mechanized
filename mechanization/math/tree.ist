@@ -1,0 +1,46 @@
+openModule /Nat/;
+
+beginModule "Tree";
+
+
+
+(* BINARY TREE DATATYPE *)
+
+typedef
+/
+  datatype
+    intersect (i : level) .
+    intermediate (a : U i) .
+    U i
+  of
+    tree : type =
+    | leaf : tree
+    | node : a -> tree -> tree -> tree
+/;
+
+
+
+(* BINARY TREE OPERATIONS *)
+
+defineInd /{a b} base step/
+/
+  foldt : tree [a] -> b of
+  | leaf . base
+  | node x l r . step x (foldt l) (foldt r)
+//
+  intersect (i : level) . forall (a b : U i) . b -> (a -> b -> b -> b) -> tree a -> b
+/;
+
+
+defineInd /{a}/
+/
+  nodes : tree [a] -> nat of
+  | leaf . zero
+  | node _ l r . 1 + nodes l + nodes r
+//
+  intersect (i : level) . forall (a : U i) . tree a -> nat
+/;
+
+
+
+endModule ();

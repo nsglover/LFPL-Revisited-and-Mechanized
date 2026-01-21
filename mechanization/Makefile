@@ -3,7 +3,7 @@ define prepend
 endef
 
 UNITS = \
-	$(call prepend, math, nfold div exp binom poly) \
+	$(call prepend, math, tree nfold div exp binom poly) \
 	$(call prepend, turing-machine, tape transition machine) \
 	\
 	$(call prepend, lfpl-ext/core, language operational denotational equivalence) \
@@ -28,5 +28,4 @@ clean :
 	find . -name "*.isto" -type f -delete
 
 
-# TODO: Add weakening, binary trees, diamondless stacks to the soundness proof.
 # TODO: Give an operational-cost-semantics-preserving translation from lfpl-min to lfpl-ext.

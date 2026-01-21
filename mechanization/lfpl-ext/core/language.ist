@@ -164,7 +164,7 @@ typedef
       term G (dtree A)
     | trec :
       forall (G : ctx) (A B : tp) .
-      term G (dlist A) -> term nil B -> term (diam :: A :: B :: B :: nil) B ->
+      term G (dtree A) -> term nil B -> term (diam :: A :: B :: B :: nil) B ->
       term G B
 /;
 Database.setImplicits (parseConstant /drop/) 3;
@@ -180,6 +180,9 @@ Database.setImplicits (parseConstant /pair/) 5;
 Database.setImplicits (parseConstant /letp/) 6;
 Database.setImplicits (parseConstant /lam/) 3;
 Database.setImplicits (parseConstant /app/) 5;
+Database.setImplicits (parseConstant /sempty/) 2;
+Database.setImplicits (parseConstant /spush/) 4;
+Database.setImplicits (parseConstant /spop/) 5;
 Database.setImplicits (parseConstant /lnil/) 2;
 Database.setImplicits (parseConstant /lcons/) 6;
 Database.setImplicits (parseConstant /lrec/) 5;
@@ -200,9 +203,11 @@ typedef
     | hf_one : heap_free one
     | hf_plus : forall (A B : tp) . heap_free A -> heap_free B -> heap_free (plus A B)
     | hf_tensor : forall (A B : tp) . heap_free A -> heap_free B -> heap_free (tensor A B)
+    | hf_stack : forall (A : tp) . heap_free A -> heap_free (stack A)
 /;
 Database.setImplicits (parseConstant /hf_plus/) 2;
 Database.setImplicits (parseConstant /hf_tensor/) 2;
+Database.setImplicits (parseConstant /hf_stack/) 1;
 
 
 

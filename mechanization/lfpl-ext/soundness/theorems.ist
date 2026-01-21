@@ -40,6 +40,15 @@ induction /HA/.
   so /B_ih VB/ /VB_size/.
   omega.
 }
+{
+  intro /A HA ih V/.
+  so /stack_canonical_form A V/ /LV V_eq/.
+  subst /V/.
+  induction /LV/ >>> [reflexivity, idtac].
+  intro /V LV ih'/.
+  rewrite /-> ih V, -> ih'/.
+  reflexivity.
+}
 qed ();
 
 
@@ -84,6 +93,17 @@ induction /HA/.
   so /A_ih VA n/ /A_bound/.
   so /B_ih VB n/ /B_bound/.
   omega.
+}
+{
+  intro /A HA ih V n/.
+  so /stack_canonical_form A V/ /LV V_eq/.
+  subst /V/.
+  induction /LV/ >>> [reflexivity, idtac].
+  intro /V LV ih'/.
+  unfold /value_bound/.
+  rewrite /-> p_plus_correct/.
+  rewrite /-> ih V n, -> ih'/.
+  reflexivity.
 }
 qed ();
 
