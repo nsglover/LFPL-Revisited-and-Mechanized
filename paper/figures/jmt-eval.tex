@@ -5,8 +5,6 @@
 \begin{mathpar}
 \RuleEval{Var}{\evals{\env}{x}{\Cvar}{\env(x)}}{}
 \and
-\RuleEval{UnitI}{\evals{\env}{\tmnull}{\Cnull}{\vnull}}{}
-\and
 \RuleEval{SumI$_i$}{\evals{\env}{\tminj{i}{M}}{c + \Cinj{i}}{\vinj{i}{v}}}{\evals{\env}{M}{c}{v}}
 \and
 \RuleEval{SumE$_i$}{\evals{\envappend{\env}{\env'}}{\tmcase{M}{x}{N_1}{x}{N_2}}{c + c' + \Ccase}{v'}}{\evals{\env}{M}{c}{\vinj{i}{v}} \\ \evals{\envcons{\env'}{x}{v}}{N_i}{c'}{v'}}
@@ -16,6 +14,8 @@
 \RuleEval{TensorE}{\evals{\envappend{\env}{\env'}}{\tmletp{M}{x_1}{x_2}{N}}{c + c' + \Cletp}{v}}{\evals{\env}{M}{c}{\vpair{v_1}{v_2}} \\ \evals{\env'[x_1 \mapsto v_1, x_2 \mapsto v_2]}{N}{c'}{v}}
 \and
 \RuleEval{ArrowI}{\evals{\env}{\tmlam{x}{M}}{\Clam}{\vlam{\env}{x}{M}}}{}
+\and
+\RuleEval{UnitI}{\evals{\env}{\tmnull}{\Cnull}{\vnull}}{}
 \and
 \RuleEval{ArrowE}{\evals{\envappend{\env_1}{\env_2}}{\tmapp{M}{N}}{c_1 + c_2 + c' + \Capp}{v'}}{\evals{\env_1}{M}{c_1}{\vlam{\env'}{x}{M'}} \\ \evals{\env_2}{N}{c_2}{v} \\ \evals{\envcons{\env'}{x}{v}}{M'}{c'}{v'}}
 \and

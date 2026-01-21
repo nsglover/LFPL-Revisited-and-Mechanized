@@ -17,13 +17,15 @@ The denotational semantics for these new constructs are relatively straightforwa
 
 To reason about the cost of executing \lfplplus programs, we need reason about executing functions which may take lists as input. For example, we have seen a closed \lfpl term $\code{reverse} : \tparr{\tplist{A}}{\tplist{A}}$, but we can never actually ``run'' $\code{reverse}$ on a nonempty input list, since that would require a closed term of type $\tpdiam$ and the whole point of \lfpl's type system is to make that impossible.
 
-To solve this problem, we introduce a separate language for \lfplplus values (see \pref{fig:syntax-val}). Note the definitions of value and environment are mutually recursive. This comes up several times in the following developments, because it forces us to define functions on values via mutual recursion with a corresponding function on environments. Also, note that there is a value $\vdiam$ intended to have type $\tpdiam$, and there are also nonempty list and tree values which do not require diamonds to construct. By keeping this value language separate from the term language of \lfplplus, we ensure \lfplplus terms are still polynomial-time sound while still obtaining a means of giving \lfplplus programs concrete inputs to help us observe their execution.
+To solve this problem, we introduce a separate language for \lfplplus values (see \pref{fig:syntax-val}). Note the definitions of value and environment are mutually recursive. This comes up several times in the following developments, because it forces us to define functions on values via mutual recursion with a corresponding function on environments. Also, note that there is a value $\vdiam$ intended to have type $\tpdiam$, and there are also nonempty list and tree values which do not require diamonds to construct. By keeping this value language separate from the term language of \lfplplus, we ensure \lfplplus terms are still polynomial-time sound while still obtaining a means of giving \lfplplus programs concrete inputs to help us observe their execution. We also give a simple typing judgement $v : A$ for values, so that $\vdiam : \tpdiam$, $\vcons{v_h}{v_t} : \tplist{A}$ whenever $v_h : A$ and $v_t : \tplist{A}$, and so on.
 
 \input{figures/syntax-val}
 
 To account for the cost of evaluation, we give a cost-annoted big-step operational semantics in \pref{fig:jmt-eval}. By $\evals{\env}{M}{c}{v}$, we mean that the (potentially open) term $M$ evaluates under the environment $\env$ to a value $v$ with cost $c$. We also assume the existence of arbitrary constants $\Cvar, \Cnull, \ldots, \Ctrec \in \mathbb N$, one for each syntactic construct. This way, our cost model is generic with respect to the particular costs of each primitve operation of the language.
 
 \input{figures/jmt-eval}
+
+This semantics enjoys standard properties such as determinism (there is at most one value and cost that a given program may evaluate to), preservation of typing (a well-typed expression evaluates to a value with the same type, assuming all values in the environment have the correct type), and equivalence with the denotational semantics, assuming a sensible denotation of values. We have mechanized both of these results, but neglect stating or proving them here because they are straightforward and not relevant to the discussion of polynomial-time soundness.
 
 
 
@@ -32,17 +34,37 @@ To account for the cost of evaluation, we give a cost-annoted big-step operation
 We now finally make precise the non-size-increasing property we have referred to in previous sections. We will formulate size in terms of the operational semantics, but the original formulation was in terms of a set-theoretic denotational semantics \cite{hofmannLinearTypesNonsizeincreasing1999}. The operational semantics simplify the formulation while still supporting a reasonable soundness theorem.
 
 Our goal is to assign to each value $v$ a number $\valsize{v} \in \mathbb N$ that, roughly speaking, counts the number of diamond values $\vdiam$ contained within $v$. We then want to show that feeding values to \lfplplus terms does not increase their size (i.e. the size of the output value is bounded by the size of the inputs). With goal in mind, we define a mutually inductive size function on values and environments:
-
 \begin{align*}
-\valsize{\vdiam} &= 1 \\
-\valsize{\vnull} &= 0 \\
-\valsize{\vrecord{\env}{M_1}{M_2}} &= \envsize{\env} \\
-\valsize{\vinj{i}{v}} &= \valsize{v} \\
-\valsize{\vpair{v_1}{v_2}} &= \valsize{v_1} + \valsize{v_2} \\
+&\valsize{\vdiam} = 1 \quad,\quad \valsize{\vnull} = 0 \quad, \\
+&\valsize{\vrecord{\env}{M_1}{M_2}} = \envsize{\env} \quad, \\
+&\valsize{\vinj{i}{v}} = \valsize{v} \quad, \\
+&\valsize{\vpair{v_1}{v_2}} = \valsize{v_1} + \valsize{v_2} \quad, \\
+&\valsize{\vlam{\env}{x}{M}} = \envsize{\env} \quad, \\
+&\valsize{\vempty} = 0 \quad,\quad \valsize{\vnil} = 0 \quad,\quad \valsize{\vleaf} = 0 \quad, \\
+&\valsize{\vpush{v_h}{v_t}} = \valsize{v_h} + \valsize{v_t} \quad, \\
+&\valsize{\vcons{v_h}{v_t}} = 1 + \valsize{v_h} + \valsize{v_t} \quad, \\
+&\valsize{\vnode{v}{v_l}{v_r}} = 1 + \valsize{v} + \valsize{v_l} + \valsize{v_r} \quad, \\
+&\envsize{\envnil} = 0 \quad,\quad \envsize{\envcons{\env}{x}{v}} = \envsize{\env} + \valsize{v} 
 \end{align*}
+
+Our intuitive notion of the non-size-increasing property is that a function's output should have size no greater than its input. The following theorem makes this rigorous:
+\begin{theorem}[The Non-Size-Increasing Property]
+Suppose that $\types{\ctx}{M}{A}$. Then, for all environments $\env$, values $v$, and costs $c$ such that $\evals{\env}{M}{c}{v}$, we have $\valsize{v} \le \envsize{\env}$.
+\end{theorem}
+\begin{proof}
+By rule induction on $\evals{\env}{M}{c}{v}$.
+\end{proof}
+
+The relevance of this result to soundness is already clear; an immediate corollary is that there are no closed terms of type $\tpdiam$, one of the main properties \lfpl's type system was designed to ensure. Indeed, if there were such a term, it would evaluate to $\vdiam$ which has size $1$, yet the empty environment has size $0$.
 
 
 
 \subsection{Polynomial Cost Bound}
 
-Placeholder.
+Our goal in this subsection is to prove the following:
+
+\begin{theorem}[Concrete Polynomial-Time Soundness]
+Suppose $\types{\ctxcons{\ctxnil}{x}{\tplist{A}}}{M}{B}$, where $\dfree{A}$. Then, there exists a polynomial $P : \mathbb N \to \mathbb N$ such that, for any value $v_x : \tplist{A}$ made up of $n$ nodes (i.e. the list represented by $v$ has length $n$), there exists a value $v : B$ and a cost $c \in \mathbb N$ such that $\evals{\envcons{\envnil}{x}{v_x}}{M}{c}{v}$ and $c \le P(n)$.
+\end{theorem}
+
+Taking $B = \tplist{\tpunit}$ and $A = \tpunit$, we recover the typical notion of soundness for \lfplplus functions on natural numbers. We present this more general form to motivate our transition to the even more general form we will need to complete the proof.
