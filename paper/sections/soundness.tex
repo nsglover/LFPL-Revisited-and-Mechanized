@@ -67,4 +67,4 @@ Our goal in this subsection is to prove the following:
 Suppose $\types{\ctxcons{\ctxnil}{x}{\tplist{A}}}{M}{B}$, where $\dfree{A}$. Then, there exists a polynomial $P : \mathbb N \to \mathbb N$ such that, for any value $v_x : \tplist{A}$ made up of $n$ nodes (i.e. the list represented by $v$ has length $n$), there exists a value $v : B$ and a cost $c \in \mathbb N$ such that $\evals{\envcons{\envnil}{x}{v_x}}{M}{c}{v}$ and $c \le P(n)$.
 \end{theorem}
 
-Taking $B = \tplist{\tpunit}$ and $A = \tpunit$, we recover the typical notion of soundness for \lfplplus functions on natural numbers. We present this more general form to motivate our transition to the even more general form we will need to complete the proof.
+Taking $B = \tplist{\tpunit}$ and $A = \tpunit$, we recover the typical notion of soundness for \lfplplus functions on natural numbers. We present this more general form to motivate our transition to the even more general form we need to successfully prove it.

@@ -10,9 +10,9 @@
 \and
 \RuleTy{StackI$_2$}{\types{\ctxappend{\ctx}{\ctx'}}{\tmpush{M}{N}}{\tpstack{A}}}{\types{\ctx}{M}{A} \\ \types{\ctx'}{N}{\tpstack{A}}}
 \and
-\RuleTy{StackE}{\types{\ctxappend{\ctx}{\ctx'}}{\tmpop{M}{N_1}{x_1}{x_2}{N_2}}{B}}{\types{\ctx}{M}{\tpstack{A}} \\ \types{\ctx'}{N_1}{B} \\ \types{\ctxcons{\ctxcons{\ctx'}{x_1}{A}}{x_2}{\tpstack{A}}}{N_2}{B}}
-\and
 \RuleTy{TreeI$_1$}{\types{\ctx}{\tmleaf}{\tptree{A}}}{}
+\and
+\RuleTy{StackE}{\types{\ctxappend{\ctx}{\ctx'}}{\tmpop{M}{N_1}{x_1}{x_2}{N_2}}{B}}{\types{\ctx}{M}{\tpstack{A}} \\ \types{\ctx'}{N_1}{B} \\ \types{\ctxcons{\ctxcons{\ctx'}{x_1}{A}}{x_2}{\tpstack{A}}}{N_2}{B}}
 \and
 \RuleTy{TreeI$_2$}{\types{\ctxappend{\ctx_d}{\ctxappend{\ctx_x}{\ctxappend{\ctx_l}{\ctx_r}}}}{\tmnode{M_d}{M_x}{M_l}{M_r}}{\tptree{A}}}{\types{\ctx_d}{M_d}{\tpdiam} \\ \types{\ctx_x}{M_x}{A} \\ \types{\ctx_l}{M_l}{\tptree{A}} \\ \types{\ctx_r}{M_r}{\tptree{A}}}
 \and
