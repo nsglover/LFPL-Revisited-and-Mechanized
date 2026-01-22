@@ -24,7 +24,7 @@ It says we must bipartition the context $G$ into $\ctxappend{G_A}{G_B}$, and giv
 
 \subsection{Denotational and Operational Semantics}
 
-Instead of the set-theoretic denotational semantics we give in \pref{sec:denotational-semantics}, our mechanization gives a denotational semantics from intrinsically-typed terms into Istari terms of the appropriate type. This is really no different than the set-theoretic formulation, since all operations we use on sets (products, coproducts, etc.) are also present in the Istari type system. However, it is quite nice to work with, as we can rely on Istari's reduction engine to simplify Istari terms resulting from the semantics of a complicated \lfpl term. These denotations have the following signatures:
+Instead of the set-theoretic denotational semantics we give in \pref{sec:denotational-semantics}, our mechanization gives a denotational semantics from intrinsically-typed terms into Istari terms of the appropriate type. This is barely different from the set-theoretic formulation, since all operations we use on sets (products, coproducts, etc.) are also present in the Istari type system. However, it is nice to use, as we can rely on Istari's reduction engine to simplify Istari terms resulting from the semantics of a complicated \lfpl term. These denotations have the following signatures:
 \begin{lstlisting}
 tp_sem : tp -> type
 term_sem : forall (G : ctx) (A : tp) .
