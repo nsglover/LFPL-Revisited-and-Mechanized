@@ -48,7 +48,7 @@ Suppose that $\types{\ctx}{M}{A}$. Then, for all environments $\env$, values $v$
 By rule induction on $\evals{\env}{M}{c}{v}$.
 \end{proof}
 
-The relevance of this result to soundness is already clear; an immediate corollary is that there are no closed terms of type $\tpdiam$, one of the main properties \lfpl's type system was designed to ensure. Indeed, if there were such a term, it would evaluate to $\vdiam$ which has size $1$, yet the empty environment has size $0$.
+The relevance of this result to soundness is already clear; an immediate corollary is that there are no closed terms of type $\tpdiam$, one of the main properties \lfpl's type system was designed to ensure. Indeed, if there were such a term that evaluates (we shall see in the next section that all terms evaluate), it would have to evaluate to $\vdiam$ which has size $1$, yet the empty environment has size $0$.
 
 
 

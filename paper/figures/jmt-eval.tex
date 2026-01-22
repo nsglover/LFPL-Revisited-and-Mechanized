@@ -15,8 +15,6 @@
 \and
 \RuleEval{ListI$_2$}{\evals{\envappend{\env_d}{\envappend{\env_h}{\env_t}}}{\tmcons{M_d}{M_h}{M_t}}{c_d + c_h + c_t + \Ccons}{\vcons{v_h}{v_t}}}{\evals{\env_d}{M_d}{c_d}{\vdiam} \\ \evals{\env_h}{M_h}{c_h}{v_h} \\ \evals{\env_t}{M_t}{c_t}{v_t}}
 \and
-\RuleEval{ListE$_1$}{\evals{\envappend{\env}{\env'}}{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}{c + c' + \Crec}{v}}{\evals{\env}{M}{c}{\vnil} \\ \evals{\env'}{N_1}{c'}{v}}
-\and
 \RuleEval{ListE$_2$}{\evals{\envappend{\env}{\env'}}{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}{c + c_T + c' + \Crec}{v_2}}{\evals{\env}{M}{c}{\vcons{v_h}{v_t}} \\ \evals{\envcons{\env'}{y}{v_t}}{\tmrec{y}{N_1}{x_d}{x_h}{x_t}{N_2}}{c_T}{v_T} \\ \evals{\cdot[x_d \mapsto \vdiam, x_h \mapsto v_h, x_t \mapsto v_T]}{N_2}{c'}{v_2}}
 \and
 \RuleEval{TreeE$_2$}{\evals{\env}{\tmtrec{M}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{c + c_L + c_R + c' + \Ctrec}{v}}{\evals{\env}{M}{c}{\vnode{v_x}{v_l}{v_r}} \\ \evals{\envcons{\envnil}{y}{v_l}}{\tmrec{y}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{c_L}{v_L} \\ \evals{\envcons{\envnil}{y}{v_r}}{\tmrec{y}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{c_R}{v_R} \\ \evals{\envnil[x_d \mapsto \vdiam, x \mapsto v_x, x_l \mapsto v_L, x_r \mapsto v_R]}{N_2}{c'}{v}}
