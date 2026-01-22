@@ -26,6 +26,3 @@ all : $(foreach i, $(UNITS), $(i).isto $(i).ist)
 
 clean :
 	find . -name "*.isto" -type f -delete
-
-
-# TODO: Give an operational-cost-semantics-preserving translation from lfpl-min to lfpl-ext.

@@ -57,7 +57,67 @@ The relevance of this result to soundness is already clear; an immediate corolla
 Our goal in this subsection is to prove the following:
 
 \begin{theorem}[Concrete Polynomial-Time Soundness]
-Suppose $\types{\ctxcons{\ctxnil}{x}{\tplist{A}}}{M}{B}$, where $\dfree{A}$. Then, there exists a polynomial $P : \mathbb N \to \mathbb N$ such that, for any value $v_x : \tplist{A}$ made up of $n$ nodes (i.e. the list represented by $v$ has length $n$), there exists a value $v : B$ and a cost $c \in \mathbb N$ such that $\evals{\envcons{\envnil}{x}{v_x}}{M}{c}{v}$ and $c \le P(n)$.
+Suppose $\types{\ctxcons{\ctxnil}{x}{\tplist{A}}}{M}{B}$, where $\dfree{A}$. Then, there exists a polynomial $P_M : \mathbb N \to \mathbb N$ such that, for any value $v_x : \tplist{A}$ made up of $n$ nodes (i.e. the list represented by $v$ has length $n$), there exists a value $v : B$ and a cost $c \in \mathbb N$ such that $\evals{\envcons{\envnil}{x}{v_x}}{M}{c}{v}$ and $c \le P_M(n)$.
 \end{theorem}
 
-Taking $B = \tplist{\tpunit}$ and $A = \tpunit$, we recover the typical notion of soundness for \lfplplus functions on natural numbers. We present this more general form to motivate our transition to the even more general form we need to successfully prove it.
+It is important that the polynomial only depends on $M$, i.e. it is quantified before $\env$. Otherwise, we could just do cost-agnostic termination proof via standard methods to obtain $v$ and $c$, and then take $P_M(n) = c$, trivializing the proof and not saying anything useful about \lfplplus.
+
+Taking $B = \tplist{\tpunit}$ and $A = \tpunit$, we recover the basic notion of soundness for \lfplplus functions on natural numbers. We present this more general form to motivate our transition to the even more general form we need to successfully prove it. As usual, we must reason about arbitrary terms under arbitrary contexts. It is tempting to say the following:
+
+\begin{antitheorem}[General Soundness - First Attempt]
+Suppose $\Gamma \vdash M : A$. Then, there exists a polynomial $P_M : \mathbb N \to \mathbb N$ such that, for any $\env : \Gamma$, there exists a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and $c \le P_M(\envsize{\env})$.
+\end{antitheorem}
+
+This is a step in the right direction but is blatantly false; the problem is that the environment may contain values which incur cost when used, which is dynamic information and $P_M$ only has access to static information. Concretely, consider $\types{f : \tparr{\tpunit}{\tpunit}}{\tmapp{f}{\tmnull}}{\tpunit}$. If for simplicity $\Capp = \Cvar = \Cnull = 0$, we cannot statically observe how this program could incur any cost. After all, the only statically observable syntactic constructs are application, variable, and null. On the other hand, dynamically, $\env$ could map $f$ to a function which incurs nonzero cost.
+
+To resolve this issue, we must consider the potential cost of running functions (or lazy pairs) stored in the environment $\env$ and result value $v$. Suppose for a moment have defined three families of polynomials: $P_M$ on all terms $M$, $P_v$ on all values $v$, and $P_\env$ on all environments $\env$. Our new goal is:
+
+\begin{theorem}[General Soundness - Second Attempt]
+\label{thm:soundness-general-weak}
+Suppose $\Gamma \vdash M : A$. Then, for any $\env : \Gamma$, there exists a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and:
+$$c + P_v(\envsize{\env}) \le P_M(\envsize{\env}) + P_{\env}(\envsize{\env})$$
+\end{theorem}
+
+This theorem is true, though as stated it is not strong enough to be proven by rule induction on $\types{\ctx}{M}{A}$. Before getting into that, let's define the polynomials used in this theorem.
+
+\begin{definition}[Polynomial Algebra]
+We define $\max(P,Q) : \mathbb N \to \mathbb N$ as the polynomial with coefficients equal to the pairwise maximums of the coefficients of polynomials $P,Q : \mathbb N \to \mathbb N$. This way, $\max(P(n), Q(n)) \le \max(P,Q)(n)$. Additionally, we define $X$ to be the identity polynomial, i.e. $X(n) = n$.
+\end{definition}
+
+\begin{definition}[Term Polynomial]
+The aim of the polynomial $P_M : \mathbb N \to \mathbb N$ is to bound the cost of evaluating $M$, and the future cost of using any functions (or lazy pairs) it might evaluate to, by $P_M(n)$ in an environment containing $n$ diamonds.
+\begin{align*}
+P_{x} &= \Cvar \\
+P_{\tmrecord{M_1}{M_2}} &= \Crecord + \max(P_{M_1}, P_{M_2}) \\
+P_{\tmproj{i}{M}} &= \max(1, \Cproj{i}) + P_M \\
+P_{\tmlam{x}{M}} &= \Clam + P_M \\
+P_{\tmapp{M}{N}} &= \max(1, \Capp) + P_M + P_N \\
+P_{\tmcase{M}{x_1}{N_1}{x_2}{N_2}} &= \Ccase + P_M + \max(P_{N_1}, P_{N_2}) \\
+P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n) &= P_M + (\Crec + P_{N_1}) \;  + \\
+&\quad\quad X * (\Cvar + \Crec + P_{N_2}) \\
+P_{\tmtrec{M}{N_1}{x}{y}{z}{w}{N_2}} &= P_M + (X + 1) * (\Ctrec + P_{N_1}) \; + \\
+&\quad\quad X * (2\Cvar + \Ctrec + P_{N_2})
+\end{align*}
+We leave $P_M$ for other terms $M$ to the reader.
+\end{definition}
+
+The intuition behind $P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n)$ is that $M$ and $N_1$ are evaluated once, and $N_2$ could be evaluated up to $n$ times, where $n = \envsize{\env}$ is the number of diamonds available the environment. Similarly, for $P_{\tmtrec{M}{N_1}{x}{y}{z}{w}{N_2}}$, the base case $N_1$ could be evaluated $n + 1$ times (a binary tree with $n$ internal nodes has $n + 1$ leaf nodes) and $N_2$ could be evaluated $n$ times.
+
+The weakening of the bound to $\max(1, \Capp)$ in $P_{\tmlam{x}{M}}$ instead of just $\Capp$ (and similarly in $P_{\tmproj{i}{M}}$) is necessary for how we approach the soundness proof; it's purpose will become evident in \pref{sec:proving-general-soundness}
+
+\begin{definition}[Value and Environment Polynomials]
+The idea of $P_v$ and $P_\env$ is to bound the cost of evaluating all of the function bodies and lazy pairs stored inside $v$ and $\env$ respectively. We define the two at once via mutual induction.
+\begin{align*}
+P_{\vdiam} &= P_{\vnull} = P_{\vempty} = P_{\vnil} = P_{\vleaf} = 0 \\
+P_{\vrecord{\env}{M_1}{M_2}} &= P_{\env} + \max(P_{M_1}, P_{M_2}) \\
+P_{\vlam{\env}{x}{M}} &= P_{\env} + P_M \\
+P_{\vpair{v_1}{v_2}} &= P_{v_1} + P_{v_2} \\
+P_{\envnil} &= 0 \quad\text{and}\quad P_{\envcons{\env}{x}{v}} = P_\env + P_v
+\end{align*}
+We leave $P_v$ for other values $v$ to the reader.
+\end{definition}
+
+
+
+\section{Proving the Theorem}
+\label{sec:proving-general-soundness}
