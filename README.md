@@ -10,14 +10,18 @@ The directory `paper` contains the TeX source files for the submission. To compi
 
 The directory `mechanization` contains a definition for Martin Hofmann's Linear Function Programming Language (LFPL) within Karl Crary's Istari Proof Assistant and proofs of the two core properties of the language - soundness and completeness with respect to polynomial-time computation. These two together imply that the complexity class of functions definable in LFPL is precisely equal to FP (the class of polynomial-time function problems).
 
+### Checking the Proofs
+
+You will need the [Istari proof assistant](https://istarilogic.org/install.html). Once that is installed and `istari` is in your `PATH`, run `make mechanization` from the root directory. The proofs are quite long, so this process can tens of minutes to complete.
+
 ### Layout
 
-<!-- TODO: This description is incorrect. -->
-The file structure consists of two general helper libraries (one defining some basic mathematical concepts and the other defining Turing machines), a definition of LFPL within Istari, a standard library for LFPL including syntactic sugar and basic utilities, the polynomial-time soundness proof, and the polynomial-time completeness proof. See below for more details.
+The file structure consists of two general helper libraries (one defining some basic mathematical concepts and the other defining Turing machines), and finally two languages (definitions and various results) LFPL-Min and LFPL-Ext. LFPL-Min contains a minimal set of LFPL features necessary to prove the polynomial-time completeness theorem. LFPL-Ext contains some additional features to make the language more interesting and strengthen the polynomial-time soundness theorem we prove for it.
 
 #### Utilities
 
 - `math`: Various mathematical definitions and results.
+  - `tree.ist`: Definition of binary trees in Istari.
   - `nfold.ist`: Defines $n$-fold and indexed operations (such as the $n$-fold composition of a function $f : A \to A$ with itself or an indexed sum over a sequence of natural numbers).
   - `div.ist`: Natural number division (with remainder).
   - `exp.ist`: Definition of and basic lemmas about exponentiation on natural numbers.
