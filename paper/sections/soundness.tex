@@ -1,15 +1,22 @@
 \section{Polynomial-Time Soundness}
 
-To strengthen our polynomial-time soundness result and illustrate how to add features to \lfpl while maintaining polynomial-time soundness, we extend the language with a few features and refer to the resulting language as \lfplplus. The features are the standard product type, which manifests as the lazy product in an affine setting, a type of unbounded stacks which are similar to lists but do not require diamonds to construct and do not support recursion, and the inductive type of binary trees. The syntax and typing rules of these language constructs are given in \pref{fig:ext-syntax-tp-tm} and \pref{fig:ext-jmt-ty} respectively.
+This section shows that \lfpl programs can be evaluated in polynomial
+time.
+%
+To strengthen the soundness result and illustrate how to add features to \lfpl while maintaining polynomial-time soundness, we extend the language and refer to the result as \lfplplus. The features are the standard product type, which manifests as the lazy product in an affine setting, a type of unbounded stacks which are similar to lists but do not require diamonds to construct and do not support recursion, and the inductive type of binary trees. The syntax and typing rules of these language constructs are given in \pref{fig:ext-syntax-tp-tm} and \pref{fig:ext-jmt-ty} respectively.
 
 \input{figures/ext-syntax-tp-tm}
 \input{figures/ext-jmt-ty}
 
-Note that typing rules for the stack type $\tpstack{A}$ look a lot like those of lists in a standard non-affine functional programming language, where lists are only eliminated by pattern matching against nil and cons rather than a structural recursor. This is precisely the intention; these stacks cannot violate \lfpl's core principle of controlling recursion by diamonds if they do not even support recursion.
+The typing rules for stacks of type $\tpstack{A}$ correspond to those for lists in a standard non-affine functional programming language, where the elimination from is case analysis rather than structural recursor and construction does not require diamonds.
+%
+These stacks do not violate \lfpl's core principle of controlling recursion by diamonds because they do not support recursion.
 
-The typing rules for the tree type $\tptree{A}$, an inductive type which does support recursion, are very similar to those of $\tplist{A}$. The primary difference is that, in \pref{rule:ty-TreeE}, the base case $N_1$ is typed under an empty context. Unlike lists, where there is only ever one $\tmnil$ nested inside a list, a tree can have many $\tmleaf$ values inside it. $N_1$ needs to be run for each one of those leaves, so allowing it access to a context potentially containing diamonds would allow for the duplication of diamonds at runtime.
+The typing rules for the tree type $\tptree{A}$, an inductive type which does support recursion, are similar to those of lists $\tplist{A}$. The primary difference is that, in \pref{rule:ty-TreeE}, the base case $N_1$ is typed under an empty context. Unlike lists, where there is only ever one terminal $\tmnil$, $N_1$ needs to be run for each leaf and allowing access to a context potentially containing diamonds would allow for the duplication of diamonds.
 
-The denotational semantics for these new constructs are relatively straightforward to derive. We set $\tpsem{\tpprod{A}{B}} = \tpsem{A} \times \tpsem{B}$ and $\tpsem{\tpstack{A}} = \tpsem{A}^*$, leaving the semantics for terms involving these types to the reader. Giving a semantics for $\tptree{A}$ and its related terms ultimately boils down to giving a mathematical account of binary trees (in the same manner we have used the Kleene star to give a simple mathematical account of lists), which is a standard mathematical exercise we also leave to the reader.
+The denotational semantics for these new constructs are relatively straightforward. We set $\tpsem{\tpprod{A}{B}} = \tpsem{A} \times \tpsem{B}$ and $\tpsem{\tpstack{A}} = \tpsem{A}^*$. Giving a semantics for $\tptree{A}$ and its related terms boils down to giving a mathematical account of binary trees (in the same manner we have used the Kleene star to give a simple mathematical account of lists).
+%
+The semantics for terms involving these types can be found in the mechanization.
 
 The stack type $\tpstack{A}$ is a particularly powerful addition to \lfpl. The vast majority of the difficulty in proving polynomial-time completeness of \lfpl, and by far the most complex aspect of our entire mechanization, was the definition and implementation of the bounded stack data structure discussed in \pref{sec:completeness-bounded-stack-definition} and \pref{sec:completeness-bounded-stack-implementation}. The addition of unbounded, $\tpdiam$-free stacks to \lfpl makes all of this unnecessary; \lfplplus admits a much simpler completeness proof.
 
@@ -122,3 +129,8 @@ We leave $P_v$ for other values $v$ to the reader.
 \section{Proving the Theorem}
 \label{sec:proving-general-soundness}
 
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: "../paper"
+%%% End:
