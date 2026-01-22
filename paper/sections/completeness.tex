@@ -26,13 +26,19 @@ The second challenge is to simulate the Turing machine for $P(n)$ steps. At firs
 \subsection{The Bounded Stack Data Structure}
 \label{sec:completeness-bounded-stack-definition}
 
-We first address the challenge of simulating the tape of the Turing machine. A common approach to this is to use a data structure consisting of a head element and two stacks, each representing one side of the tape relative to the head element \cite{Okasaki99}. Concretely, in \lfpl, if we use the type $A$ for tape symbols, then the type of our tape data structure would be $\tptens{\tplist{A}}{\tptens{A}{\tplist{A}}}$. The first element represents the section of the tape to the left of the head, the second element represents the symbol at the head of the tape, and the third element represents the right section of the tape. Treating elements of $L(A)$ like stacks, we can shift the head to the left by popping a symbol from the left list and pushing the current head symbol to the right list.
+We first address the challenge of simulating the tape of the Turing machine. A common approach to this is to use a data structure consisting of a head element and two stacks, each representing one side of the tape relative to the head element \cite{Okasaki99}. If we use the type $A$ for tape symbols, then the type of our tape data structure could be $\tptens{\tplist{A}}{\tptens{A}{\tplist{A}}}$. % The first element represents the section of the tape to the left of the head, the second element represents the symbol at the head of the tape, and the third element represents the right section of the tape. 
+% Treating elements of $L(A)$ like stacks, we can shift the head to the left by popping a symbol from the left list and pushing the current head symbol to the rightƒ list.
+%
+However, in \lfpl, we cannot actually use the above data structure; given $n$ diamonds, it can only hold $n + 1$ values. Instead, we construct a type $S(A)$ that depends on the bounding polynomial $P$ and supports a stack-like interface, as long as it doesn't have to hold more than $P(n)$ elements. Then, we use a value of type $\tptens{S(A)}{\tptens{A}{S(A)}}$ to encode the tape.
 
-Of course, we cannot actually use the above data structure; given $n$ diamonds, it can only hold $n + 1$ values. Instead, we construct a type $S(A)$ (which may depend on $P$) that supports a stack-like interface, at least as long as it doesn't have to hold more than $P(n)$ elements. Then, we can use something of type $\tptens{S(A)}{\tptens{A}{S(A)}}$ to encode the tape.
+We have in fact already seen the first key insight into how to construct $S(A)$ in \pref{example:susp}. It shows that we don't need any diamonds to store data, we just need them to interact with it. Using this idea, we can design our data structure so that it does not store diamonds while the push and pop functions temporarily borrow diamonds to interface with the suspended data.
 
-We have actually already seen the first key insight into how to construct such a type in \pref{example:susp}. This shows us that we really don't need any diamonds to store data, we just need them to interact with it. Using this idea, we can design our data structure to remain fully suspended by default, requiring zero diamonds to store it. The push and pop functions will have to temporarily borrow some diamonds to interface with the suspended data.
-
-The second key insight is that we do not need to un-suspend the entire data structure to interface with it. This is good, because if the stack held $P(n)$ values, we would still need $P(n)$ diamonds to un-suspend the whole thing during the push and pop operations. Since both push and pop work at the front of the stack, we just need to be able to un-suspend enough of our data structure to expose the front, which will save on the amount of diamonds we need for these operations. This amount may of course depend on $P$ and $n$. With these two insights in mind, we lay out our desired interface.
+The second key insight is that we do not need to un-suspend the entire data structure to interface with it.
+%
+% If the stack held $P(n)$ values, we would still need $P(n)$ diamonds to un-suspend the whole thing during the push and pop operations. 
+Since both push and pop work at the front of the stack, we just need to be able to un-suspend enough of our data structure to expose the front.
+%
+The amount of diamonds we need for these operations depends on $P$ and $n$. % With these two insights in mind, we lay out our desired interface.
 
 \begin{definition}[Bounded Stack Interface]
 Given $k \in \mathbb N$ and an element type $A$, a $k$-stack implementation is a type $S$ together with the following closed terms:
@@ -43,11 +49,15 @@ Given $k \in \mathbb N$ and an element type $A$, a $k$-stack implementation is a
 \end{itemize}
 \end{definition}
 
-By $(\tplist{\tpunit})^k$ we mean the type of $k$-tuples $\tplist{\tpunit} \otimes \cdots \otimes \tplist{\tpunit}$. We use it here as a source of diamonds; the lists contain no information, but the diamonds stored alongside each element will be used to un-suspend parts of the data structure. The reason for using a $k$-tuple of lists instead of just one big list becomes apparent in the proof of \pref{lem:stack-inductive}, where the use of such a tuple greatly simplifies the implementation.
+By $(\tplist{\tpunit})^k$ we mean the type of $k$-tuples $\tplist{\tpunit} \otimes \cdots \otimes \tplist{\tpunit}$. The diamonds stored alongside each element are used to un-suspend parts of the data structure and returned after the respective operation. The reason for using a $k$-tuple of lists instead of just one big list becomes apparent in the proof of \pref{lem:stack-inductive}, where the use of such a tuple greatly simplifies the implementation.
+%
+Both $\code{push}$ and $\code{pop}$ also return a stack and a sum. The left branch of the sum is intended to signal failure of the operation (in which case the input stack is returned unmodified), and the right branch signals success (in which case the returned stack has been successfully modified).
+%
+For $\code{push}$, which takes in an element and a stack, failure means that the input stack is full, and so the input element is returned to us. For $\code{pop}$, failure means the input stack is empty. % If the input stack has at least one element, it is returned to us via the right injection.
 
-Intuitively, both $\code{push}$ and $\code{pop}$ take in some diamonds and the return all of them as their first return value. They both also return a stack and a sum as their second and third return values. The left branch of the sum is intended to signal failure of the operation (in which case the input stack is returned unmodified), and the right branch signals success (in which case the returned stack has been successfully modified). For $\code{push}$, which takes in an element and a stack, failure means that the input stack is full, and so the input element is returned to us. For $\code{pop}$, which just takes in a stack, failure means the input stack is empty. If the input stack has at least one element, it is returned to us via the right injection.
-
-This interface is inspired by the array-like data structure used in Hofmann's original completeness proof \cite{hofmannStrengthNonsizeIncreasing2002}. The key difference is that his array data structure has read and write operations requiring an index, given as a binary \lfpl number (i.e. $\tplist{\tpsum{\tpunit}{\tpunit}}$). The extra work of dealing with this index significantly complicates the implementation of the Turing machine's tape in his proof. Arrays have their advantages over stacks in many applications, where the user may want to access elements anywhere in the data structure, not just at the front. However, a stack-like interface is simpler, easier to implement, and is sufficient for representing a Turing machine's tape, so we believe it is the better choice of data structure for the completeness theorem.
+This interface is inspired by the array-like data structure used in Hofmann's original completeness proof \cite{hofmannStrengthNonsizeIncreasing2002}. The key difference is that his array data structure has read and write operations requiring an index, given as a binary \lfpl number (i.e. $\tplist{\tpsum{\tpunit}{\tpunit}}$). The extra work of dealing with this index significantly complicates the implementation of the Turing machine's tape.
+%
+Arrays are more general but our stack is easier to implement and sufficient for representing a Turing machine's tape, so we believe it is the better choice of data structure for the completeness theorem.
 
 To formalize our intuition of how $\code{push}$ and $\code{pop}$ should behave, we use the denotational semantics. We first define the element $m_{n,k} \in \tpsem{(\tplist{\tpunit})^k}$ to be the tuple $(\ell, \ldots, \ell)$, where $\ell$ is the unique element of $\tpsem{\tplist{\tpunit}}$ such that $|\ell| = n$. This way, an \lfpl term representing $m_{n,k}$ contains exactly $nk$ diamonds.
 
@@ -55,8 +65,8 @@ To formalize our intuition of how $\code{push}$ and $\code{pop}$ should behave, 
 \label{def:stack-correctness}
 Let $k \in \mathbb N$. Suppose $(S, \code{empty}, \code{push}, \code{pop})$ is a $k$-stack implementation with element type $A$. Given a function $B : \mathbb N \to \mathbb N$, we say this implementation is correct and bounded by $B$ if the following holds for all $n \in \mathbb N$:
 \begin{itemize}
-  \item There exists a unary relation $V_n \subseteq \tpsem{S}$. This is intended to represent the valid states of the data structure.
-  \item There exists a function $I_n : \tpsem{S} \to \tpsem{A}^*$. This is intended to represent the list of items contained in the stack.
+  \item There exists a relation $V_n \subseteq \tpsem{S}$ of valid  data-structure states.
+  \item There exists a function $I_n : \tpsem{S} \to \tpsem{A}^*$, which returns the list of items contained in the stack.
   \item Let $s = \tmsem{\code{empty}}{\ctxnil}$. Then, $V_n(s)$ holds and $I_n(s) = []$.
   \item Let $f = \tmsem{\code{push}}{\ctxnil}$. Then, for all $x \in \tpsem{A}$ and $s \in \tpsem{S}$ such that $V_n(s)$ holds, we have:
   \begin{itemize}
@@ -71,12 +81,14 @@ Let $k \in \mathbb N$. Suppose $(S, \code{empty}, \code{push}, \code{pop})$ is a
 \end{itemize}
 \end{definition}
 
-The intended use of the data structure is to choose $n \in \mathbb N$ and always pass $m_{n,k}$ to the $\code{push}$ and $\code{pop}$ operations. In other words, we commit to a value of $n$ at runtime and always provide $nk$ diamonds to the stack operations. \pref{def:stack-correctness} says that, in this use case, the stack can hold at most $B(n)$ items. Behavior is otherwise undefined. Note that whenever $\code{push}$ and $\code{pop}$ receive $m_{n,k}$ as input, they return $m_{n,k}$ as the first element of their output. This way, no diamonds are ever permanently used, only temporarily borrowed, and thus available for future stack operations.
+The intended use of the data structure is to choose $n \in \mathbb N$ and always pass $m_{n,k}$ to the $\code{push}$ and $\code{pop}$ operations. % In other words, we commit to a value of $n$ at runtime and always provide $nk$ diamonds to the stack operations.
+\pref{def:stack-correctness} ensures that, in this use case, the stack can hold at most $B(n)$ items. Behavior is otherwise undefined. Whenever $\code{push}$ and $\code{pop}$ receive $m_{n,k}$ as input, they return $m_{n,k}$ as the first element of their output and thus available for future stack operations.
 
-The definition only makes claims about valid stacks, i.e. $s \in \tpsem{S}$ such that $V_n(s)$ holds. Naturally, we insist that $\code{empty}$ should always be valid, and that $\code{push}$ and $\code{pop}$ should preserve validity. This extra layer of complexity is necessary; many of the implementations we provide in \pref{sec:completeness-bounded-stack-implementation} will require stack types $S$ which contain elements that would cause the $\code{push}$ and $\code{pop}$ operations to fail their specification. The extension of \lfpl with dependent types studied in \cite{atkeyPolynomialTimeDependent2024} could be helpful here, potentially allowing us to internalize \pref{def:stack-correctness} into the types themselves.
+% The definition only makes claims about valid stacks, i.e. $s \in \tpsem{S}$ such that $V_n(s)$ holds. Naturally, we insist that $\code{empty}$ should always be valid, and that $\code{push}$ and $\code{pop}$ should preserve validity. This extra layer of complexity is necessary; many of the implementations we provide in \pref{sec:completeness-bounded-stack-implementation} will require stack types $S$ which contain elements that would cause the $\code{push}$ and $\code{pop}$ operations to fail their specification. The extension of \lfpl with dependent types studied in \cite{atkeyPolynomialTimeDependent2024} could be helpful here, potentially allowing us to internalize \pref{def:stack-correctness} into the types themselves.
 
-The intuition for $\code{push}$ is that, given an element to push $x \in \tpsem{A}$ and a valid input stack $s \in \tpsem{S}$, we case on whether $s$ is full, i.e. $|I_n(s)| = B(n)$. If it's full, we just return $s$ and $x$. Otherwise, we return some new valid stack $s'$ such that the items of $s'$ are $x$ followed by the items of $s$. The intuition for $\code{pop}$ is quite similar, casing on whether $I_n(s)$ is $[]$ or $x :: \ell$ and proceeding accordingly.
+% The intuition for $\code{push}$ is that, given an element to push $x \in \tpsem{A}$ and a valid input stack $s \in \tpsem{S}$, we case on whether $s$ is full, i.e. $|I_n(s)| = B(n)$. If it's full, we just return $s$ and $x$. Otherwise, we return some new valid stack $s'$ such that the items of $s'$ are $x$ followed by the items of $s$. The intuition for $\code{pop}$ is quite similar, casing on whether $I_n(s)$ is $[]$ or $x :: \ell$ and proceeding accordingly.
 
+\comment{Jan}{The following can be removed if needed.}
 To summarize, a correct $k$-stack bounded by $B : \mathbb N \to \mathbb N$ is a data structure which, given the user's choice of some number $n \in \mathbb N$ at runtime, behaves like a standard stack in a functional programming language but requires temporary access to $nk$ diamonds and has a storage limit of $B(n)$ elements.
 
 
