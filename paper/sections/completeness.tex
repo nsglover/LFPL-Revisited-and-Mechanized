@@ -96,35 +96,49 @@ To summarize, a correct $k$-stack bounded by $B : \mathbb N \to \mathbb N$ is a 
 \subsection{Bounded Stack Implementations}
 \label{sec:completeness-bounded-stack-implementation}
 
-We now provide a concrete implementation of a bounded stack and several ways to build better implementations on top of pre-existing ones. These can ultimately be combined to give us a stack bounded by our choice of a polynomial $P$, which is exactly what we want for simulating the tape of a polynomial-time Turing machine. While most of the proofs in this section focus on the high-level intuition and avoid writing or reasoning about concrete \lfpl programs, everything is formalized in the mechanization (see \pref{sec:mechanization}).
+We now provide an implementation of a bounded stack and ways to build
+bounded stacks on top of pre-existing ones.
+%
+This ultimately leads to a stack bounded by our choice
+of a polynomial $P$, which is exactly what we want for simulating the
+tape of a polynomial-time Turing machine.
+%
+While most of the proofs in this section focus on the high-level
+intuition and avoid writing or reasoning about concrete \lfpl
+programs, everything is formalized in the mechanization (see
+\pref{sec:mechanization}).
 
 \begin{lemma}[Constant Stack Construction]
 \label{lem:stack-constant}
 For any element type $A$ and $c \in \mathbb N$, there exists a correct $0$-stack implementation which is bounded by $B(n) = c$.
 \end{lemma}
 \begin{proof}
-We take the implementation type to be $S = (1 + A)^c$. Intuitively, a left injection represents an open space in the stack, and a right injection represents a stored element. A stack $(x_1, \ldots, x_c) \in \tpsem{S}$ is considered valid when there is some index $0 \le j \le c$ such that $x_i = (1, \ast)$ for $1 \le i \le j$, and $x_i$ is a right injection for $j < i \le c$. In other words, there should be an uninterrupted chunk of open slots at the front of the stack, and the rest of the slots afterwards should be filled.
+We take the implementation type to be $S = (1 + A)^c$. Intuitively, a left injection represents an open space in the stack, and a right injection represents a stored element. A stack $(x_1, \ldots, x_c) \in \tpsem{S}$ is considered valid when there is some index $0 \le j \le c$ such that $x_i = (1, \ast)$ for $1 \le i \le j$, and $x_i$ is a right injection for $j < i \le c$. % In other words, there should be an uninterrupted chunk of open slots at the front of the stack, and the rest of the slots afterwards should be filled.
 
-To find the head of the stack, find the first $i$ such that $x_i = (2, a)$ for some $a \in \tpsem{A}$; the value $a$ is the head element. If $i$ is $1$, then the stack is full. If no such $i$ exists, the stack is empty. Since $c$ is a known constant, this procedure of locating the stack head does not require \lfpl iteration, so indeed no diamonds are required for the $\code{push}$ and $\code{pop}$ operations.
+To find the head of the stack, find the first $i$ such that $x_i = (2, a)$ for some $a \in \tpsem{A}$; the value $a$ is the head element. If $i$ is $1$, then the stack is full. If no such $i$ exists, the stack is empty. Since $c$ is a constant, this procedure of locating the stack head does not require iteration, so no diamonds are required for $\code{push}$ and $\code{pop}$.
 \end{proof}
 
-The main difficulty is obtaining stacks with non-constant bounds. Surprisingly, the proof of \pref{lem:stack-constant} contains the right intuition for how to do that. The following lemma is essentially the non-constant version of \pref{lem:stack-constant}; instead of storing things in a fixed-size tuple, we store them in a list. That list can be ``suspended'' as seen in \pref{example:susp} so that it doesn't require any diamonds to store.
+% The proof of \pref{lem:stack-constant} already contains the intuition for constructing stacks with non-constant bounds. 
+In the proof of \pref{lem:stack-inductive}, instead of storing data in a fixed-size tuple, we store it in a list. That list can be ``suspended'' as seen in \pref{example:susp}, so that it doesn't require any diamonds to store.
 
 \begin{lemma}[Inductive Stack Construction]
 \label{lem:stack-inductive}
 Fix an element type $A$ and some $k \in \mathbb N$. Suppose $(S, \code{empty}, \code{push}, \code{pop})$ is a $k$-stack implementation with element type $A$ that is correct and bounded by $B : \mathbb N \to \mathbb N$. Then, there is a $(k + 1)$-stack implementation with element type $A$ that is correct and bounded by $B'(n) = n B(n)$. 
 \end{lemma}
 \begin{proof}
-We choose $S' = \tparr{\tplist{\tpunit}}{\tplist{S}}$, the type of suspended lists with element type $S$ (we will these elements ``sub-stacks''), to be our implementation type. Let $\ell$ be the unique element of $\tpsem{\tplist{\tpunit}}$ with $|\ell| = n$. To unsuspend a stack $s \in \tpsem{S'}$ we just call $s(\ell)$. We say $s$ is valid whenever $s(\ell) = s_1 :: \cdots :: s_n :: []$, where $s_i$ is valid for all $1 \le i \le n$ and, much like in the proof \pref{lem:stack-constant}, there exists some index $0 \le j \le n$ such that $s_i$ is empty for $1 \le i < j$, $s_j$ is unconstrained, and $s_i$ is full for $j < i \le n$. In other words, there should be an uninterrupted chunk of empty sub-stacks at the front of the stack, followed by a nonempty sub-stack, and then all remaining sub-stacks should be full. The items $I'(S')$ are simply the item lists $I(s_i)$ of each sub-stack appended together.
+  We choose $S' = \tparr{\tplist{\tpunit}}{\tplist{S}}$, the type of suspended lists with element type $S$ (called ``sub-stacks''), to be our implementation type. Let $\ell$ be the unique element of $\tpsem{\tplist{\tpunit}}$ with $|\ell| = n$. To unsuspend a stack $s \in \tpsem{S'}$ we just call $s(\ell)$. We say $s$ is valid whenever $s(\ell) = s_1 :: \cdots :: s_n :: []$, where $s_i$ is valid for all $1 \le i \le n$ and there exists some index $0 \le j \le n$ such that $s_i$ is empty for $1 \le i < j$, $s_j$ is unconstrained, and $s_i$ is full for $j < i \le n$.
+% In other words, there should be an uninterrupted chunk of empty sub-stacks at the front of the stack, followed by a nonempty sub-stack, and then all remaining sub-stacks should be full.
+%
+The items $I'(S')$ are the appended item lists $I(s_i)$ of each sub-stack.
 
-It remains to correctly implement the three stack operations. Let's call them $\code{empty}'$, $\code{push}'$, and $\code{pop}'$. Implementing $\code{empty}'$ is quite straightforward; it is simply the suspended empty list, i.e. the function of type $\tparr{\tplist{\tpunit}}{\tplist{S}}$ which always returns the empty list.
-
-When implementing $\code{push}'$, we are given as our source of diamonds an input of type $(\tplist{\tpunit})^{k+1} = \tptens{\tplist{\tpunit}}{(\tplist{\tpunit})^k}$, so we can use the first element of this tuple, call it $\ell$, to un-suspend the input stack $s \in \tpsem{S'}$ and obtain a list of sub-stacks $s(\ell) = s_1 :: \cdots :: s_n :: []$. Starting from the last element of this list, $s_n$, attempt pushing to it using the function $\code{push}$, which is correct by assumption. If this succeeds, we are done. Otherwise, $s_n$ must be full, so we should try $s_{n-1}$. We can do this all the way up to $s_1$; if push still fails on $s_1$ then the whole stack must be full. This process can be implemented using \lfpl's list recursor. Afterwards, we use \pref{example:susp} to re-suspend the modified list and return the results.
+It remains to correctly implement the three stack operations. Let's call them $\code{empty}'$, $\code{push}'$, and $\code{pop}'$. The operation $\code{empty}'$ is the function of type $\tparr{\tplist{\tpunit}}{\tplist{S}}$ which always returns the empty list.
+%
+When implementing $\code{push}'$, we are given as our source of diamonds an input of type $(\tplist{\tpunit})^{k+1} = \tptens{\tplist{\tpunit}}{(\tplist{\tpunit})^k}$, so we can use the first element of this tuple, call it $\ell$, to un-suspend the input stack $s \in \tpsem{S'}$ and obtain a list of sub-stacks $s(\ell) = s_1 :: \cdots :: s_n :: []$. Starting from the last element of this list, $s_n$, attempt pushing to it using the function $\code{push}$. If this succeeds, we are done. Otherwise, $s_n$ must be full, so we should try $s_{n-1}$. We can do this all the way up to $s_1$; if push still fails on $s_1$ then the whole stack must be full. This process can be implemented using \lfpl's list recursor. Afterwards, we use \pref{example:susp} to re-suspend the modified list and return the results.
 
 The implementation of $\code{pop}'$ is similar, but instead we start from $s_1$. If popping $s_1$ fails, it must be empty, so we should try $s_2$. We go all the way down the list, and if popping $s_n$ still fails, then the whole stack must be empty.
 \end{proof}
 
-Hofmann's original proof in \cite{hofmannStrengthNonsizeIncreasing2002} contains an analogue to \pref{lem:stack-inductive} for his array data structure, but the implementation is significantly more difficult due to the presence of indices. The construction is similar to ours; he chooses $S' = \tparr{\tplist{\tpunit}}{\tplist{S}}$, where $S$ is now assumed to be the implementation type of a correct array data structure, so $S'$ is the type of suspended lists of sub-arrays. Given an index between $0$ and $n B(n)$, the read and write operations need to figure out which sub-array corresponds to that index, and furthermore which index to use for the operations on that sub-array. This involves implementing the binary divmod operation in LFPL, greatly complicating the implementation and proof of its correctness.
+% Hofmann's original proof in \cite{hofmannStrengthNonsizeIncreasing2002} contains an analogue to \pref{lem:stack-inductive} for his array data structure, but the implementation is significantly more difficult due to the presence of indices. The construction is similar to ours; he chooses $S' = \tparr{\tplist{\tpunit}}{\tplist{S}}$, where $S$ is now assumed to be the implementation type of a correct array data structure, so $S'$ is the type of suspended lists of sub-arrays. Given an index between $0$ and $n B(n)$, the read and write operations need to figure out which sub-array corresponds to that index, and furthermore which index to use for the operations on that sub-array. This involves implementing the binary divmod operation in LFPL, greatly complicating the implementation and proof of its correctness.
 
 Now that we've established the main result of this subsection, all it takes is a straightforward induction to combine the above two lemmas to produce stacks with monomial bounds.
 
@@ -143,7 +157,8 @@ Fix an element type $A$ and some $k \in \mathbb N$. Suppose $(S, \code{empty}, \
 This construction is relatively obvious; if $\code{push}$ and $\code{pop}$ need only $kn$ diamonds, then instead having to accept $(k + 1)n$ diamonds is no problem. We can reuse the implementation type $S$ as well as the code for $\code{empty}$. For the new stack operations $\code{push}'$ and $\code{pop}'$, they simply make use of the fact that $m_{n,k+1} = (\ell,m_{n,k})$ for some $\ell \in \tpsem{\tplist{\tpunit}}$. They just ignore $\ell$ and call $\code{push}$ and $\code{pop}$ (respectively) with $m_{n,k}$.
 \end{proof}
 
-The following lemma, which shows how to combine two stacks into one stack bounded by the sum of their bounds, is the main tool by which we are able to construct stacks with arbitrary polynomial bounds from stacks with monomial bounds. It is straighforward to do this construction for our stack data structure, but Hofmann's array data structure presents difficulties here similar to the ones discussed after \pref{lem:stack-inductive}. We suspect this is why he stopped at monomially-bounded arrays in \cite{hofmannStrengthNonsizeIncreasing2002}.
+The following lemma, which shows how to combine two stacks into one stack bounded by the sum of their bounds, is the main tool by which we are able to construct stacks with arbitrary polynomial bounds from stacks with monomial bounds. It is straighforward to do this construction for our stack data structure, but it is not clear how to do it for Hofmann's array data structure, % presents difficulties here similar to the ones discussed after \pref{lem:stack-inductive}. 
+which only yields monomially-bounded arrays \cite{hofmannStrengthNonsizeIncreasing2002}.
 
 \begin{lemma}[Additive Stack Construction]
 \label{lem:stack-additive}
