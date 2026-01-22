@@ -97,30 +97,30 @@ $$c + P_v(\envsize{\env}) \le P_M(\envsize{\env}) + P_{\env}(\envsize{\env})$$
 
 This theorem is true, though as stated it is not strong enough to be proven by rule induction on $\types{\ctx}{M}{A}$. Before getting into that, let's define the polynomials used in this theorem.
 
-\begin{definition}[Polynomial Algebra]
-We define $\max(P,Q) : \mathbb N \to \mathbb N$ as the polynomial with coefficients equal to the pairwise maximums of the coefficients of polynomials $P,Q : \mathbb N \to \mathbb N$. This way, $\max(P(n), Q(n)) \le \max(P,Q)(n)$. Additionally, we define $X$ to be the identity polynomial, i.e. $X(n) = n$.
+\begin{definition}[Maximum of Polynomials]
+We define the polynomial $\max(P,Q) : \mathbb N \to \mathbb N$ to have coefficients equal to the pairwise maximums of the coefficients of polynomials $P,Q : \mathbb N \to \mathbb N$. This way, $\max(P(n), Q(n)) \le \max(P,Q)(n)$.
 \end{definition}
 
 \begin{definition}[Term Polynomial]
 The aim of the polynomial $P_M : \mathbb N \to \mathbb N$ is to bound the cost of evaluating $M$, and the future cost of using any functions (or lazy pairs) it might evaluate to, by $P_M(n)$ in an environment containing $n$ diamonds.
 \begin{align*}
-P_{x} &= \Cvar \\
-P_{\tmrecord{M_1}{M_2}} &= \Crecord + \max(P_{M_1}, P_{M_2}) \\
-P_{\tmproj{i}{M}} &= \max(1, \Cproj{i}) + P_M \\
-P_{\tmlam{x}{M}} &= \Clam + P_M \\
-P_{\tmapp{M}{N}} &= \max(1, \Capp) + P_M + P_N \\
-P_{\tmcase{M}{x_1}{N_1}{x_2}{N_2}} &= \Ccase + P_M + \max(P_{N_1}, P_{N_2}) \\
-P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}} &= P_M + (\Crec + P_{N_1}) \;  + \\
-&\quad\quad X * (\Cvar + \Crec + P_{N_2}) \\
-P_{\tmtrec{M}{N_1}{x}{y}{z}{w}{N_2}} &= P_M + (X + 1) * (\Ctrec + P_{N_1}) \; + \\
-&\quad\quad X * (2\Cvar + \Ctrec + P_{N_2})
+P_{x}(n) &= \Cvar \\
+P_{\tmrecord{M_1}{M_2}}(n) &= \Crecord + \max(P_{M_1}, P_{M_2})(n) \\
+P_{\tmproj{i}{M}}(n) &= \max(1, \Cproj{i}) + P_M(n) \\
+P_{\tmlam{x}{M}}(n) &= \Clam + P_M(n) \\
+P_{\tmapp{M}{N}}(n) &= \max(1, \Capp) + P_M(n) + P_N(n) \\
+P_{\tmcase{M}{x_1}{N_1}{x_2}{N_2}}(n) &= \Ccase + P_M + \max(P_{N_1}, P_{N_2})(n) \\
+P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n) &= P_M(n) + (\Crec + P_{N_1}(n)) \\
+&\quad\quad + n (\Cvar + \Crec + P_{N_2}(n)) \\
+P_{\tmtrec{M}{N_1}{x}{y}{z}{w}{N_2}}(n) &= P_M(n) + (n + 1) (\Ctrec + P_{N_1}(n)) \\
+&\quad\quad + n (2\Cvar + \Ctrec + P_{N_2}(n))
 \end{align*}
 We leave $P_M$ for other terms $M$ to the reader.
 \end{definition}
 
 The intuition behind $P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n)$ is that $M$ and $N_1$ are evaluated once, and $N_2$ could be evaluated up to $n$ times, where $n = \envsize{\env}$ is the number of diamonds available the environment. Similarly, for $P_{\tmtrec{M}{N_1}{x}{y}{z}{w}{N_2}}$, the base case $N_1$ could be evaluated $n + 1$ times (a binary tree with $n$ internal nodes has $n + 1$ leaf nodes) and $N_2$ could be evaluated $n$ times.
 
-The weakening of the bound to $\max(1, \Capp)$ in $P_{\tmlam{x}{M}}$ instead of just $\Capp$ (and similarly in $P_{\tmproj{i}{M}}$) is necessary for how we approach the soundness proof; it's purpose becomes evident in \pref{sec:proving-general-soundness}
+The weakening of the bound to $\max(1, \Capp)$ in $P_{\tmlam{x}{M}}$ instead of just $\Capp$ (and similarly in $P_{\tmproj{i}{M}}$) is necessary for how we approach the soundness proof; its purpose becomes evident in \pref{sec:proving-general-soundness}
 
 \begin{definition}[Value and Environment Polynomials]
 The idea of $P_v$ and $P_\env$ is to bound the cost of evaluating all of the function bodies and lazy pairs stored inside $v$ and $\env$ respectively. We define the two at once via mutual induction.
@@ -152,7 +152,7 @@ $$c + P_v(n) \le P_M(n) + P_{\env}(n)$$
 \begin{proof}
 While $k$ may seem to have no real involvement in the theorem statement, it is the crucial means by which we reason about the soundness of terms that arise dynamically from function and lazy pair closures in the environment. We begin with a strong induction on $k$, so we know the theorem holds for all $k' < k$.
 
-Next, we go by rule induction on $\types{\ctx}{M}{A}$. At the cases for $\tmapp{M}{N}$ and $\tmproj{i}{M}$, where we have designed the polynomial for these terms to be strictly larger than the polynomials for its subterms, we are able invoke our outer induction hypothesis about $k$ to reason about, say, the term $M'$ where $\evals{\env}{M}{c}{\vlam{\env'}{x}{M'}}$.
+Next, we go by rule induction on $\types{\ctx}{M}{A}$. At the cases for $\tmapp{M}{N}$ and $\tmproj{i}{M}$, where we have designed the polynomial for these terms to be strictly larger than the polynomials for its subterms, we are able invoke our outer induction hypothesis about $k$ to reason about, for example, the term $M'$ where $\evals{\env}{M}{c}{\vlam{\env'}{x}{M'}}$.
 
 \pref{thm:non-size-increasing} comes up in nearly every case, since we need to satisfy the premise $n \ge \envsize{\env}$ of any inductive hypotheses. Importantly, we actually make use of this premise in the list and tree recursor cases, where we can say for example that the length of any list value $v$ is at most $\envsize{\env}$ and therefore at most $n$.
 
