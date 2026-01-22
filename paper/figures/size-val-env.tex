@@ -1,17 +1,32 @@
-\begin{figure}[htbp]
-\begin{align*}
-&\valsize{\vdiam} = 1 \quad,\quad \valsize{\vnull} = 0 \quad, \\
-&\valsize{\vrecord{\env}{M_1}{M_2}} = \envsize{\env} \quad, \\
-&\valsize{\vinj{i}{v}} = \valsize{v} \quad, \\
-&\valsize{\vpair{v_1}{v_2}} = \valsize{v_1} + \valsize{v_2} \quad, \\
-&\valsize{\vlam{\env}{x}{M}} = \envsize{\env} \quad, \\
-&\valsize{\vempty} = 0 \quad,\quad \valsize{\vnil} = 0 \quad,\quad \valsize{\vleaf} = 0 \quad, \\
-&\valsize{\vpush{v_h}{v_t}} = \valsize{v_h} + \valsize{v_t} \quad, \\
-&\valsize{\vcons{v_h}{v_t}} = 1 + \valsize{v_h} + \valsize{v_t} \quad, \\
-&\valsize{\vnode{v}{v_l}{v_r}} = 1 + \valsize{v} + \valsize{v_l} + \valsize{v_r} \quad, \\
-&\envsize{\envnil} = 0 \quad,\quad \envsize{\envcons{\env}{x}{v}} = \envsize{\env} + \valsize{v} 
-\end{align*}
+\begin{figure}[tbh]
+  \[ \substack{
+  \begin{array}{r@{\;\;}c@{\;\;}lcr@{\;\;}c@{\;\;}l}
+    \valsize{\vdiam} &{=}& 1 & & 
+    \valsize{\vnull} &=& 0 \\
+    \valsize{\vinj{i}{v}} &=& \valsize{v} & &
+    \valsize{\vempty} &=& 0 \\
+    \valsize{\vnil} &=& 0 & &
+    \valsize{\vleaf} & =& 0 
+  \end{array}\\
+  \begin{array}{r@{\;\;}c@{\;\;}l}
+    \valsize{\vrecord{\env}{M_1}{M_2}} & = & \envsize{\env}  \\
+    \valsize{\vlam{\env}{x}{M}} & = & \envsize{\env} \\    
+    \valsize{\vpair{v_1}{v_2}} & = & \valsize{v_1} + \valsize{v_2} \\
+    \valsize{\vpush{v_h}{v_t}} & = & \valsize{v_h} + \valsize{v_t} \\
+    \valsize{\vcons{v_h}{v_t}} & = & 1 + \valsize{v_h} + \valsize{v_t} \\
+    \valsize{\vnode{v}{v_l}{v_r}} & = & 1 + \valsize{v} + \valsize{v_l} + \valsize{v_r}\\
+  \end{array}\\[1ex]
+  \begin{array}{r@{\;\;}c@{\;\;}lcr@{\;\;}c@{\;\;}l}  
+   \envsize{\envnil} & = & 0 & &
+  \envsize{\envcons{\env}{x}{v}} & = & \envsize{\env} + \valsize{v} 
+  \end{array}}
+  \]
 \Description{A mutually inductive definition of size for the values and environments of LFPL plus}
 \caption{Size of values and environments in \lfplplus}
 \label{fig:size-val-env}
 \end{figure}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: "../paper"
+%%% End:
