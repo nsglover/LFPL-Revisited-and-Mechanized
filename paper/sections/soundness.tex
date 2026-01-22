@@ -44,13 +44,18 @@ This semantics enjoys standard properties such as determinism (there is at most 
 
 \subsection{The Non-Size-Increasing Property}
 
-We now finally make precise the non-size-increasing property referred to in previous sections. We will formulate size in terms of the operational semantics, whereas the original formulation was in terms of a set-theoretic denotational semantics \cite{hofmannLinearTypesNonsizeincreasing1999}. The operational semantics simplify the formulation while still supporting a reasonable soundness theorem.
+We now make precise the non-size-increasing property referred to in previous sections. We formulate size in terms of the operational semantics, whereas the original formulation was in terms of a set-theoretic denotational semantics \cite{hofmannLinearTypesNonsizeincreasing1999}. The operational definition is equivalent and simpler.
 
-Our goal is to assign to each value $v$ a number $\valsize{v} \in \mathbb N$ that, roughly speaking, counts the number of diamond values $\vdiam$ contained within $v$. We then want to show that feeding values to \lfplplus terms does not increase their size (i.e. the size of the output value is bounded by the size of the inputs). With goal in mind, we define a mutually inductive size function on values and environments in \pref{fig:size-val-env}.
+Our goal is to assign to each value $v$ a number $\valsize{v} \in \mathbb N$ that, roughly speaking, counts the number of diamond values $\vdiam$ contained within $v$.
+%
+We then show that the size of the result of the evaluation of an
+\lfplplus term is bounded by the size of the values in the evaluation
+environment. We define the mutually inductive size
+function on values and environments in \pref{fig:size-val-env}.
 
 \input{figures/size-val-env}
 
-Our intuitive notion of the non-size-increasing property is that a function's output should have size no greater than its input. We are finally in a position to make this rigorous:
+% Our intuitive notion of the non-size-increasing property is that a function's output should have size no greater than its input.
 \begin{theorem}[The Non-Size-Increasing Property]
 \label{thm:non-size-increasing}
 Suppose that $\types{\ctx}{M}{A}$. Then, for all environments $\env$, values $v$, and costs $c$ such that $\evals{\env}{M}{c}{v}$, we have $\valsize{v} \le \envsize{\env}$.
@@ -59,7 +64,7 @@ Suppose that $\types{\ctx}{M}{A}$. Then, for all environments $\env$, values $v$
 By rule induction on $\evals{\env}{M}{c}{v}$.
 \end{proof}
 
-The relevance of this result to soundness is already clear; an immediate corollary is that there are no closed terms of type $\tpdiam$, one of the main properties \lfpl's type system was designed to ensure. Indeed, if there were such a term that evaluates (we shall see in the next section that all terms evaluate), it would have to evaluate to $\vdiam$ which has size $1$, yet the empty environment has size $0$.
+The relevance of this result to soundness is maybe already clear. An immediate corollary of the theorem is that there are no closed terms of type $\tpdiam$, one of the main properties \lfpl's type system was designed to ensure. The reason is that $\vdiam$ has size $1$ but the empty environment has size $0$.
 
 
 
@@ -115,7 +120,7 @@ We leave $P_M$ for other terms $M$ to the reader.
 
 The intuition behind $P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n)$ is that $M$ and $N_1$ are evaluated once, and $N_2$ could be evaluated up to $n$ times, where $n = \envsize{\env}$ is the number of diamonds available the environment. Similarly, for $P_{\tmtrec{M}{N_1}{x}{y}{z}{w}{N_2}}$, the base case $N_1$ could be evaluated $n + 1$ times (a binary tree with $n$ internal nodes has $n + 1$ leaf nodes) and $N_2$ could be evaluated $n$ times.
 
-The weakening of the bound to $\max(1, \Capp)$ in $P_{\tmlam{x}{M}}$ instead of just $\Capp$ (and similarly in $P_{\tmproj{i}{M}}$) is necessary for how we approach the soundness proof; it's purpose will become evident in \pref{sec:proving-general-soundness}
+The weakening of the bound to $\max(1, \Capp)$ in $P_{\tmlam{x}{M}}$ instead of just $\Capp$ (and similarly in $P_{\tmproj{i}{M}}$) is necessary for how we approach the soundness proof; it's purpose becomes evident in \pref{sec:proving-general-soundness}
 
 \begin{definition}[Value and Environment Polynomials]
 The idea of $P_v$ and $P_\env$ is to bound the cost of evaluating all of the function bodies and lazy pairs stored inside $v$ and $\env$ respectively. We define the two at once via mutual induction.
@@ -147,7 +152,7 @@ $$c + P_v(n) \le P_M(n) + P_{\env}(n)$$
 \begin{proof}
 While $k$ may seem to have no real involvement in the theorem statement, it is the crucial means by which we reason about the soundness of terms that arise dynamically from function and lazy pair closures in the environment. We begin with a strong induction on $k$, so we know the theorem holds for all $k' < k$.
 
-Next, we go by rule induction on $\types{\ctx}{M}{A}$. At the cases for $\tmapp{M}{N}$ and $\tmproj{i}{M}$, where we have designed the polynomial for these terms to be strictly larger than the polynomials for its subterms, we will be able invoke our outer induction hypothesis about $k$ to reason about, say, the term $M'$ where $\evals{\env}{M}{c}{\vlam{\env'}{x}{M'}}$.
+Next, we go by rule induction on $\types{\ctx}{M}{A}$. At the cases for $\tmapp{M}{N}$ and $\tmproj{i}{M}$, where we have designed the polynomial for these terms to be strictly larger than the polynomials for its subterms, we are able invoke our outer induction hypothesis about $k$ to reason about, say, the term $M'$ where $\evals{\env}{M}{c}{\vlam{\env'}{x}{M'}}$.
 
 \pref{thm:non-size-increasing} comes up in nearly every case, since we need to satisfy the premise $n \ge \envsize{\env}$ of any inductive hypotheses. Importantly, we actually make use of this premise in the list and tree recursor cases, where we can say for example that the length of any list value $v$ is at most $\envsize{\env}$ and therefore at most $n$.
 
