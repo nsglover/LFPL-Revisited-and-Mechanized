@@ -1,0 +1,44 @@
+\section{Evaluation Judgement Rules}
+
+Here, we provide all rules for the big-step operational cost semantics judgement, $\evals{\env}{M}{c}{v}$, first defined in \pref{sec:operational-semantics}. Firstly, here are the rules for the basic \lfpl language features:
+
+\begin{mathparpagebreakable}
+\RuleEval{Var}{\evals{\env}{x}{\Cvar}{\env(x)}}{}
+\and
+\RuleEval{UnitI}{\evals{\env}{\tmnull}{\Cnull}{\vnull}}{}
+\and
+\RuleEval{SumI$_i$}{\evals{\env}{\tminj{i}{M}}{c + \Cinj{i}}{\vinj{i}{v}}}{\evals{\env}{M}{c}{v}}
+\and
+\RuleEval{SumE$_i$}{\evals{\envappend{\env}{\env'}}{\tmcase{M}{x}{N_1}{x}{N_2}}{c + c' + \Ccase}{v'}}{\evals{\env}{M}{c}{\vinj{i}{v}} \\ \evals{\envcons{\env'}{x}{v}}{N_i}{c'}{v'}}
+\and
+\RuleEval{TensorI}{\evals{\envappend{\env_1}{\env_2}}{\tmpair{M_1}{M_2}}{c_1 + c_2 + \Cpair}{\vpair{v_1}{v_2}}}{\evals{\env_1}{M_1}{c_1}{v_1} \\ \evals{\env_2}{M_2}{c_2}{v_2}}
+\and
+\RuleEval{TensorE}{\evals{\envappend{\env}{\env'}}{\tmletp{M}{x_1}{x_2}{N}}{c + c' + \Cletp}{v}}{\evals{\env}{M}{c}{\vpair{v_1}{v_2}} \\ \evals{\env'[x_1 \mapsto v_1, x_2 \mapsto v_2]}{N}{c'}{v}}
+\and
+\RuleEval{ArrowI}{\evals{\env}{\tmlam{x}{M}}{\Clam}{\vlam{\env}{x}{M}}}{}
+\and
+\RuleEval{ArrowE}{\evals{\envappend{\env_1}{\env_2}}{\tmapp{M}{N}}{c_1 + c_2 + c' + \Capp}{v'}}{\evals{\env_1}{M}{c_1}{\vlam{\env'}{x}{M'}} \\ \evals{\env_2}{N}{c_2}{v} \\ \evals{\envcons{\env'}{x}{v}}{M'}{c'}{v'}}
+\and
+\RuleEval{ListI$_1$}{\evals{\env}{\tmnil}{\Cnil}{\vnil}}{}
+\and
+\RuleEval{ListI$_2$}{\evals{\envappend{\env_d}{\envappend{\env_h}{\env_t}}}{\tmcons{M_d}{M_h}{M_t}}{c_d + c_h + c_t + \Ccons}{\vcons{v_h}{v_t}}}{\evals{\env_d}{M_d}{c_d}{\vdiam} \\ \evals{\env_h}{M_h}{c_h}{v_h} \\ \evals{\env_t}{M_t}{c_t}{v_t}}
+\and
+\RuleEval{ListE$_1$}{\evals{\envappend{\env}{\env'}}{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}{c + c' + \Crec}{v}}{\evals{\env}{M}{c}{\vnil} \\ \evals{\env'}{N_1}{c'}{v}}
+\and
+\RuleEval{ListE$_2$}{\evals{\envappend{\env}{\env'}}{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}{c + c_r + c' + \Crec}{v_2}}{\evals{\env}{M}{c}{\vcons{v_h}{v_t}} \\ \evals{\envcons{\env'}{y}{v_t}}{\tmrec{y}{N_1}{x_d}{x_h}{x_t}{N_2}}{c_r}{v_r} \\ \evals{\cdot[x_d \mapsto \vdiam, x_h \mapsto v_h, x_t \mapsto v_r]}{N_2}{c'}{v_2}}
+\end{mathparpagebreakable}
+
+Next, here are the rules for the new language features of \lfplplus:
+\begin{mathparpagebreakable}
+\RuleEval{ProdI}{\evals{\env}{\tmrecord{M_1}{M_2}}{\Crecord}{\vrecord{\env}{M_1}{M_2}}}{}
+\and
+\RuleEval{ProdE$_i$}{\evals{\env}{\tmproj{i}{M}}{c + c' + \Cproj{i}}{v}}{\evals{\env}{M}{c}{\vrecord{\env'}{M_1}{M_2}} \\ \evals{\env'}{M_i}{c'}{v}}
+\and
+\RuleEval{StackI$_1$}{\evals{\env}{\tmempty}{\Cempty}{\vempty}}{}
+\and
+\RuleEval{StackI$_2$}{\evals{\envappend{\env_h}{\env_t}}{\tmpush{M_h}{M_t}}{c_h + c_t + \Cpush}{\vpush{v_h}{v_t}}}{\evals{\env_h}{M_h}{c_h}{v_h} \\ \evals{\env_t}{M_t}{c_t}{v_t}}
+\and
+\RuleEval{StackE$_1$}{\evals{\envappend{\env}{\env'}}{\tmpop{M}{N_1}{x_h}{x_t}{N_2}}{c + c' + \Cpop}{v}}{\evals{\env}{M}{c}{\vempty} \\ \evals{\env'}{N_1}{c'}{v}}
+\and
+\RuleEval{StackE$_2$}{\evals{\envappend{\env}{\env'}}{\tmpop{M}{N_1}{x_h}{x_t}{N_2}}{c + c' + \Cpop}{v}}{\evals{\env}{M}{c}{\vpush{v_h}{v_t}} \\ \evals{\env'[x_h \mapsto v_h, x_t \mapsto v_t]}{N_2}{c'}{v}}
+\end{mathparpagebreakable}

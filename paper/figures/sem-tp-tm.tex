@@ -19,9 +19,9 @@
 \tmsem{\tmapp{M}{N}}{\env} &= \tmsem{M}{\env} \left( \tmsem{N}{\env} \right) \\
 \tmsem{\tmnil}{\env} &= [] \\
 \tmsem{\tmcons{M_0}{M_1}{M_2}}{\env} &= \tmsem{M_1}{\env} :: \tmsem{M_2}{\env} \\
-\tmsem{\tmrec{M}{N_1}{x_0}{x_1}{x_2}{N_2}}{\env} &= \text{iter}(\tmsem{M}{\env}, \tmsem{N_1}{\env}, f)
+\tmsem{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}{\env} &= \text{iter}(\tmsem{M}{\env}, \tmsem{N_1}{\env}, f)
 \end{align*}
-$$\text{where} \quad f(v, w) = \tmsem{N_2}{\envnil[x_0 \mapsto \blacklozenge, x_1 \mapsto v, x_2 \mapsto w]}$$
+$$\text{where} \quad f(v, w) = \tmsem{N_2}{\envnil[x_d \mapsto \blacklozenge, x_h \mapsto v, x_t \mapsto w]}$$
 \Description{An inductive definition of the set-theoretic interpretation of LFPL types and terms}
 \caption{\lfpl's denotational semantics}
 \label{fig:sem-tp-tm}

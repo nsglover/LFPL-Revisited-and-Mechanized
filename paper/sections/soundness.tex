@@ -5,15 +5,18 @@ To strengthen our polynomial-time soundness result and illustrate how to add fea
 \input{figures/ext-syntax-tp-tm}
 \input{figures/ext-jmt-ty}
 
-Note that typing rules for the stack type $\tpstack{A}$ look a lot like those of lists in a standard non-affine functional programming language, where lists are only eliminated by pattern matching against nil and cons rather than a structural recursor. This is precisely the intention; unbounded lists cannot violate \lfpl's core principle of controlling recursion if they do not even support recursion.
+Note that typing rules for the stack type $\tpstack{A}$ look a lot like those of lists in a standard non-affine functional programming language, where lists are only eliminated by pattern matching against nil and cons rather than a structural recursor. This is precisely the intention; these stacks cannot violate \lfpl's core principle of controlling recursion by diamonds if they do not even support recursion.
 
 The typing rules for the tree type $\tptree{A}$, an inductive type which does support recursion, are very similar to those of $\tplist{A}$. The primary difference is that, in \pref{rule:ty-TreeE}, the base case $N_1$ is typed under an empty context. Unlike lists, where there is only ever one $\tmnil$ nested inside a list, a tree can have many $\tmleaf$ values inside it. $N_1$ needs to be run for each one of those leaves, so allowing it access to a context potentially containing diamonds would allow for the duplication of diamonds at runtime.
 
 The denotational semantics for these new constructs are relatively straightforward to derive. We set $\tpsem{\tpprod{A}{B}} = \tpsem{A} \times \tpsem{B}$ and $\tpsem{\tpstack{A}} = \tpsem{A}^*$, leaving the semantics for terms involving these types to the reader. Giving a semantics for $\tptree{A}$ and its related terms ultimately boils down to giving a mathematical account of binary trees (in the same manner we have used the Kleene star to give a simple mathematical account of lists), which is a standard mathematical exercise we also leave to the reader.
 
+The stack type $\tpstack{A}$ is a particularly powerful addition to \lfpl. The vast majority of the difficulty in proving polynomial-time completeness of \lfpl, and by far the most complex aspect of our entire mechanization, was the definition and implementation of the bounded stack data structure discussed in \pref{sec:completeness-bounded-stack-definition} and \pref{sec:completeness-bounded-stack-implementation}. The addition of unbounded, $\tpdiam$-free stacks to \lfpl makes all of this unnecessary; \lfplplus admits a much simpler completeness proof.
+
 
 
 \subsection{Big-Step Operational Cost Semantics}
+\label{sec:operational-semantics}
 
 To reason about the cost of executing \lfplplus programs, we need reason about executing functions which may take lists as input. For example, we have seen a closed \lfpl term $\code{reverse} : \tparr{\tplist{A}}{\tplist{A}}$, but we can never actually ``run'' $\code{reverse}$ on a nonempty input list, since that would require a closed term of type $\tpdiam$ and the whole point of \lfpl's type system is to make that impossible.
 
@@ -33,21 +36,11 @@ This semantics enjoys standard properties such as determinism (there is at most 
 
 We now finally make precise the non-size-increasing property we have referred to in previous sections. We will formulate size in terms of the operational semantics, but the original formulation was in terms of a set-theoretic denotational semantics \cite{hofmannLinearTypesNonsizeincreasing1999}. The operational semantics simplify the formulation while still supporting a reasonable soundness theorem.
 
-Our goal is to assign to each value $v$ a number $\valsize{v} \in \mathbb N$ that, roughly speaking, counts the number of diamond values $\vdiam$ contained within $v$. We then want to show that feeding values to \lfplplus terms does not increase their size (i.e. the size of the output value is bounded by the size of the inputs). With goal in mind, we define a mutually inductive size function on values and environments:
-\begin{align*}
-&\valsize{\vdiam} = 1 \quad,\quad \valsize{\vnull} = 0 \quad, \\
-&\valsize{\vrecord{\env}{M_1}{M_2}} = \envsize{\env} \quad, \\
-&\valsize{\vinj{i}{v}} = \valsize{v} \quad, \\
-&\valsize{\vpair{v_1}{v_2}} = \valsize{v_1} + \valsize{v_2} \quad, \\
-&\valsize{\vlam{\env}{x}{M}} = \envsize{\env} \quad, \\
-&\valsize{\vempty} = 0 \quad,\quad \valsize{\vnil} = 0 \quad,\quad \valsize{\vleaf} = 0 \quad, \\
-&\valsize{\vpush{v_h}{v_t}} = \valsize{v_h} + \valsize{v_t} \quad, \\
-&\valsize{\vcons{v_h}{v_t}} = 1 + \valsize{v_h} + \valsize{v_t} \quad, \\
-&\valsize{\vnode{v}{v_l}{v_r}} = 1 + \valsize{v} + \valsize{v_l} + \valsize{v_r} \quad, \\
-&\envsize{\envnil} = 0 \quad,\quad \envsize{\envcons{\env}{x}{v}} = \envsize{\env} + \valsize{v} 
-\end{align*}
+Our goal is to assign to each value $v$ a number $\valsize{v} \in \mathbb N$ that, roughly speaking, counts the number of diamond values $\vdiam$ contained within $v$. We then want to show that feeding values to \lfplplus terms does not increase their size (i.e. the size of the output value is bounded by the size of the inputs). With goal in mind, we define a mutually inductive size function on values and environments in \pref{fig:size-val-env}
 
-Our intuitive notion of the non-size-increasing property is that a function's output should have size no greater than its input. The following theorem makes this rigorous:
+\input{figures/size-val-env}
+
+Our intuitive notion of the non-size-increasing property is that a function's output should have size no greater than its input. We are finally in a position to make this rigorous:
 \begin{theorem}[The Non-Size-Increasing Property]
 Suppose that $\types{\ctx}{M}{A}$. Then, for all environments $\env$, values $v$, and costs $c$ such that $\evals{\env}{M}{c}{v}$, we have $\valsize{v} \le \envsize{\env}$.
 \end{theorem}
