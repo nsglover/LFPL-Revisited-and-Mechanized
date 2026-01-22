@@ -221,7 +221,7 @@ $$\tparr{\tptens{Q}{(\tpsum{\tpunit{}}{A})}}{\tptens{(\tpsum{\tpunit{}}{Q})}{\tp
 The input and output sets of $f$ are both denotations of heap-free types. The following two lemmas that show \lfpl is complete with respect to computations only involving \dfree{\hspace{-0.75em}} types, and thus that $f$ can be implemented.
 
 \begin{lemma}
-Suppose $A$ is a type such that $\dfree{A}$. Then, for every $a \in \tpsem{A}$, there exists a closed term $M_a : A$ such that $\tmsem{M_a}{\envnil} = a$.
+Suppose $\dfree{A}$. Then, for every $a \in \tpsem{A}$, there exists a closed term $M_a : A$ such that $\tmsem{M_a}{\envnil} = a$.
 \end{lemma}
 
 \begin{lemma}

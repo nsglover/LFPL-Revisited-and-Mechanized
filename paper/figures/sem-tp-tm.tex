@@ -1,12 +1,23 @@
-\begin{figure}[htbp]
+\begin{figure}[t!]
+\[
+\begin{array}{r@{\;}c@{\;}lr@{\;}c@{\;}l}
+\tpsem{\tpdiam} &=& \{ \blacklozenge \} &
+\tpsem{\tpunit} &=& \{ \ast \} \\
+
+\tpsem{\tptens{A}{B}} &=& \tpsem{A} \times \tpsem{B} &
+\tpsem{\tplist{A}} &=& \tpsem{A}^* \\
+
+\tpsem{\tpsum{A}{B}} &=& \tpsem{A} \sqcup \tpsem{B} &
+\tpsem{\tparr{A}{B}} &=& \tpsem{A} \to \tpsem{B}
+\end{array}
+\]
+% \begin{array}[rrrrr]
+% \tpsem{\tpdiam} &= \{ \blacklozenge \} &\tpsem{\tplist{A}} &= &\tpsem{A}^* \\
+% \tpsem{\tpunit} &= \{ \ast \} &\tpsem{\tpsum{A}{B}} &= &\tpsem{A} \sqcup \tpsem{B} \\
+% \tpsem{\tptens{A}{B}} &= \tpsem{A} \times \tpsem{B} &\tpsem{\tparr{A}{B}} &= &\tpsem{A} \to \tpsem{B}
+% \end{array}
+
 \begin{align*}
-\tpsem{\tpdiam} &= \{ \blacklozenge \} \\
-\tpsem{\tpunit} = \{ \ast \} \\
-\tpsem{\tpsum{A}{B}} &= \tpsem{A} \sqcup \tpsem{B} \\
-\tpsem{\tptens{A}{B}} &= \tpsem{A} \times \tpsem{B} \\
-\tpsem{\tparr{A}{B}} &= \tpsem{A} \to \tpsem{B} \\
-\tpsem{\tplist{A}} &= \tpsem{A}^* \\
-\\
 \tmsem{x}{\env} &= \env(x) \\
 \tmsem{\tmnull}{\env} &= \ast \\
 \tmsem{\tminj{i}{M}}{\env} &= (i, \tmsem{M}{\env}) \\

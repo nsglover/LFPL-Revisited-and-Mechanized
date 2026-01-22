@@ -51,5 +51,5 @@ Next, here are the rules for the new language features of \lfplplus:
 \and
 \RuleEval{TreeE$_1$}{\evals{\env}{\tmtrec{M}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{c + c' + \Ctrec}{v}}{\evals{\env}{M}{c}{\vleaf} \\ \evals{\envnil}{N_1}{c'}{v}}
 \and
-\RuleEval{TreeE$_2$}{\evals{\env}{\tmtrec{M}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{c + c_L + c_R + c' + \Ctrec}{v}}{\evals{\env}{M}{c}{\vnode{v_x}{v_l}{v_r}} \\ \evals{\envcons{\envnil}{y}{v_l}}{\tmrec{y}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{c_L}{v_L} \\ \evals{\envcons{\envnil}{y}{v_r}}{\tmrec{y}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{c_R}{v_R} \\ \evals{\envnil[x_d \mapsto \vdiam, x \mapsto v_x, x_l \mapsto v_L, x_r \mapsto v_R]}{N_2}{c'}{v}}
+\RuleEval{TreeE$_2$}{\evals{\env}{\tmtrec{M}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{c + c_L + c_R + c' + \Ctrec}{v}}{\evals{\env}{M}{c}{\vnode{v_x}{v_l}{v_r}} \\ \evals{\envcons{\envnil}{y}{v_l}}{\tmtrec{y}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{c_L}{v_L} \\ \evals{\envcons{\envnil}{y}{v_r}}{\tmtrec{y}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{c_R}{v_R} \\ \evals{\envnil[x_d \mapsto \vdiam, x \mapsto v_x, x_l \mapsto v_L, x_r \mapsto v_R]}{N_2}{c'}{v}}
 \end{mathparpagebreakable}
