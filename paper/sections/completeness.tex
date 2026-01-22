@@ -88,8 +88,8 @@ The intended use of the data structure is to choose $n \in \mathbb N$ and always
 
 % The intuition for $\code{push}$ is that, given an element to push $x \in \tpsem{A}$ and a valid input stack $s \in \tpsem{S}$, we case on whether $s$ is full, i.e. $|I_n(s)| = B(n)$. If it's full, we just return $s$ and $x$. Otherwise, we return some new valid stack $s'$ such that the items of $s'$ are $x$ followed by the items of $s$. The intuition for $\code{pop}$ is quite similar, casing on whether $I_n(s)$ is $[]$ or $x :: \ell$ and proceeding accordingly.
 
-\comment{Jan}{The following can be removed if needed.}
-To summarize, a correct $k$-stack bounded by $B : \mathbb N \to \mathbb N$ is a data structure which, given the user's choice of some number $n \in \mathbb N$ at runtime, behaves like a standard stack in a functional programming language but requires temporary access to $nk$ diamonds and has a storage limit of $B(n)$ elements.
+% \comment{Jan}{The following can be removed if needed.}
+% To summarize, a correct $k$-stack bounded by $B : \mathbb N \to \mathbb N$ is a data structure which, given the user's choice of some number $n \in \mathbb N$ at runtime, behaves like a standard stack in a functional programming language but requires temporary access to $nk$ diamonds and has a storage limit of $B(n)$ elements.
 
 
 
@@ -181,7 +181,7 @@ Write $P(n)$ as $\sum_{i=0}^k c_i n^i$. For each $0 \le i \le k$, we can use \pr
 \subsection{Polynomial Iteration}
 \label{sec:completeness-poly-iter}
 
-We now address the challenge of how to simulate running the transition function of a $P$-time Turing machine for $P(n)$ steps when given an input list of length $n$. Additionally, we need to figure out how to simulate the transition function itself. Fortunately, both of these tasks require comparably simpler solutions to the issue of polynomial storage presented in the previous section. To iterate a function on itself $P(n)$ times, we use the next two lemmas, which are inspired by Proposition 4.1 in \cite{hofmannLinearTypesNonsizeincreasing1999}.
+We now address the challenge of how to simulate running the transition function of a $P$-time Turing machine for $P(n)$ steps when given an input list of length $n$. Additionally, we need simulate the transition function itself. Fortunately, both of these tasks require comparably simpler solutions than the issue of polynomial storage presented in the previous section. To iterate a function on itself $P(n)$ times, we use the next two lemmas, which are inspired by Proposition 4.1 in Hofmann's work \cite{hofmannLinearTypesNonsizeincreasing1999}.
 
 \begin{lemma}[Linear Iteration]
 \label{lem:linear-iterator}
@@ -208,15 +208,17 @@ $$\tmsem{f^{\sharp P}}{\envnil} (x, n) = (\tmsem{f}{\envnil})^{P(|n|)}(x, n)$$
 To get monomials, we can use the $\sharp$ operation from \pref{lem:linear-iterator} multiple times, e.g. $\tmsem{(f^{\sharp})^{\sharp}}{\envnil} (x, n) = (\tmsem{f}{\envnil})^{|n|^2}(x, n)$. To add these monomials together to obtain any polynomial, we can just use function composition, since $g^m \circ g^k = g^{m + k}$ for any $g : X \to X$ and $m,k \in \mathbb N$.
 \end{proof}
 
-In \cite{atkeyPolynomialTimeDependent2024}, Atkey shows an alternative approach to \pref{lem:polynomial-iterator} that does not rely on \pref{lem:linear-iterator}, instead utilizing the fact that $\binom{n}{k}$ taken over all $k \in \mathbb N$ forms a basis for polynomials in $n$. For a fixed $k$, they construct an elegant iterator for $f$ which runs $\binom{n}{k}$ times on an input $(x, n)$.
+% Atkey~\cite{atkeyPolynomialTimeDependent2024} shows an alternative approach to \pref{lem:polynomial-iterator} that does not rely on \pref{lem:linear-iterator}, instead utilizing the fact that $\binom{n}{k}$ taken over all $k \in \mathbb N$ forms a basis for polynomials in $n$. For a fixed $k$, they construct an elegant iterator for $f$ which runs $\binom{n}{k}$ times on an input $(x, n)$.
 
-We now address the task of encoding the transition function of Turing machine. Suppose are dealing with a tape alphabet that includes one blank symbol $a_0$ and the rest of the symbols are drawn from the set $\tpsem{A}$, where $A$ is a type such that $\dfree{A}$. Additionally, suppose set of internal states of the Turing machine includes one halting state $q_0$ and the rest of the states are drawn from the set $\tpsem{Q}$, where again $\dfree{Q}$. Then, the transition function $f$ of the Turing machine has the following signature:
+We now address the task of encoding the transition function of the Turing machine.
+%
+Suppose we are dealing with a tape alphabet that includes one blank symbol $a_0$ and the rest of the symbols are drawn from the set $\tpsem{A}$, where $\dfree{A}$. Additionally, suppose the set of internal states of the Turing machine includes one halting state $q_0$ and the rest of the states are drawn from the set $\tpsem{Q}$, where again $\dfree{Q}$. Then, the transition function $f$ of the Turing machine has the following signature:
 $$\tpsem{Q} \times (\{ a_0 \} \sqcup \tpsem{A}) \to (\{ q_0 \} \sqcup \tpsem{Q}) \times (\{ a_0 \} \sqcup \tpsem{A}) \times \{ \Leftarrow, \Rightarrow \}$$
 
 If $(q', a', d) = f(q, a)$, the intent is that $q$ is the current state of the Turing machine, $a$ is the symbol under the tape head, $q'$ is the new state after taking a step, $a'$ is the symbol to overwrite $a$ with, and $d$ is the direction (left or right) to shift the head. So, the type of the \lfpl term encoding $f$ should be:
 $$\tparr{\tptens{Q}{(\tpsum{\tpunit{}}{A})}}{\tptens{(\tpsum{\tpunit{}}{Q})}{\tptens{(\tpsum{\tpunit{}}{A})}{(\tpsum{\tpunit}{\tpunit})}}}$$
 
-But can we actually inhabit this type with a term that has the correct semantics? Fortunately, yes, given the following two lemmas that show \lfpl is complete with respect to computations only involving \dfree{\hspace{-0.75em}} types.
+The transition function of this type can be implemented since the following two lemmas that show \lfpl is complete with respect to computations only involving \dfree{\hspace{-0.75em}} types.
 
 \begin{lemma}
 Suppose $A$ is a type such that $\dfree{A}$. Then, for every $a \in \tpsem{A}$, there exists a closed term $M_a : A$ such that $\tmsem{M_a}{\envnil} = a$.
