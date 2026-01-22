@@ -1,9 +1,9 @@
 \NewDocumentCommand{\RuleEval}{m m m}{\Rule{\text{Eval}:#1}{#2}{#3}\label{rule:eval-#1}}
 \begin{figure}[htbp]
 \begin{mathpar}
-\RuleEval{Var}{\evals{\env}{x}{\Cvar}{\env(x)}}{}
-\and
 \RuleEval{SumE$_i$}{\evals{\envappend{\env}{\env'}}{\tmcase{M}{x}{N_1}{x}{N_2}}{c + c' + \Ccase}{v'}}{\evals{\env}{M}{c}{\vinj{i}{v}} \\ \evals{\envcons{\env'}{x}{v}}{N_i}{c'}{v'}}
+\and
+\RuleEval{Var}{\evals{\envcons{\env}{x}{v}}{x}{\Cvar}{v}}{}
 \and
 \RuleEval{ArrowI}{\evals{\env}{\tmlam{x}{M}}{\Clam}{\vlam{\env}{x}{M}}}{}
 \and

@@ -1,4 +1,8 @@
-\documentclass[sigconf, review, anonymous]{acmart}
+% The nonacm option disables the copyright footnote on the first page.
+\documentclass[sigconf, review, anonymous, nonacm]{acmart}
+
+% Disables the ACM Reference Format after the abstract.
+\settopmatter{printacmref=false}
 
 % \setcopyright{acmlicensed}
 % \copyrightyear{2018}
@@ -34,7 +38,7 @@
 
 \input{title/authors}
 \input{title/abstract}
-\input{title/concepts}
+% \input{title/concepts}
 
 \maketitle
 

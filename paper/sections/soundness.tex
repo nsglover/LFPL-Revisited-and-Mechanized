@@ -34,7 +34,7 @@ This semantics enjoys standard properties such as determinism (there is at most 
 
 \subsection{The Non-Size-Increasing Property}
 
-We now finally make precise the non-size-increasing property we have referred to in previous sections. We will formulate size in terms of the operational semantics, but the original formulation was in terms of a set-theoretic denotational semantics \cite{hofmannLinearTypesNonsizeincreasing1999}. The operational semantics simplify the formulation while still supporting a reasonable soundness theorem.
+We now finally make precise the non-size-increasing property referred to in previous sections. We will formulate size in terms of the operational semantics, whereas the original formulation was in terms of a set-theoretic denotational semantics \cite{hofmannLinearTypesNonsizeincreasing1999}. The operational semantics simplify the formulation while still supporting a reasonable soundness theorem.
 
 Our goal is to assign to each value $v$ a number $\valsize{v} \in \mathbb N$ that, roughly speaking, counts the number of diamond values $\vdiam$ contained within $v$. We then want to show that feeding values to \lfplplus terms does not increase their size (i.e. the size of the output value is bounded by the size of the inputs). With goal in mind, we define a mutually inductive size function on values and environments in \pref{fig:size-val-env}
 
