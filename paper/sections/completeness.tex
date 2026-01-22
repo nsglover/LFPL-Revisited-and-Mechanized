@@ -14,7 +14,7 @@ diamonds.
 Suppose $\dfree{A}$. Then, for every polynomial-time computable function $f : \tpsem{A}^* \to \tpsem{A}^*$ such that $|f(x)| \le |x|$ for all $x \in \tpsem{A}^*$, there exists a closed term $M : \tparr{\tplist{A}}{\tplist{A}}$ such that $\tmsem{M}{\envnil} = f$.
 \end{theorem}
 
-This theorem has been originally proven for $A = \tpunit$~\cite{hofmannStrengthNonsizeIncreasing2002}. The constraint that $f$ does not increase the length of its input is necessary because of the non-size-increasing property of LFPL functions. % ; a closed \lfpl function on unit lists % has no source of diamonds other than the elements of the input list, so the output list cannot have more diamonds (and therefore more elements) than the input list.
+This theorem was originally proven for $A = \tpunit$~\cite{hofmannStrengthNonsizeIncreasing2002}. The constraint that $f$ does not increase the length of its input is necessary because of the non-size-increasing property enforced upon LFPL functions. % ; a closed \lfpl function on unit lists % has no source of diamonds other than the elements of the input list, so the output list cannot have more diamonds (and therefore more elements) than the input list.
 As we see in \pref{sec:completeness-general-thm}, this constraint can be removed if we don't enforce that the output type of $M$ is an \lfpl list.
 
 Proving \pref{thm:completeness-concrete} boils down to simulating the polynomial-time Turing machine that computes the function $f$. This immediately presents two challenges. Say that $P : \mathbb N \to \mathbb N$ is the polynomial encoding how many steps the Turing machine takes to compute $f$. The first challenge is to represent the tape of the machine, which for an input list of size $n$ could contain up to $P(n)$ additional values by the time the machine halts. We only have $n$ diamonds from the input list, yet we have to store up to $P(n)$ additional values.% ; clearly a list will not work for this, since every element of a list must be accompanied by a diamond.
@@ -55,7 +55,7 @@ Both $\code{push}$ and $\code{pop}$ also return a stack and a sum. The left bran
 %
 For $\code{push}$, which takes in an element and a stack, failure means that the input stack is full, and so the input element is returned to us. For $\code{pop}$, failure means the input stack is empty. % If the input stack has at least one element, it is returned to us via the right injection.
 
-This interface is inspired by the array-like data structure used in Hofmann's original completeness proof \cite{hofmannStrengthNonsizeIncreasing2002}. The key difference is that his array data structure has read and write operations requiring an index, given as a binary \lfpl number (i.e. $\tplist{\tpsum{\tpunit}{\tpunit}}$). The extra work of dealing with this index significantly complicates the implementation of the Turing machine's tape.
+This interface is inspired by the array-like data structure used in Hofmann's original completeness proof \cite{hofmannStrengthNonsizeIncreasing2002}. The key difference is that his array data structure has read and write operations requiring an index, given as a binary \lfpl number (i.e. $\tplist{\tpsum{\tpunit}{\tpunit}}$). The extra work of dealing with this index significantly complicates both the implementation and usage of the data structure.
 %
 Arrays are more general but our stack is easier to implement and sufficient for representing a Turing machine's tape, so we believe it is the better choice of data structure for the completeness theorem.
 
@@ -65,8 +65,8 @@ To formalize our intuition of how $\code{push}$ and $\code{pop}$ should behave, 
 \label{def:stack-correctness}
 Let $k \in \mathbb N$. Suppose $(S, \code{empty}, \code{push}, \code{pop})$ is a $k$-stack implementation with element type $A$. Given a function $B : \mathbb N \to \mathbb N$, we say this implementation is correct and bounded by $B$ if the following holds for all $n \in \mathbb N$:
 \begin{itemize}
-  \item There exists a relation $V_n \subseteq \tpsem{S}$ of valid  data-structure states.
-  \item There exists a function $I_n : \tpsem{S} \to \tpsem{A}^*$, which returns the list of items contained in the stack.
+  \item There exists a relation $V_n \subseteq \tpsem{S}$ of valid data structure states.
+  \item There exists a function $I_n : \tpsem{S} \to \tpsem{A}^*$ which returns the list of items contained in the stack.
   \item Let $s = \tmsem{\code{empty}}{\ctxnil}$. Then, $V_n(s)$ holds and $I_n(s) = []$.
   \item Let $f = \tmsem{\code{push}}{\ctxnil}$. Then, for all $x \in \tpsem{A}$ and $s \in \tpsem{S}$ such that $V_n(s)$ holds, we have:
   \begin{itemize}
@@ -81,8 +81,8 @@ Let $k \in \mathbb N$. Suppose $(S, \code{empty}, \code{push}, \code{pop})$ is a
 \end{itemize}
 \end{definition}
 
-The intended use of the data structure is to choose $n \in \mathbb N$ and always pass $m_{n,k}$ to the $\code{push}$ and $\code{pop}$ operations. % In other words, we commit to a value of $n$ at runtime and always provide $nk$ diamonds to the stack operations.
-\pref{def:stack-correctness} ensures that, in this use case, the stack can hold at most $B(n)$ items. Behavior is otherwise undefined. Whenever $\code{push}$ and $\code{pop}$ receive $m_{n,k}$ as input, they return $m_{n,k}$ as the first element of their output and thus available for future stack operations.
+The intended use of the $k$-stack data structure is to choose $n \in \mathbb N$ and always pass $m_{n,k}$ to the $\code{push}$ and $\code{pop}$ operations. % In other words, we commit to a value of $n$ at runtime and always provide $nk$ diamonds to the stack operations.
+\pref{def:stack-correctness} ensures that, in this use case, the stack can hold at most $B(n)$ items. Behavior is otherwise undefined. Whenever $\code{push}$ and $\code{pop}$ receive $m_{n,k}$ as input, they return $m_{n,k}$ as the first element of their output, thus making it available for future stack operations.
 
 % The definition only makes claims about valid stacks, i.e. $s \in \tpsem{S}$ such that $V_n(s)$ holds. Naturally, we insist that $\code{empty}$ should always be valid, and that $\code{push}$ and $\code{pop}$ should preserve validity. This extra layer of complexity is necessary; many of the implementations we provide in \pref{sec:completeness-bounded-stack-implementation} will require stack types $S$ which contain elements that would cause the $\code{push}$ and $\code{pop}$ operations to fail their specification. The extension of \lfpl with dependent types studied in \cite{atkeyPolynomialTimeDependent2024} could be helpful here, potentially allowing us to internalize \pref{def:stack-correctness} into the types themselves.
 
@@ -96,11 +96,10 @@ The intended use of the data structure is to choose $n \in \mathbb N$ and always
 \subsection{Bounded Stack Implementations}
 \label{sec:completeness-bounded-stack-implementation}
 
-We now provide an implementation of a bounded stack and ways to build
-bounded stacks on top of pre-existing ones.
+We now provide an implementation of a bounded stack and ways to build more implementations on top of pre-existing ones.
 %
 This ultimately leads to a stack bounded by our choice
-of a polynomial $P$, which is exactly what we want for simulating the
+of a polynomial $P$, which is exactly what we need to represent the
 tape of a polynomial-time Turing machine.
 %
 While most of the proofs in this section focus on the high-level
@@ -140,7 +139,7 @@ The implementation of $\code{pop}'$ is similar, but instead we start from $s_1$.
 
 % Hofmann's original proof in \cite{hofmannStrengthNonsizeIncreasing2002} contains an analogue to \pref{lem:stack-inductive} for his array data structure, but the implementation is significantly more difficult due to the presence of indices. The construction is similar to ours; he chooses $S' = \tparr{\tplist{\tpunit}}{\tplist{S}}$, where $S$ is now assumed to be the implementation type of a correct array data structure, so $S'$ is the type of suspended lists of sub-arrays. Given an index between $0$ and $n B(n)$, the read and write operations need to figure out which sub-array corresponds to that index, and furthermore which index to use for the operations on that sub-array. This involves implementing the binary divmod operation in LFPL, greatly complicating the implementation and proof of its correctness.
 
-Now that we've established the main result of this subsection, all it takes is a straightforward induction to combine the above two lemmas to produce stacks with monomial bounds.
+Now that we've established the main result of this subsection, all it takes is a straightforward induction to combine the above two lemmas to produce stack implementations with monomial bounds.
 
 \begin{lemma}[Monomial Stack Construction]
 \label{lem:stack-monomial}
@@ -218,7 +217,7 @@ $$\tpsem{Q} \times (\{ a_0 \} \sqcup \tpsem{A}) \to (\{ q_0 \} \sqcup \tpsem{Q})
 If $(q', a', d) = f(q, a)$, the intent is that $q$ is the current state of the Turing machine, $a$ is the symbol under the tape head, $q'$ is the new state after taking a step, $a'$ is the symbol to overwrite $a$ with, and $d$ is the direction (left or right) to shift the head. So, the type of the \lfpl term encoding $f$ should be:
 $$\tparr{\tptens{Q}{(\tpsum{\tpunit{}}{A})}}{\tptens{(\tpsum{\tpunit{}}{Q})}{\tptens{(\tpsum{\tpunit{}}{A})}{(\tpsum{\tpunit}{\tpunit})}}}$$
 
-The transition function of this type can be implemented since the following two lemmas that show \lfpl is complete with respect to computations only involving \dfree{\hspace{-0.75em}} types.
+The input and output sets of $f$ are both denotations of heap-free types. The following two lemmas that show \lfpl is complete with respect to computations only involving \dfree{\hspace{-0.75em}} types, and thus that $f$ can be implemented.
 
 \begin{lemma}
 Suppose $A$ is a type such that $\dfree{A}$. Then, for every $a \in \tpsem{A}$, there exists a closed term $M_a : A$ such that $\tmsem{M_a}{\envnil} = a$.
@@ -228,25 +227,25 @@ Suppose $A$ is a type such that $\dfree{A}$. Then, for every $a \in \tpsem{A}$, 
 Suppose $A$ and $B$ are types such that $\dfree{A}$ and, for every $b \in \tpsem{B}$, that there exists a closed term $M_b : B$ such that $\tmsem{M_b}{\envnil} = b$. Then, for every $f : \tpsem{A} \to \tpsem{B}$, there exists a closed term $M_f : \tparr{A}{B}$ such that $\tmsem{M_f}{\envnil} = f$.
 \end{lemma}
 
-Both of these are straightforward to prove by rule induction on $\dfree{A}$. By combining the two, we can obtain a closed term $M_f$ encoding the transition function $f$ of our Turing machine.
+Both of these are straightforward to prove by rule induction on $\dfree{A}$. By combining the two, we can obtain a closed term $M_f$ encoding the transition function $f$ of the Turing machine.
 
 
 
 \subsection{Simulating the Turing Machine}
 \label{sec:completeness-general-thm}
 
-It only remains to put everything together. For the rest of this section, assume we are dealing with a computable function $f : \tpsem{A}^* \to \tpsem{A}^*$, computed by a Turing machine on a tape with alphabet $\{a_\text{blank}\} \sqcup \tpsem{A}$, with internal state set $\{q_\text{final}\} \sqcup \tpsem{Q}$ and transition function $g$. The Turing machine always halts in $P(n)$ steps on an input of length $n$, where $P : \mathbb N \to \mathbb N$ is a polynomial of degree $k$.
+It only remains to put everything together. For this subsection, assume we are dealing with function $f : \tpsem{A}^* \to \tpsem{A}^*$ computable by a Turing machine on a tape with alphabet $\{a_\text{blank}\} \sqcup \tpsem{A}$, with internal state set $\{q_\text{final}\} \sqcup \tpsem{Q}$ and transition function $g$. The Turing machine always halts in $P(n)$ steps on an input of length $n$, where $P : \mathbb N \to \mathbb N$ is a polynomial of degree $k$.
 
-Our goal is to construct a closed term $M : \tplist{A} \to \tplist{A}$ such that $\tmsem{M}{\envnil} = f$. Assuming an input of $\ell \in \tpsem{A}^*$ with length $n = |\ell|$, the body of the function for $M$ will only have access to $n$ diamonds. We are going to need a tape data structure that can hold up to $n + P(n)$ values while only requiring $n$ diamonds to use. % , since the input is written on the tape and (in the worst case) the Turing machine could just write a new value outside of the input section of the tape at every step.
+Our goal is to construct a closed term $M : \tplist{A} \to \tplist{A}$ such that $\tmsem{M}{\envnil} = f$. Assuming an input of $\ell \in \tpsem{A}^*$ with length $n = |\ell|$, the body of the function for $M$ will only have access to $n$ diamonds. We are going to need a tape data structure that can hold the input list and any additional memory used by the Turing machine, so up to $n + P(n)$ values, while only requiring $n$ diamonds to use. % , since the input is written on the tape and (in the worst case) the Turing machine could just write a new value outside of the input section of the tape at every step.
 
 Since the Turing machine receives its input as a single list, giving us a pool of diamonds in the form $\tplist{\tpunit}$, yet stack operations require diamonds in the form $(\tplist{\tpunit})^{k + 1}$, we need a way to losslessly convert between diamonds collected into a list of type $\tplist{\tpunit}$ and diamonds in a divided form $\tptens{(\tplist{\tpunit})^{k + 1}}{\tplist{\tpunit}}$. The reverse direction is straightforward; just append all the lists together into one. The forward direction amounts to implementing unary division by the constant $k + 1$ in \lfpl.
 %
-This is nontrivial and relies on an implementation of $\code{divmod}_k : \mathbb N \to \mathbb N \times \mathbb N$, where $\code{divmod}_k(n)$ returns the quotient and remainder of $n$ by $k + 1$ to avoid division by zero.
+This is nontrivial but ultimately follows how one would implement $\code{divmod}_k : \mathbb N \to \mathbb N \times \mathbb N$ in a standard functional programming language, where $\code{divmod}_k(n)$ returns the quotient and remainder of $n$ by $k + 1$.
 
 Consider the polynomial $Q(m) = (k + 1)(m + 1) + P((k + 1)(m + 1))$, which has degree at most $k + 1$. Let $(m, r) = \code{divmod}_k(n)$ so that $0 \le r \le k$ and $n = m(k + 1) + r$. Then, $(k + 1)(m + 1) = m(k + 1) + (k + 1) > m(k + 1) + r = n$, implying $Q(m) \ge P(n) + n$. Therefore, we can apply \pref{lem:stack-polynomial} to $Q$ to obtain a stack implementation for element type $\tpsum{\tpunit{}}{A}$, say with underlying type $S$. These stacks hold up to $Q(m)$ values assuming we have $m(k + 1)$ diamonds available  and therefore at least $P(n)$ values. So we can model the tape with a data structure of type $\tptens{S}{\tptens{(\tpsum{\tpunit{}}{A})}{S}}$, as discussed earlier.
 
 \comment{Jan}{The following paragraph can be removed if we need more space.}
-This is another place where our stack data structure simplifies the argument from Hofmann's array-based tape implementation \cite{hofmannStrengthNonsizeIncreasing2002}. The array-based tape requires an index representing what element of the array is currently beneath the head of the tape. This index needs additional diamonds to store, leading to additional complexities to properly share the total $n$ diamonds between the index and the tape operations.
+This is another place where our stack data structure simplifies the argument from Hofmann's array-based tape implementation \cite{hofmannStrengthNonsizeIncreasing2002}. The array-based tape requires an index representing what element of the array is currently beneath the head of the tape. This index needs additional diamonds to store, creating the additional complexity of properly sharing the total $n$ diamonds between the index and the tape operations.
 
 We obtain the following more general completeness theorem, which
 drops the size restriction of \pref{thm:completeness-concrete}.
@@ -258,11 +257,7 @@ $$f(x) = I_{|x|}\left(\tmsem{M}{\envnil}(x)\right)$$
 In other words, $M$ outputs a stack with items equal to $f(x)$.
 \end{theorem}
 \begin{proof}
-To define $M$, we start with a function abstraction taking in the input $x : \tplist{A}$. Using the tape data structure discussed above, and the $n$ diamonds from $x$, we can write the values of $x$ onto the tape. Then, using the tools from \pref{sec:completeness-poly-iter}, we take an \lfpl implementation of the Turing machine's transition function and iterate it on this initial tape (as well as an \lfpl encoding of the initial machine state $q_0 \in \tpsem{Q}$) for a total of $P(n)$ steps. Finally, we return the stack representing the right half (or left; this choice just depends on the particulars of how we define a Turing machine's output) of the tape data structure.
+To define $M$, we start with a function abstraction taking in the input $x : \tplist{A}$. Using the tape data structure discussed above, and the $n$ diamonds from $x$, we can write the values of $x$ onto the tape. Then, using the tools from \pref{sec:completeness-poly-iter}, we take an \lfpl implementation of the transition function $g$ and iterate it on this initial tape (as well as an \lfpl encoding of the initial machine state $q_0 \in \tpsem{Q}$) for a total of $P(n)$ steps. Finally, we return the stack representing the right half (or left; this choice just depends on the particulars of how we define a Turing machine's output) of the tape data structure.
 \end{proof}
 
 By allowing $M$ to output a stack rather than insisting it be a list, we can implement \textit{any} polynomial-time computation, even the size-increasing ones. Since the stack operations from \pref{sec:completeness-bounded-stack-definition} and the polynomial iterator from \pref{lem:polynomial-iterator} do not permanently consume any diamonds, we still have $n$ diamonds left over after the procedure in the above proof. We can just use those to remove the first $n$ values of the stack and store them in a list, thereby proving \pref{thm:completeness-concrete} as a corollary of \pref{thm:completeness-general}.
-%%% Local Variables:
-%%% mode: LaTeX
-%%% TeX-master: "../paper"
-%%% End:
