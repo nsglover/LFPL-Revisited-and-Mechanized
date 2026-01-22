@@ -51,6 +51,7 @@ Our goal is to assign to each value $v$ a number $\valsize{v} \in \mathbb N$ tha
 
 Our intuitive notion of the non-size-increasing property is that a function's output should have size no greater than its input. We are finally in a position to make this rigorous:
 \begin{theorem}[The Non-Size-Increasing Property]
+\label{thm:non-size-increasing}
 Suppose that $\types{\ctx}{M}{A}$. Then, for all environments $\env$, values $v$, and costs $c$ such that $\evals{\env}{M}{c}{v}$, we have $\valsize{v} \le \envsize{\env}$.
 \end{theorem}
 \begin{proof}
@@ -66,6 +67,7 @@ The relevance of this result to soundness is already clear; an immediate corolla
 Our goal in this subsection is to prove the following:
 
 \begin{theorem}[Concrete Polynomial-Time Soundness]
+\label{thm:soundness-concrete}
 Suppose $\types{\ctxcons{\ctxnil}{x}{\tplist{A}}}{M}{B}$, where $\dfree{A}$. Then, there exists a polynomial $P_M : \mathbb N \to \mathbb N$ such that, for any value $v_x : \tplist{A}$ made up of $n$ nodes (i.e. the list represented by $v$ has length $n$), there exists a value $v : B$ and a cost $c \in \mathbb N$ such that $\evals{\envcons{\envnil}{x}{v_x}}{M}{c}{v}$ and $c \le P_M(n)$.
 \end{theorem}
 
@@ -126,13 +128,27 @@ P_{\envnil} &= 0 \quad\text{and}\quad P_{\envcons{\env}{x}{v}} = P_\env + P_v
 We leave $P_v$ for other values $v$ to the reader.
 \end{definition}
 
+Notice with these choices of polynomials that \pref{thm:soundness-general-weak} implies \pref{thm:soundness-concrete}, because $P_v = 0$ and $\valsize{v} = n$, where $n$ is the length of the list represented by $v$, when $v : \tplist{A}$ and $\dfree{A}$.
+
 
 
 \section{Proving the Theorem}
 \label{sec:proving-general-soundness}
 
+\pref{thm:soundness-general-weak} contains a statement that every term $\types{\ctx}{M}{A}$ terminates under an environment $\env : \ctx$. We prove this in tandem with the polynomial cost bound to make use of the fact that the value of the term polynomial $P_M$ is strictly increasing at the most difficult points of a standard termination proof -- the elimination forms of negative types. Specifically, we defined $P_{\tmapp{M}{N}} = \max(1, \Capp) + P_M + P_N$ so that $P_{\tmapp{M}{N}}(n) > P_M(n) + P_N(n)$ for all $n$, and similarly for the lazy product type. We can take advantage of this strict difference via strong induction on our cost bound.
 
-%%% Local Variables:
-%%% mode: LaTeX
-%%% TeX-master: "../paper"
-%%% End:
+Another necessary strengthening of \pref{thm:soundness-general-weak} is break the dependency of the polynomials' input on the environment $\env$. Instead, we can just prove the theorem holds for all inputs $n$ which are big enough to account for all diamonds, i.e. $n \ge \envsize{\env}$. The final form of our soundness theorem is as follows:
+
+\begin{theorem}[General Polynomial-Time Soundness]
+For all $k \in \mathbb N$, suppose that $\types{\ctx}{M}{A}$ and $\env : \ctx$. If $n \ge \envsize{\env}$ and $k \ge P_M(n) + P_{\env}(n)$, then there is exists a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and:
+$$c + P_v(n) \le P_M(n) + P_{\env}(n)$$
+\end{theorem}
+\begin{proof}
+While $k$ may seem to have no real involvement in the theorem statement, it is the crucial means by which we reason about the soundness of terms that arise dynamically from function and lazy pair closures in the environment. We begin with a strong induction on $k$, so we know the theorem holds for all $k' < k$.
+
+Next, we go by rule induction on $\types{\ctx}{M}{A}$. At the cases for $\tmapp{M}{N}$ and $\tmproj{i}{M}$, where we have designed the polynomial for these terms to be strictly larger than the polynomials for its subterms, we will be able invoke our outer induction hypothesis about $k$ to reason about, say, the term $M'$ where $\evals{\env}{M}{c}{\vlam{\env'}{x}{M'}}$.
+
+\pref{thm:non-size-increasing} comes up in nearly every case, since we need to satisfy the premise $n \ge \envsize{\env}$ of any inductive hypotheses. Importantly, we actually make use of this premise in the list and tree recursor cases, where we can say for example that the length of any list value $v$ is at most $\envsize{\env}$ and therefore at most $n$.
+
+Most cases are verbose but straightforward, and a couple of the less straightforward cases can be found in \pref{app:soundness}.
+\end{proof}
