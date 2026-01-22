@@ -1,4 +1,7 @@
 \section{Evaluation Judgement Rules}
+\label{app:evaluation}
+
+\RenewDocumentCommand{\RuleEval}{m m m}{\Rule{\text{Eval}:#1}{#2}{#3}}
 
 Here, we provide all rules for the big-step operational cost semantics judgement, $\evals{\env}{M}{c}{v}$, first defined in \pref{sec:operational-semantics}. Firstly, here are the rules for the basic \lfpl language features:
 
@@ -25,7 +28,7 @@ Here, we provide all rules for the big-step operational cost semantics judgement
 \and
 \RuleEval{ListE$_1$}{\evals{\envappend{\env}{\env'}}{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}{c + c' + \Crec}{v}}{\evals{\env}{M}{c}{\vnil} \\ \evals{\env'}{N_1}{c'}{v}}
 \and
-\RuleEval{ListE$_2$}{\evals{\envappend{\env}{\env'}}{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}{c + c_r + c' + \Crec}{v_2}}{\evals{\env}{M}{c}{\vcons{v_h}{v_t}} \\ \evals{\envcons{\env'}{y}{v_t}}{\tmrec{y}{N_1}{x_d}{x_h}{x_t}{N_2}}{c_r}{v_r} \\ \evals{\cdot[x_d \mapsto \vdiam, x_h \mapsto v_h, x_t \mapsto v_r]}{N_2}{c'}{v_2}}
+\RuleEval{ListE$_2$}{\evals{\envappend{\env}{\env'}}{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}{c + c_T + c' + \Crec}{v_2}}{\evals{\env}{M}{c}{\vcons{v_h}{v_t}} \\ \evals{\envcons{\env'}{y}{v_t}}{\tmrec{y}{N_1}{x_d}{x_h}{x_t}{N_2}}{c_T}{v_T} \\ \evals{\cdot[x_d \mapsto \vdiam, x_h \mapsto v_h, x_t \mapsto v_T]}{N_2}{c'}{v_2}}
 \end{mathparpagebreakable}
 
 Next, here are the rules for the new language features of \lfplplus:
@@ -41,4 +44,12 @@ Next, here are the rules for the new language features of \lfplplus:
 \RuleEval{StackE$_1$}{\evals{\envappend{\env}{\env'}}{\tmpop{M}{N_1}{x_h}{x_t}{N_2}}{c + c' + \Cpop}{v}}{\evals{\env}{M}{c}{\vempty} \\ \evals{\env'}{N_1}{c'}{v}}
 \and
 \RuleEval{StackE$_2$}{\evals{\envappend{\env}{\env'}}{\tmpop{M}{N_1}{x_h}{x_t}{N_2}}{c + c' + \Cpop}{v}}{\evals{\env}{M}{c}{\vpush{v_h}{v_t}} \\ \evals{\env'[x_h \mapsto v_h, x_t \mapsto v_t]}{N_2}{c'}{v}}
+\and
+\RuleEval{TreeI$_1$}{\evals{\env}{\tmleaf}{\Cleaf}{\vleaf}}{}
+\and
+\RuleEval{TreeI$_2$}{\evals{\envappend{\env_d}{\envappend{\env_x}{\envappend{\env_l}{\env_r}}}}{\tmnode{M_d}{M_x}{M_l}{M_r}}{c}{\vnode{v_x}{v_l}{v_r}}}{c = c_d + c_x + c_l + c_r + \Cnode \\ \evals{\env_d}{M_d}{c_d}{\vdiam} \\ \evals{\env_x}{M_x}{c_x}{v_x} \\ \evals{\env_l}{M_l}{c_l}{v_l} \\ \evals{\env_r}{M_r}{c_r}{v_r}}
+\and
+\RuleEval{TreeE$_1$}{\evals{\env}{\tmtrec{M}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{c + c' + \Ctrec}{v}}{\evals{\env}{M}{c}{\vleaf} \\ \evals{\envnil}{N_1}{c'}{v}}
+\and
+\RuleEval{TreeE$_2$}{\evals{\env}{\tmtrec{M}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{c + c_L + c_R + c' + \Ctrec}{v}}{\evals{\env}{M}{c}{\vnode{v_x}{v_l}{v_r}} \\ \evals{\envcons{\envnil}{y}{v_l}}{\tmrec{y}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{c_L}{v_L} \\ \evals{\envcons{\envnil}{y}{v_r}}{\tmrec{y}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{c_R}{v_R} \\ \evals{\envnil[x_d \mapsto \vdiam, x \mapsto v_x, x_l \mapsto v_L, x_r \mapsto v_R]}{N_2}{c'}{v}}
 \end{mathparpagebreakable}

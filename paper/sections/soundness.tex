@@ -24,7 +24,7 @@ To solve this problem, we introduce a separate language for \lfplplus values (se
 
 \input{figures/syntax-val}
 
-To account for the cost of evaluation, we give a cost-annoted big-step operational semantics in \pref{fig:jmt-eval}. By $\evals{\env}{M}{c}{v}$, we mean that the (potentially open) term $M$ evaluates under the environment $\env$ to a value $v$ with cost $c$. We also assume the existence of arbitrary constants $\Cvar, \Cnull, \ldots, \Ctrec \in \mathbb N$, one for each syntactic construct. This way, our cost model is generic with respect to the particular costs of each primitve operation of the language.
+To account for the cost of evaluation, we give a cost-annoted big-step operational semantics, represented by the judgement $\evals{\env}{M}{c}{v}$, read ``term $M$ evaluates under the environment $\env$ to a value $v$ with cost $c$''. A representative set of rules for this judgement is given in \pref{fig:jmt-eval}, and a complete set of rules can be found in \pref{app:evaluation}. Note the presence a constant such as $\Cvar, \Cnull, \ldots, \Ctrec \in \mathbb N$ (one for each syntactic construct) in the conclusion of each rule. These are left arbitrary so that our cost model is generic with respect to the particular costs of each primitve operation of the language.
 
 \input{figures/jmt-eval}
 
