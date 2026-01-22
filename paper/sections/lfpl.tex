@@ -68,13 +68,12 @@ Going by induction on $\dfree{A}$, it is straightforward to define a closed term
 
 A common approach to safely reintroducing contraction into affine type systems is the exponential modality $!$. The syntax and typing rules for it might look something like the following:
 \begin{mathpar}
-\ARule{\types{!\ctx}{\code{wrap}(M)}{\; !A}}{\types{!\ctx}{M}{A}}
+\ARule{\types{!\ctx}{\code{wrap}(M)}{\; !A}}{\types{!\ctx}{M}{A}}\hspace{-1.3em}
 \and
-\ARule{\types{\ctx}{\code{unwrap}(M)}{A}}{\types{\ctx}{M}{\; !A}}
+\ARule{\types{\ctx}{\code{unwrap}(M)}{A}}{\types{\ctx}{M}{\; !A}}\hspace{-1.3em}
 \and
-\ARule{\types{\ctxcons{\ctx}{x}{\; !A}}{[x/y]M}{B}}{\types{\ctxcons{\ctxcons{\ctx}{x}{\; !A}}{y}{\; !A}}{M}{B}}
+\ARule{\types{\ctxcons{\ctx}{x}{\; !A}}{[x/y]M}{B}}{\types{\ctxcons{\ctxcons{\ctx}{x}{\; !A}}{y}{\; !A}}{M}{B}}\hspace{-1.3em}
 \end{mathpar}
-
 By $!\ctx$ we mean the context obtained by replacing $x : A$ with $x : \; !A$ for every $x$ in $\ctx$. It is tempting to add something like this to \lfpl; if we say that all values of type $!A$ have size $0$, then these operations are non-size-increasing. Unfortunately, that is not enough to guarantee polynomial-time soundness. Consider the following \lfpl (extended with the !-modality) pseudocode:
 \begin{lstlisting}
 expCalls : L(1) -o !(L(1) -o L(1)) -o !(L(1) -o L(1))

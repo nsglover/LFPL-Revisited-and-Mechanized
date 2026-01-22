@@ -26,11 +26,11 @@ The stack type $\tpstack{A}$ is a particularly powerful addition to \lfpl. The v
 \subsection{Big-Step Operational Cost Semantics}
 \label{sec:operational-semantics}
 
-To reason about the cost of evaluating \lfplplus programs, we need reason about evaluating functions which may take lists as input. For example, we have seen a closed \lfpl term $\code{reverse} : \tparr{\tplist{A}}{\tplist{A}}$, but we can never actually ``run'' $\code{reverse}$ on a nonempty input list, since that would require a closed term of type $\tpdiam$ and the whole point of \lfpl's type system is to make that impossible.
+To reason about the cost of evaluating \lfplplus terms, we need reason about evaluating functions which may take lists as input. For example, we have seen a closed \lfpl term $\code{reverse} : \tparr{\tplist{A}}{\tplist{A}}$, but we can never actually ``run'' $\code{reverse}$ on a nonempty input list, since that would require a closed term of type $\tpdiam$ and the whole point of \lfpl's type system is to make that impossible.
 
 To solve this problem, we introduce a separate language for \lfplplus values (see \pref{fig:syntax-val}). Note the definitions of value and environment are mutually recursive. This implies that we usually have to define functions on values via mutual recursion with a corresponding function on environments. Also, note that there is a value $\vdiam$ of type $\tpdiam$. Like in the denotational semantics, diamonds in lists and trees are not explicit.
 %
-By keeping this value language separate from the term language of \lfplplus, we ensure \lfplplus terms are still polynomial-time sound while still obtaining a means of giving \lfplplus programs concrete inputs to help us observe their evaluation. We also define a typing judgement $v : A$ for values, so that $\vdiam : \tpdiam$, $\vcons{v_h}{v_t} : \tplist{A}$ whenever $v_h : A$ and $v_t : \tplist{A}$, and so on.
+By keeping this value language separate from the term language of \lfplplus, we ensure \lfplplus terms are still polynomial-time sound while still obtaining a means of giving \lfplplus terms concrete inputs to help us observe their evaluation. We also define a typing judgement $v : A$ for values, so that $\vdiam : \tpdiam$, $\vcons{v_h}{v_t} : \tplist{A}$ whenever $v_h : A$ and $v_t : \tplist{A}$, and so on.
 
 \input{figures/syntax-val}
 
@@ -80,7 +80,7 @@ Taking $B = \tplist{\tpunit}$ and $A = \tpunit$, we recover the basic notion of 
 Suppose $\Gamma \vdash M : A$. Then, there exists a polynomial $P_M : \mathbb N \to \mathbb N$ such that, for any $\env : \Gamma$, there exists a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and $c \le P_M(\envsize{\env})$.
 \end{antitheorem}
 
-This is a step in the right direction but is blatantly false; the problem is that the environment may contain values which incur cost when used, which is dynamic information and $P_M$ only has access to static information. Concretely, consider $\types{f : \tparr{\tpunit}{\tpunit}}{\tmapp{f}{\tmnull}}{\tpunit}$. If for simplicity $\Capp = \Cvar = \Cnull = 0$, we cannot statically observe how this program could incur any cost. After all, the only statically observable syntactic constructs are application, variable, and null. On the other hand, dynamically, $\env$ could map $f$ to a function which incurs nonzero cost.
+This is a step in the right direction but is blatantly false; the problem is that the environment may contain values which incur cost when used, which is dynamic information and $P_M$ only has access to static information. Consider $\types{f : \tparr{\tpunit}{\tpunit}}{\tmapp{f}{\tmnull}}{\tpunit}$. If for simplicity $\Capp = \Cvar = \Cnull = 0$, we cannot statically observe how this program could incur any cost. After all, the only statically observable syntactic constructs are application, variable, and null. On the other hand, dynamically, $\env$ could map $f$ to a function which incurs nonzero cost.
 
 To resolve this issue, we must consider the potential cost of running functions (or lazy pairs) stored in the environment $\env$ and result value $v$. Suppose for a moment have defined three families of polynomials: $P_M$ on all terms $M$, $P_v$ on all values $v$, and $P_\env$ on all environments $\env$. Our new goal is:
 
