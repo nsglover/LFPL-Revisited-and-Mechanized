@@ -105,7 +105,7 @@ P_{\tmproj{i}{M}} &= \max(1, \Cproj{i}) + P_M \\
 P_{\tmlam{x}{M}} &= \Clam + P_M \\
 P_{\tmapp{M}{N}} &= \max(1, \Capp) + P_M + P_N \\
 P_{\tmcase{M}{x_1}{N_1}{x_2}{N_2}} &= \Ccase + P_M + \max(P_{N_1}, P_{N_2}) \\
-P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n) &= P_M + (\Crec + P_{N_1}) \;  + \\
+P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}} &= P_M + (\Crec + P_{N_1}) \;  + \\
 &\quad\quad X * (\Cvar + \Crec + P_{N_2}) \\
 P_{\tmtrec{M}{N_1}{x}{y}{z}{w}{N_2}} &= P_M + (X + 1) * (\Ctrec + P_{N_1}) \; + \\
 &\quad\quad X * (2\Cvar + \Ctrec + P_{N_2})
