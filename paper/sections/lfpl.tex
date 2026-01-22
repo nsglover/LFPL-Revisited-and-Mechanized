@@ -109,21 +109,12 @@ For the semantics of the sum type, we make use of the disjoint union operator $S
 
 \subsection{Example Functions}
 
-To build intuition about the expressivity of \lfpl, we implement some example functions that demonstrate to program in the language. Firstly, given any element type $A$, let's implement the slow identity function from earlier. We use the syntax
-$$\text{\lstinline{rec M | nil => N1 | cons (x0, x1, x2) => N2}}$$
-for $\tmrec{M}{N_1}{x_0}{x_1}{x_2}{N_2}$ and similarly for sum elimination.
-\begin{lstlisting}
-append : L(A) -o L(A) -o L(A)
-append = lam l1 . rec l1
-| nil => lam l2 . l2
-| cons (d, x, r) => lam l2 . cons (d, x, r l2)
-
-id : L(A) -o L(A)
-id = lam x . append (append x nil) nil
-\end{lstlisting}
+To build intuition about the expressivity of \lfpl, we implement some example functions that demonstrate how to program in the language. Firstly, given any element type $A$, let's implement efficient list reversal. We use the syntax
+$$\text{\lstinline{rec M | nil => N1 | cons (xd, xh, xt) => N2}}$$
+for $\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}$ and similarly for sum elimination.
 
 \begin{example}[Linear-Time Reverse]
-It is similarly straightforward to implement the standard linear-time reverse seen in introductory functional programming.
+We can implement the standard linear-time reverse seen in introductory functional programming.
 \begin{lstlisting}
 revAppend : L(A) -o L(A) -o L(A)
 revAppend = lam l1 . rec l1
@@ -165,5 +156,5 @@ susp = lam x . rec x .
                 letp (_, n') = q in cons (d', x, f n')
     , cons (d, <>, m))
 \end{lstlisting}
-This example is very important for the completeness proof, so it is worth stating its semantics: If $x \in \tpsem{A}^*$, then $\tmsem{susp}{\envnil}(x) = (f, m)$, where $f(m) = x$. Note that $m$ is the unique element of $\tpsem{\tpunit}^*$ with length $|m|$, so we can recover $x$ as long as we give $f$ the right number of diamonds.
+This example is very important for the completeness proof, so it is worth stating its semantics: If $x \in \tpsem{A}^*$, then $\tmsem{susp}{\envnil}(x) = (f, m)$, where $f(m) = x$. Note that $m$ is the unique element of $\tpsem{\tpunit}^*$ with length $|m|$, so we recover $x$ as long as we give $f$ enough diamonds.
 \end{example}
