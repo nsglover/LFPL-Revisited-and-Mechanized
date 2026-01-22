@@ -133,7 +133,7 @@ Notice with these choices of polynomials that \pref{thm:soundness-general-weak} 
 
 
 
-\section{Proving the Theorem}
+\subsection{Proving the Theorem}
 \label{sec:proving-general-soundness}
 
 \pref{thm:soundness-general-weak} contains a statement that every term $\types{\ctx}{M}{A}$ terminates under an environment $\env : \ctx$. We prove this in tandem with the polynomial cost bound to make use of the fact that the value of the term polynomial $P_M$ is strictly increasing at the most difficult points of a standard termination proof -- the elimination forms of negative types. Specifically, we defined $P_{\tmapp{M}{N}} = \max(1, \Capp) + P_M + P_N$ so that $P_{\tmapp{M}{N}}(n) > P_M(n) + P_N(n)$ for all $n$, and similarly for the lazy product type. We can take advantage of this strict difference via strong induction on our cost bound.
