@@ -90,6 +90,7 @@ A simple way to deal with this that doesn't hinder the programmer too much is si
 
 
 \subsection{Denotational Semantics}
+\label{sec:denotational-semantics}
 
 To reason about the behavior of \lfpl programs, we give them a simple set-theoretic denotational semantics. To each type $A$ we assign a set $\tpsem{A}$, and to each well-typed term $\types{\Gamma}{M}{A}$ to be interpreted under an environment $\env$ such that $\envtypes{\env}{\Gamma}$ (meaning that $\env(x) \in \tpsem{A}$ is defined for every $x : A \in \Gamma$), we assign an element $\tmsem{M}{\env}$ of $\tpsem{A}$.
 
