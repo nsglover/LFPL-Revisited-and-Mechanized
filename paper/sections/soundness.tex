@@ -28,7 +28,7 @@ The stack type $\tpstack{A}$ is a particularly powerful addition to \lfpl. The v
 
 To reason about the cost of evaluating \lfplplus programs, we need reason about evaluating functions which may take lists as input. For example, we have seen a closed \lfpl term $\code{reverse} : \tparr{\tplist{A}}{\tplist{A}}$, but we can never actually ``run'' $\code{reverse}$ on a nonempty input list, since that would require a closed term of type $\tpdiam$ and the whole point of \lfpl's type system is to make that impossible.
 
-To solve this problem, we introduce a separate language for \lfplplus values (see \pref{fig:syntax-val}). Note the definitions of value and environment are mutually recursive. This implies that we usually have to define functions on values via mutual recursion with a corresponding function on environments. Also, note that there is a value $\vdiam$ of type $\tpdiam$, and there are also nonempty list and tree values which do not require diamonds to construct. \comment{Nathan}{I don't understand the previous remark about not requiring diamonds.}
+To solve this problem, we introduce a separate language for \lfplplus values (see \pref{fig:syntax-val}). Note the definitions of value and environment are mutually recursive. This implies that we usually have to define functions on values via mutual recursion with a corresponding function on environments. Also, note that there is a value $\vdiam$ of type $\tpdiam$. Like in the denotational semantics, diamonds in lists and trees are not explicit.
 %
 By keeping this value language separate from the term language of \lfplplus, we ensure \lfplplus terms are still polynomial-time sound while still obtaining a means of giving \lfplplus programs concrete inputs to help us observe their evaluation. We also define a typing judgement $v : A$ for values, so that $\vdiam : \tpdiam$, $\vcons{v_h}{v_t} : \tplist{A}$ whenever $v_h : A$ and $v_t : \tplist{A}$, and so on.
 
@@ -153,3 +153,8 @@ Next, we go by rule induction on $\types{\ctx}{M}{A}$. At the cases for $\tmapp{
 
 Most cases are verbose but straightforward, and a couple of the less straightforward cases can be found in \pref{app:soundness}.
 \end{proof}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: "../paper"
+%%% End:
