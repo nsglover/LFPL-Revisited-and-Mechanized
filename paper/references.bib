@@ -1,14 +1,13 @@
-% TODO: Check on Bob Atkey citation format; POPL is not in parentheses
 
 @misc{istariProofAssistant,
   title = {The Istari Proof Assistant},
   year = {2025},
-  author       = {Karl Crary},
+  author       = {Crary, Karl},
   howpublished = {\url{https://istarilogic.org/}}
 }
 
 @book{Okasaki99,
-  author       = {Chris Okasaki},
+  author       = {Okasaki, Chris},
   title        = {Purely functional data structures},
   publisher    = {Cambridge University Press},
   year         = {1999},
@@ -60,7 +59,7 @@
 }
 
 @inproceedings{hofmannLinearTypesNonsizeincreasing1999,
-  author = 	 {Martin Hofmann},
+  author = 	 {Hofmann, Martin},
   title = 	 {Linear Types and Non Size-Increasing Polynomial Time Computation},
   booktitle =  {Proceedings of the Fourteenth Annual IEEE Symp. on Logic in Computer Science, {LICS} 1999},
   year =	 1999,
@@ -83,20 +82,24 @@
   issn = {1236-6064},
   abstract = {We show how linear typing can be used to obtain functional programs which modify heap-allocated data structures in place.We present this both as a "design pattern" for writing C-code in a functional style and as a compilation process from linearly typed first-order functional programs into malloc ()-free C code.The main technical result is the correctness of this compilation.The crucial innovation over previous linear typing schemes consists of the introduction of a resource type \ding{169} which controls the number of constructor symbols such as cons in recursive definitions and ensures linear space while restricting expressive power surprisingly little.While the space efficiency brought about by the new typing scheme and the compilation into C can also be realised by with state-of-the-art optimising compilers for functional languages such as OCAML [16], the present method provides guaranteed bounds on heap space which will be of use for applications such as languages for embedded systems or automatic certification of resource bounds.We show that the functions expressible in the system are precisely those computable on a linearly space-bounded Turing machine with an unbounded stack. By a result of Cook this equals the complexity class 'exponential time'. A tail recursive fragment of the language captures the complexity class 'linear space'.We discuss various extensions, in particular an extension with FIFO queues admitting constant time catenation and enqueuing, and an extension of the type system to fully-fledged intuitionistic linear logic.}
 }
-@inproceedings{hofmannStrengthNonsizeIncreasing2002,
-  title = {The Strength of Non-Size Increasing Computation},
-  booktitle = {Proceedings of the 29th {{ACM SIGPLAN-SIGACT}} Symposium on {{Principles}} of Programming Languages},
-  author = {Hofmann, Martin},
-  year = 2002,
-  month = jan,
-  series = {{{POPL}} '02},
-  pages = {260--269},
-  publisher = {Association for Computing Machinery},
-  address = {New York, NY, USA},
-  doi = {10.1145/503272.503297},
-  urldate = {2024-12-18},
-  abstract = {We study the expressive power of non-size increasing recursive definitions over lists. This notion of computation is such that the size of all intermediate results will automatically be bounded by the size of the input so that the interpretation in a finite model is sound with respect to the standard semantics. Many well-known algorithms with this property such as the usual sorting algorithms are definable in the system in the natural way. The main result is that a characteristic function is definable if and only if it is computable in time O(2p(n)) for some polynomial p.The method used to establish the lower bound on the expressive power also shows that the complexity becomes polynomial time if we allow primitive recursion only. This settles an open question posed in [1, 7].The key tool for establishing upper bounds on the complexity of derivable functions is an interpretation in a finite relational model whose correctness with respect to the standard interpretation is shown using a semantic technique.},
-  isbn = {978-1-58113-450-6}
+@article{hofmannStrengthNonsizeIncreasing2002,
+author = {Hofmann, Martin},
+title = {The strength of non-size increasing computation},
+year = {2002},
+issue_date = {Jan. 2002},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {37},
+number = {1},
+issn = {0362-1340},
+url = {https://doi.org/10.1145/565816.503297},
+doi = {10.1145/565816.503297},
+abstract = {We study the expressive power of non-size increasing recursive definitions over lists. This notion of computation is such that the size of all intermediate results will automatically be bounded by the size of the input so that the interpretation in a finite model is sound with respect to the standard semantics. Many well-known algorithms with this property such as the usual sorting algorithms are definable in the system in the natural way. The main result is that a characteristic function is definable if and only if it is computable in time O(2p(n)) for some polynomial p.The method used to establish the lower bound on the expressive power also shows that the complexity becomes polynomial time if we allow primitive recursion only. This settles an open question posed in [1, 7].The key tool for establishing upper bounds on the complexity of derivable functions is an interpretation in a finite relational model whose correctness with respect to the standard interpretation is shown using a semantic technique.},
+journal = {SIGPLAN Not.},
+month = jan,
+pages = {260–269},
+numpages = {10},
+keywords = {semantics, higher-order functions, finite model, computational complexity}
 }
 @article{hofmannLinearTypesNonsizeincreasing2003,
   title = {Linear Types and Non-Size-Increasing Polynomial Time Computation},
@@ -132,7 +135,7 @@
 @article{dallagoImplicitComputationComplexity2022,
   title = {Implicit Computation Complexity in Higher-Order Programming Languages: {{A Survey}} in {{Memory}} of {{Martin Hofmann}}},
   shorttitle = {Implicit Computation Complexity in Higher-Order Programming Languages},
-  author = {Dal Lago, U.},
+  author = {Dal Lago, Ugo},
   year = 2022,
   month = jun,
   journal = {Mathematical Structures in Computer Science},
@@ -165,19 +168,22 @@
   keywords = {linear logic, lambda calculus, Complexity}
 }
 @article{atkeyPolynomialTimeDependent2024,
-  title = {Polynomial {{Time}} and {{Dependent Types}}},
   author = {Atkey, Robert},
-  year = 2024,
-  month = jan,
-  journal = {Proceedings of the ACM on Programming Languages},
+  title = {Polynomial Time and Dependent Types},
+  year = {2024},
+  issue_date = {January 2024},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
   volume = {8},
   number = {POPL},
-  pages = {2288--2317},
-  issn = {2475-1421},
+  url = {https://doi.org/10.1145/3632918},
   doi = {10.1145/3632918},
-  urldate = {2025-03-25},
-  abstract = {We combine dependent types with linear type systems that soundly and completely capture polynomial time computation. We explore two systems for capturing polynomial time: one system that disallows construction of iterable data, and one, based on the LFPL system of Martin Hofmann, that controls construction via a payment method. Both of these are extended to full dependent types via Quantitative Type Theory, allowing for arbitrary computation in types alongside guaranteed polynomial time computation in terms. We prove the soundness of the systems using a realisability technique due to Dal Lago and Hofmann. Our long-term goal is to combine the extensional reasoning of type theory with intensional reasoning about the resources intrinsically consumed by programs. This paper is a step along this path, which we hope will lead both to practical systems for reasoning about programs' resource usage, and to theoretical use as a form of synthetic computational complexity theory. CCS Concepts: {$\bullet$} Theory of computation {$\rightarrow$} Linear logic; Type theory; Complexity classes; Complexity theory and logic; Categorical semantics.},
-  langid = {english}
+  abstract = {We combine dependent types with linear type systems that soundly and completely capture polynomial time computation. We explore two systems for capturing polynomial time: one system that disallows construction of iterable data, and one, based on the LFPL system of Martin Hofmann, that controls construction via a payment method. Both of these are extended to full dependent types via Quantitative Type Theory, allowing for arbitrary computation in types alongside guaranteed polynomial time computation in terms. We prove the soundness of the systems using a realisability technique due to Dal Lago and Hofmann.Our long-term goal is to combine the extensional reasoning of type theory with intensional reasoning about the resources intrinsically consumed by programs. This paper is a step along this path, which we hope will lead both to practical systems for reasoning about programs’ resource usage, and to theoretical use as a form of synthetic computational complexity theory.},
+  journal = {Proc. ACM Program. Lang.},
+  month = jan,
+  articleno = {76},
+  numpages = {30},
+  keywords = {type theory, implicit computational complexity, linear logic}
 }
 @article{lorenzenFP2FullyInPlace2023,
   title = {{{FP}}{$^2$}: {{Fully}} in-{{Place Functional Programming}}},
