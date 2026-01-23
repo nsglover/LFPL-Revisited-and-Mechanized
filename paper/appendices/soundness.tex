@@ -1,7 +1,7 @@
 \section{Soundness Proof Cases}
 \label{app:soundness}
 
-Here, we provide some interesting cases of the soundness proof. First, the function application case, demonstrates the method by which we are able to simultaneously prove termination and a polynomial cost bound. Second, the list recursor case, is an exemplary case displaying usage all of the tools we developed to approach the proof. For convenience, we restate the theorem:
+Here, we provide some interesting cases of the soundness proof. First, we go through the function application case in moderate detail to demonstrate the method by which we are able to simultaneously prove termination and a polynomial cost bound. Second, we give the high-level ideas for how to prove the list recursor case, which as a driver of non-constant-time computation is one of the most critical points for polynomial-time soundness. For convenience, we restate the theorem:
 \begin{thm}[General Polynomial-Time Soundness]
 For every $k \in \mathbb N$, suppose that $\types{\ctx}{M}{A}$ and $\env : \ctx$. If $n \ge \envsize{\env}$ and $k \ge P_M(n) + P_{\env}(n)$, then there is a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and:
 $$c + P_v(n) \le P_M(n) + P_{\env}(n)$$
@@ -9,5 +9,37 @@ $$c + P_v(n) \le P_M(n) + P_{\env}(n)$$
 \begin{proof}
 By strong induction, we may assume the theorem holds for all $k' < k$. Now we go by rule induction on $\types{\ctx}{M}{A}$.
 
-For the application case, we assume that $\types{\ctx}{M N}{B}$ because $\types{\ctx}{M}{\tparr{A}{B}}$ and $\types{\ctx}{N}{B}$.
+\paragraph{Application Case} $\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmapp{M}{N}}{B}$ because $\types{\ctx_1}{M}{\tparr{A}{B}}$ and $\types{\ctx_2}{N}{B}$. Let $\envappend{\env_1}{\env_2}$ be the biparition of $\env$ corresponding to $\ctxappend{\ctx_1}{\ctx_2}$. Firstly, by the inner induction hypotheses for $M$ and $N$:
+\begin{itemize}
+  \item There is a value $v_M = \vlam{\env'}{x}{M'}$ and a cost $c_M$ such that $\evals{\env_1}{M}{c_M}{v_M}$ and:
+  $$ c_M + P_{\env'}(n) + P_{M'}(n) \le P_M(n) + P_{\env_1}(n) $$
+  \item There is a value $v_N$ and a cost $c_N$ such that $\evals{\env_2}{N}{c_N}{v_N}$ and:
+  $$ c_N + P_{v_N}(n) \le P_N(n) + P_{\env_2}(n) $$
+\end{itemize}
+
+Invoking these inductive hypotheses is valid because we know $n \ge \envsize{\env} = \envsize{\env_1} + \envsize{\env_2}$ and similarly for $k$. By \pref{thm:non-size-increasing}, we know $\envsize{\env'} + \valsize{v_N} \le \envsize{\env_1} + \envsize{\env_2}\le n$. Furthermore, using the inequalities above, we can deduce $k > P_{v_N}(n) + P_{\env'}(n) + P_{M'}(n)$, allowing us to apply our outer IH from the strong induction to conclude the theorem for $M'$: There is a value $v$ and a cost $c$ such that $\evals{\envcons{\env'}{x}{v_N}}{M'}{c}{v}$ and:
+$$ c + P_v(n) \le P_{M'}(n) + P_{v_N}(n) + P_{\env'}(n) $$
+After applying \pref{rule:eval-ArrowE} to conclude the first part of our goal, it remains to prove the cost bound. Chaining all our inequalities together, we get that:
+$$ c_M + c_N + c + P_v(n) \le P_M(n) + P_N(n) + P_{\env}(n) $$
+Adding $\Capp$ to both sides and then increasing the right-hand side to $\max(1, \Capp)$ yields the desired inequality.
+
+\paragraph{List Recursor Case} $\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}{B}$ because:
+\begin{itemize}
+  \item $\types{\ctx_1}{M}{\tplist{A}}$
+  \item $\types{\ctx_2}{N_1}{B}$
+  \item $\types{\ctxcons{\ctxcons{\ctxcons{\ctxnil}{x_d}{\tpdiam}}{x_h}{A}}{x_t}{B}}{N_2}{B}$
+\end{itemize}
+
+By the inductive hypothesis for $M$, which we are safe to invoke because $n \ge \envsize{\env_1}$ and similarly for $k$, we know that there is a value $v_M$ and cost $c_M$ such that $\evals{\env_1}{M}{c_M}{v_M}$ and:
+$$c_M + P_{v_M}(n) \le P_M(n) + P_{\env_1}(n)$$
+
+Recall the definition of $P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n)$:
+$$ P_M(n) + (\Crec + P_{N_1}(n)) + n (\Cvar + \Crec + P_{N_2}(n)) $$
+
+Instead of proving an inequality involving that bound, we use this one:
+$$ P_M(n) + (\Crec + P_{N_1}(n)) + \mathsf{length}(v_M) (\Cvar + \Crec + P_{N_2}(n)) $$
+
+Here, $\mathsf{length}(v_M)$ is just the number of value constructors in $v_M$ minus one, or intuitively just the length of the list represented by $v_M$. This bound makes intuitive sense; the whole point of multiplying by $n$ there was because it was suppose to count the maximum number of times we could iterate. But we now know we will iterate exactly $\mathsf{length}(v_M)$ times. It is indeed a tighter bound; by \pref{thm:non-size-increasing}, we know $\mathsf{length}(v_M) \le \envsize{\env_1} \le n$.
+
+From here, the strategy is to proceed by induction on the structure of the list $v_M$ and prove termination alongside this tighter bound. The cases of this induction are relatively straightforward and do not require anything complicated like an appeal to the outer strong induction hypothesis.
 \end{proof}

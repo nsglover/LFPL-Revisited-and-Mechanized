@@ -1,5 +1,6 @@
 % The nonacm option disables the copyright footnote on the first page.
-\documentclass[sigconf, review, anonymous, nonacm]{acmart}
+% "balance = false" fixes a bug on the final page
+\documentclass[sigconf, review, anonymous, nonacm, balance = false]{acmart}
 
 % Disables the ACM Reference Format after the abstract.
 \settopmatter{printacmref=false}

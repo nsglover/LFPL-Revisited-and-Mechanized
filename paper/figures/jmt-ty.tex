@@ -21,7 +21,7 @@
 \and
 \RuleTy{ListI$_2$}{\types{\ctxappend{\ctx_d}{\ctxappend{\ctx_h}{\ctx_t}}}{\tmcons{M_d}{M_h}{M_t}}{\tplist{A}}}{\types{\ctx_d}{M_d}{\tpdiam} \\ \types{\ctx_h}{M_h}{A} \\ \types{\ctx_t}{M_t}{\tplist{A}}}
 \and
-\RuleTy{ListE}{\types{\ctxappend{\ctx_h}{\ctx_t}}{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}{B}}{\types{\ctx_h}{M}{\tplist{A}} \\ \types{\ctx_t}{N_1}{B} \\ \types{\ctxcons{\ctxcons{\ctxcons{\ctxnil}{x_d}{\tpdiam}}{x_h}{A}}{x_t}{B}}{N_2}{B}}
+\RuleTy{ListE}{\types{\ctxappend{\ctx}{\ctx'}}{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}{B}}{\types{\ctx}{M}{\tplist{A}} \\ \types{\ctx'}{N_1}{B} \\ \types{\ctxcons{\ctxcons{\ctxcons{\ctxnil}{x_d}{\tpdiam}}{x_h}{A}}{x_t}{B}}{N_2}{B}}
 \end{mathpar}
 \Description{An inductive definition of the affine typing judgement for LFPL}
 \caption{\lfpl's affine typing rules}
