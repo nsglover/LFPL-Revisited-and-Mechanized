@@ -30,7 +30,7 @@ To reason about the cost of evaluating \lfplplus terms, we need reason about eva
 
 To solve this problem, we introduce a separate language for \lfplplus values (see \pref{fig:syntax-val}). Note the definitions of value and environment are mutually recursive. This means we usually have to define functions on values via mutual recursion with a corresponding function on environments. Also, note that there is a value $\vdiam$ of type $\tpdiam$. Like in the denotational semantics, diamonds in lists and trees are not explicit.
 %
-By keeping this value language separate from the term language of \lfplplus, we ensure \lfplplus terms are still polynomial-time sound while still obtaining a means of giving \lfplplus terms concrete inputs to help us observe their evaluation. We also define a typing judgement $v : A$ for values, so that $\vdiam : \tpdiam$, $\vcons{v_h}{v_t} : \tplist{A}$ whenever $v_h : A$ and $v_t : \tplist{A}$, and so on.
+By separating values from terms, we ensure \lfplplus terms remain polynomial-time sound while obtaining a means of providing concrete inputs to observe their evaluation. We also define a typing judgement $v : A$ for values, so that $\vdiam : \tpdiam$, $\vcons{v_h}{v_t} : \tplist{A}$ whenever $v_h : A$ and $v_t : \tplist{A}$, and so on.
 
 \input{figures/syntax-val}
 
