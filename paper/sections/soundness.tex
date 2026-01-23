@@ -9,7 +9,7 @@ To strengthen the soundness result and illustrate how to add features to \lfpl w
 \input{figures/ext-syntax-tp-tm}
 \input{figures/ext-jmt-ty}
 
-The typing rules for stacks of type $\tpstack{A}$ correspond to those for lists in a standard non-affine functional programming language, where the elimination from is case analysis rather than structural recursor and construction does not require diamonds.
+The typing rules for stacks of type $\tpstack{A}$ correspond to those for lists in a standard non-affine functional programming language, where the elimination form is case analysis rather than structural recursor and construction does not require diamonds.
 %
 These stacks do not violate \lfpl's core principle of controlling recursion by diamonds because they do not support recursion.
 
@@ -26,7 +26,7 @@ The stack type $\tpstack{A}$ is a particularly powerful addition to \lfpl. The v
 \subsection{Big-Step Operational Cost Semantics}
 \label{sec:operational-semantics}
 
-To reason about the cost of evaluating \lfplplus terms, we need reason about evaluating functions which may take lists as input. For example, we have seen a closed \lfpl term $\code{reverse} : \tparr{\tplist{A}}{\tplist{A}}$, but we can never actually ``run'' $\code{reverse}$ on a nonempty input list, since that would require a closed term of type $\tpdiam$ and the whole point of \lfpl's type system is to make that impossible.
+To reason about the cost of evaluating \lfplplus terms, we need to reason about evaluating functions which may take lists as input. For example, we have seen a closed \lfpl term $\code{reverse} : \tparr{\tplist{A}}{\tplist{A}}$, but we can never actually ``run'' $\code{reverse}$ on a nonempty input list, since that would require a closed term of type $\tpdiam$ and the whole point of \lfpl's type system is to make that impossible.
 
 To solve this problem, we introduce a separate language for \lfplplus values (see \pref{fig:syntax-val}). Note the definitions of value and environment are mutually recursive. This means we usually have to define functions on values via mutual recursion with a corresponding function on environments. Also, note that there is a value $\vdiam$ of type $\tpdiam$. Like in the denotational semantics, diamonds in lists and trees are not explicit.
 %
@@ -34,7 +34,7 @@ By separating values from terms, we ensure \lfplplus terms remain polynomial-tim
 
 \input{figures/syntax-val}
 
-To account for the cost of evaluation, we give a cost-annoted big-step operational semantics, represented by the judgement $\evals{\env}{M}{c}{v}$, read ``term $M$ evaluates under the environment $\env$ to a value $v$ with cost $c$''. A representative set of rules for this judgement is given in \pref{fig:jmt-eval}, and a complete set of rules can be found in \pref{app:evaluation}. Note the presence a constants $\Cvar, \Cnull, \ldots, \Ctrec \in \mathbb N$ (one for each syntactic construct) in the conclusion of each rule. These are left arbitrary so that our cost model is generic with respect to the particular costs of each primitve operation of the language.
+To account for the cost of evaluation, we give a cost-annotated big-step operational semantics, represented by the judgement $\evals{\env}{M}{c}{v}$, read ``term $M$ evaluates under the environment $\env$ to a value $v$ with cost $c$''. A representative set of rules for this judgement is given in \pref{fig:jmt-eval}, and a complete set of rules can be found in \pref{app:evaluation}. Note the presence of constants $\Cvar, \Cnull, \ldots, \Ctrec \in \mathbb N$ (one for each syntactic construct) in the conclusion of each rule. These are left arbitrary so that our cost model is generic with respect to the particular costs of each primitive operation of the language.
 
 Polynomial-time soundness is meant to be a statement about the computational complexity (of functions encoded by \lfpl) with respect to some machine model like a Turing machine. The big-step cost semantics is somewhat removed from a Turing machine's cost model.
 %
@@ -44,7 +44,7 @@ The only non-standard features of \lfpl are the affine type system and the type 
 %
 However, both of these can be forgotten in a simple cost-preserving translation.
 %
-Thus, when proving true polynomial-time soundness of \lfpl, the only part which relies on \lfpl-specific reasoning is the very first step of giving a polynomial bound on the cost in \lfpl's big-step semantics; after that, these standard methods will carry the polynomial bound all the way down to the machine cost model. As focus of this paper is \lfpl, we only mechanize the construction and verification of the polynomial cost bound.
+Thus, when proving true polynomial-time soundness of \lfpl, the only part which relies on \lfpl-specific reasoning is the very first step of giving a polynomial bound on the cost in \lfpl's big-step semantics; after that, these standard methods will carry the polynomial bound all the way down to the machine cost model. As the focus of this paper is \lfpl, we only mechanize the construction and verification of the polynomial cost bound.
 
 \input{figures/jmt-eval}
 
@@ -93,17 +93,17 @@ Taking $B = \tplist{\tpunit}$ and $A = \tpunit$, we recover the basic notion of 
 \begin{center}
 \parbox{.9\linewidth}{
   \it
-Suppose $\Gamma \vdash M : A$. Then, there exists a polynomial $P_M : \mathbb N \to \mathbb N$ such that, for any $\env : \Gamma$, there exists a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and $c \le P_M(\envsize{\env})$.
+Suppose $\types{\ctx}{M}{A}$. Then, there exists a polynomial $P_M : \mathbb N \to \mathbb N$ such that, for any $\env : \Gamma$, there exists a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and $c \le P_M(\envsize{\env})$.
 }
 \end{center}
 
 However, this statement is false. The problem is that the environment may contain values which incur cost when used, which is dynamic information and $P_M$ only has access to static information. Consider $\types{f : \tparr{\tpunit}{\tpunit}}{\tmapp{f}{\tmnull}}{\tpunit}$. If for simplicity $\Capp = \Cvar = \Cnull = 0$, we cannot statically observe how this program could incur any cost. After all, the only statically observable syntactic constructs are application, variable, and null. On the other hand, dynamically, $\env$ could map $f$ to a function which incurs cost.
 
-To resolve this issue, we must consider the potential cost of running functions (or lazy pairs) stored in the environment $\env$ and result value $v$. Suppose for a moment have defined three families of polynomials: $P_M$ on all terms $M$, $P_v$ on all values $v$, and $P_\env$ on all environments $\env$. Our new goal is to prove the following theorem.
+To resolve this issue, we must consider the potential cost of running functions (or lazy pairs) stored in the environment $\env$ and result value $v$. Suppose for a moment we have defined three families of polynomials: $P_M$ on all terms $M$, $P_v$ on all values $v$, and $P_\env$ on all environments $\env$. Our new goal is to prove the following theorem.
 
 \begin{theorem}[General Soundness - Second Attempt]
 \label{thm:soundness-general-weak}
-Suppose $\Gamma \vdash M : A$. Then, for any $\env : \Gamma$, there exists a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and:
+Suppose $\types{\ctx}{M}{A}$. Then, for any $\env : \Gamma$, there exists a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and:
 $$c + P_v(\envsize{\env}) \le P_M(\envsize{\env}) + P_{\env}(\envsize{\env})$$
 \end{theorem}
 
@@ -119,7 +119,7 @@ P_{\tmrecord{M_1}{M_2}}(n) &= \Crecord + \max(P_{M_1}, P_{M_2})(n) \\
 P_{\tmproj{i}{M}}(n) &= \max(1, \Cproj{i}) + P_M(n) \\
 P_{\tmlam{x}{M}}(n) &= \Clam + P_M(n) \\
 P_{\tmapp{M}{N}}(n) &= \max(1, \Capp) + P_M(n) + P_N(n) \\
-P_{\tmcase{M}{x_1}{N_1}{x_2}{N_2}}(n) &= \Ccase + P_M + \max(P_{N_1}, P_{N_2})(n) \\
+P_{\tmcase{M}{x_1}{N_1}{x_2}{N_2}}(n) &= \Ccase + P_M(n) + \max(P_{N_1}, P_{N_2})(n) \\
 P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n) &= P_M(n) + (\Crec + P_{N_1}(n)) \\
 &\quad\quad + n (\Cvar + \Crec + P_{N_2}(n)) \\
 P_{\tmtrec{M}{N_1}{x}{y}{z}{w}{N_2}}(n) &= P_M(n) + (n + 1) (\Ctrec + P_{N_1}(n)) \\
@@ -136,7 +136,7 @@ The weakening of the bound to $\max(1, \Capp)$ in $P_{\tmlam{x}{M}}$ instead of 
 
 \begin{definition}[Value and Environment Polynomials]
   We define polynomials $P_\env : \mathbb N \to \mathbb N$ and
-  $P_vv : \mathbb N \to \mathbb N$ at via mutual induction as follows
+  $P_v : \mathbb N \to \mathbb N$ via mutual induction as follows
 \begin{align*}
 P_{\vdiam} &= P_{\vnull} = P_{\vempty} = P_{\vnil} = P_{\vleaf} = 0 \\
 P_{\vrecord{\env}{M_1}{M_2}} &= P_{\env} + \max(P_{M_1}, P_{M_2}) \\
@@ -160,7 +160,7 @@ With these choices of polynomials, \pref{thm:soundness-general-weak} implies \pr
 Another necessary strengthening of \pref{thm:soundness-general-weak} is to break the dependency of the polynomials' input on the environment $\env$. Instead, we prove that the theorem holds for all inputs $n$ which are big enough to account for all diamonds, i.e. $n \ge \envsize{\env}$. The final form of our soundness theorem is as follows:
 
 \begin{theorem}[General Polynomial-Time Soundness]
-For all $k \in \mathbb N$, suppose that $\types{\ctx}{M}{A}$ and $\env : \ctx$. If $n \ge \envsize{\env}$ and $k \ge P_M(n) + P_{\env}(n)$, then there is exists a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and:
+For all $k \in \mathbb N$, suppose that $\types{\ctx}{M}{A}$ and $\env : \ctx$. If $n \ge \envsize{\env}$ and $k \ge P_M(n) + P_{\env}(n)$, then there is a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and:
 $$c + P_v(n) \le P_M(n) + P_{\env}(n)$$
 \end{theorem}
 \begin{proof}
@@ -172,8 +172,3 @@ Next, we go by rule induction on $\types{\ctx}{M}{A}$. At the cases for $\tmapp{
 
 Most cases are verbose but straightforward, and a couple of the less straightforward cases can be found in \pref{app:soundness}.
 \end{proof}
-
-%%% Local Variables:
-%%% mode: LaTeX
-%%% TeX-master: "../paper"
-%%% End:

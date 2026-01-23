@@ -15,7 +15,7 @@ exp (succ n) = double (exp n)
 
 The main idea of \lfpl is to enforce non-size-increasing computation. In the above example, the exponential behavior relies on the fact that \lstinline{double} increases the size of its input. \lfpl forbids such size-increasing computations. This non-size-increasing property is enforced with an affine type system, which treats input size as a limited resource which cannot be duplicated. Formally, size is represented by a type $\tpdiam$, so that one variable of type $\tpdiam$ corresponds to one unit of size. The natural number $n$ requires $n$ elements of type $\tpdiam$ to construct. These resources, which we shall henceforth call diamonds, are returned when the number is consumed. The program \code{double} is no longer possible to write; in the \code{succ} case, one diamond is made available to us, yet we need two diamonds due to the two calls to \code{succ}.
 
-In contrast to other polynomial-time systems that might restrict iteration such that nested iterations are impossible, \lfpl enables a fairly natural programming style. While many polynomial-time languages are complete with respect to polynomial-time \textit{computations}, they are often unable to express many natural \textit{algorithms}. Consider this psuedocode for a slow identity function on lists:
+In contrast to other polynomial-time systems that might restrict iteration such that nested iterations are impossible, \lfpl enables a fairly natural programming style. While many polynomial-time languages are complete with respect to polynomial-time \textit{computations}, they are often unable to express many natural \textit{algorithms}. Consider this pseudocode for a slow identity function on lists:
 \begin{lstlisting}
 append : nat list -> nat list -> nat list
 append nil l2 = l2
@@ -25,7 +25,7 @@ id : nat list -> nat list
 id l = append (append l nil) nil
 \end{lstlisting}
 
-In a system which disallows nested iterations, expressing a program like this can be difficult or impossible due to fact that the output from one call to the iterative procedure \lstinline{append} is fed into another such call. Meanwhile, \lfpl has no such restrictions, so the above program can be directly translated into \lfpl with minimal modifications. Due to this flexibility, \lfpl supports many other natural algorithms such as linear-time list reversal, insertion sort, and integer division by a constant.
+In a system which disallows nested iterations, expressing a program like this can be difficult or impossible when the output from a call to the iterative procedure like \lstinline{append} is fed into another such call. Meanwhile, \lfpl has no such restrictions, so the above program can be directly translated into \lfpl with minimal modifications. Due to this flexibility, \lfpl supports many other natural algorithms such as linear-time list reversal, insertion sort, and integer division by a constant.
 
 
 
@@ -33,7 +33,7 @@ In a system which disallows nested iterations, expressing a program like this ca
 
 The defining property of \lfpl is its non-size-increasing property. Consider a list resulting from the evaluation of an  \lfpl program with some lists as inputs. The non-size-increasing theorem intuitively states that the length of this output list is (roughly) no greater than the sum of the lengths of the input lists. We will present all of this in full detail later, but for now the important takeaway is that the language does not support problematic size-increasing functions like \lstinline{double}. As one might expect of the defining property of the language, the non-size-increasing theorem is an important tool in showing that \lfpl is polynomial-time sound.
 
-The most complete version of the polynomial-time soundness theorem states that any function on the natural numbers expressible in \lfpl is also computable by a polynomial-time Turing machine. We only prove one step in the path from \lfpl to Turing machines: In a high-level cost semantics, given an \lfpl program and some inputs with size $n$, there exists a polynomial $P : \mathbb N \to \mathbb N$ such that evaluating the program costs at most $P(n)$. Our theorem is actually the only step in this path which contains reasoning specific to \lfpl; given this theorem, it is a well-known and standard procedure to justify the polynomial bound for our high-level cost semantics in terms of a low-level model such as a Turing machine \cite{BlellG96,Accattoli2019}.
+The most complete version of the polynomial-time soundness theorem states that any function on the natural numbers expressible in \lfpl is also computable by a polynomial-time Turing machine. We only prove one step in the path from \lfpl to Turing machines: In a high-level cost semantics, given an \lfpl program and some inputs with size $n$, there exists a polynomial $P : \mathbb N \to \mathbb N$ such that evaluating the program costs at most $P(n)$. Our theorem is actually the only step in this path which contains reasoning specific to \lfpl; given this theorem, it is a well-known and standard procedure to justify the polynomial bound for our high-level cost semantics in terms of a low-level model such as a Turing machine~\cite{BlellG96,Accattoli2019}.
 
 The polynomial-time completeness theorem states the logical inverse of soundness: Any function on the natural numbers which is computable by a polynomial-time Turing machine is expressible in \lfpl. As stated, this is not quite true for \lfpl; $\code{double}$ is computable in linear-time yet is not expressible in \lfpl. We can fix this by instead proving completeness for all polynomial-time computable functions which do not increase the size of their input. Surprisingly, we will see later that the original theorem statement is only \textit{barely} false; there is a very reasonable perspective in which \lfpl is able to express all polynomial-time computations, even the size-increasing ones.
 
@@ -95,16 +95,16 @@ A simple way to deal with this that doesn't hinder the programmer too much is si
 
 To reason about the behavior of \lfpl programs, we give them a simple set-theoretic denotational semantics. To each type $A$ we assign a set $\tpsem{A}$, and to each well-typed term $\types{\Gamma}{M}{A}$ to be interpreted under an environment $\env$ such that $\envtypes{\env}{\Gamma}$ (meaning that $\env(x) \in \tpsem{A}$ is defined for every $x : A \in \Gamma$), we assign an element $\tmsem{M}{\env}$ of $\tpsem{A}$.
 
-To define the semantics the \lfpl list type, we make use of the Kleene star operator. Given a set $S$, the set $S^*$ is the set of finite strings of elements of $S$. We write $[]$ for the empty string, and given $x \in S$ and $\ell \in S^*$, we write $x :: \ell$ for the element of $S^*$ obtained by putting $x$ before the sequence of elements in $\ell$. Given $\ell \in S^*$, let $|\ell| \in \mathbb N$ denote the length of the string $\ell$. Lastly, for every set $T$, we inductively define the iteration operator on elements of $S^*$:
+To define the semantics of the \lfpl list type, we make use of the Kleene star operator. Given a set $S$, the set $S^*$ is the set of finite strings of elements of $S$. We write $[]$ for the empty string, and given $x \in S$ and $\ell \in S^*$, we write $x :: \ell$ for the element of $S^*$ obtained by putting $x$ before the sequence of elements in $\ell$. Given $\ell \in S^*$, let $|\ell| \in \mathbb N$ denote the length of the string $\ell$. Lastly, for every set $T$, we inductively define the iteration operator on elements of $S^*$:
 \begin{align*}
 &\text{iter} : S^* \times T \times (S \times T \to T) \to T \\
 &\text{iter}([], b, f) = b \\
 &\text{iter}(x :: \ell, b, f) = f(x, \text{iter}(\ell, b, f))
 \end{align*}
 
-For the semantics of the sum type, we make use of the disjoint union operator $S \sqcup T := (S \times \{ 1 \}) \cup (T \times \{ 2 \})$. The definitions of $\tpsem{A}$ and $\tmsem{M}{\env}$ are given in \pref{fig:sem-tp-tm}, inspired by Hofmann's set-theoretic interpretation in \cite{hofmannStrengthNonsizeIncreasing2002}. Notice the argument of type $\tpdiam$ to $\code{cons}$ is ignored; the presence of $\tpdiam$ in lists is purely a means of statically enforcing polynomial-time computation, so $\blacklozenge$ does not need to show up in the dynamic semantics for $\code{cons}$.
+For the semantics of the sum type, we make use of the disjoint union operator $S \sqcup T := (S \times \{ 1 \}) \cup (T \times \{ 2 \})$. The definitions of $\tpsem{A}$ and $\tmsem{M}{\env}$ are given in \pref{fig:sem-tp-tm}, inspired by Hofmann's set-theoretic interpretation~\cite{hofmannStrengthNonsizeIncreasing2002}. Notice the argument of type $\tpdiam$ to $\code{cons}$ is ignored; the presence of $\tpdiam$ in lists is purely a means of statically enforcing polynomial-time computation, so $\blacklozenge$ does not need to show up in the dynamic semantics for $\code{cons}$.
 
-The notion of size and the non-size-increasing property were originally formulated for the denotational semantics \cite{hofmannLinearTypesNonsizeincreasing1999}. The basic idea is to define a partial function $\mathsf{size}_A : \tpsem{A} \to \mathbb N$ by induction on $A$, intuitively counting the number of diamonds within the input. For example, $\mathsf{size}_{\tpdiam}(\blacklozenge) = 1$. The reason for partiality is that $\mathsf{size}_{\tparr{A}{B}}(f)$ is defined as the maximum difference (which might not exist) between $\mathsf{size}_B(f(x))$ and $\mathsf{size}_A(x)$, where $x$ ranges over all $x \in \tpsem{A}$ such that $\mathsf{size}_A(x)$ and $\mathsf{size}_B(f(x))$ are defined. The non-size-increasing theorem then proves simultaneously that $\mathsf{size}_A(\tmsem{M}{\env})$ is defined whenever the sizes of all values in $\env$ are defined and that the size of $\tmsem{M}{\env}$ is bounded by the sum of the sizes of the values in $\env$. In this paper, we provide an equivalent definition using an operational semantics in \pref{sec:soundness-size}. It is simpler and sufficient for proving soundness.
+The notion of size and the non-size-increasing property were originally formulated for the denotational semantics~\cite{hofmannLinearTypesNonsizeincreasing1999}. The basic idea is to define a partial function $\mathsf{size}_A : \tpsem{A} \to \mathbb N$ by induction on $A$, intuitively counting the number of diamonds within the input. For example, $\mathsf{size}_{\tpdiam}(\blacklozenge) = 1$. The reason for partiality is that $\mathsf{size}_{\tparr{A}{B}}(f)$ is defined as the maximum difference (which might not exist) between $\mathsf{size}_B(f(x))$ and $\mathsf{size}_A(x)$, where $x$ ranges over all $x \in \tpsem{A}$ such that $\mathsf{size}_A(x)$ and $\mathsf{size}_B(f(x))$ are defined. The non-size-increasing theorem then proves simultaneously that $\mathsf{size}_A(\tmsem{M}{\env})$ is defined whenever the sizes of all values in $\env$ are defined and that the size of $\tmsem{M}{\env}$ is bounded by the sum of the sizes of the values in $\env$. In this paper, we provide an equivalent definition using an operational semantics in \pref{sec:soundness-size}. It is simpler and sufficient for proving soundness.
 
 \input{figures/sem-tp-tm}
 
@@ -112,7 +112,7 @@ The notion of size and the non-size-increasing property were originally formulat
 
 \subsection{Example Functions}
 
-To build intuition about the expressivity of \lfpl, we implement some example functions that demonstrate how to program in the language. Firstly, given any element type $A$, let's implement efficient list reversal. We use the syntax
+To build intuition about the expressivity of \lfpl, we implement some example functions that demonstrate how to program in the language. Firstly, given any element type $A$, we implement efficient list reversal. We use the syntax
 $$\text{\lstinline{rec M | nil => N1 | cons (xd, xh, xt) => N2}}$$
 for $\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}$ and similarly for sum elimination.
 
@@ -130,7 +130,7 @@ reverse = lam x . revAppend x nil
 \end{example}
 
 \begin{example}[List Case Analysis]
-Importantly, both for the general convenience of the programmer and the following this one, we can inspect whether a list is empty, which is often seen as pattern matching on the list data structure in standard functional programming languages.
+Importantly, both for the general convenience of the programmer and the example after this one, we can inspect whether a list is empty, which is often seen as pattern matching on the list data structure in standard functional programming languages.
 \begin{lstlisting}
 lfold : 1 + diam * A * L(A) -o L(A)
 lfold = lam x . case x .

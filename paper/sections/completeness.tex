@@ -20,15 +20,15 @@ As we see in \pref{sec:completeness-general-thm}, this constraint can be removed
 
 Proving \pref{thm:completeness-concrete} boils down to simulating the polynomial-time Turing machine that computes the function $f$. This immediately presents two challenges. Say that $P : \mathbb N \to \mathbb N$ is the polynomial encoding how many steps the Turing machine takes to compute $f$. The first challenge is to represent the tape of the machine, which for an input list of size $n$ could contain up to $P(n)$ additional values by the time the machine halts. We only have $n$ diamonds from the input list, yet we have to store up to $P(n)$ additional values.% ; clearly a list will not work for this, since every element of a list must be accompanied by a diamond.
 
-The second challenge is to simulate the Turing machine for $P(n)$ steps. At first glance, it seems that \lfpl is only suited for performing $kn$ iterations given $n$ diamonds and some constant $k$. This can be acheived for $k = 1$ by iterating down a list and building it back up during the iteration process, and then it is easy to repeat this for any constant $k$ number of times. This is useful but does not help to perform, say, $n^2$ iterations.
+The second challenge is to simulate the Turing machine for $P(n)$ steps. At first glance, it seems that \lfpl is only suited for performing $kn$ iterations given $n$ diamonds and some constant $k$. This can be achieved for $k = 1$ by iterating down a list and building it back up during the iteration process, and then it is easy to repeat this for any constant $k$ number of times. This is useful but does not help to perform, say, $n^2$ iterations.
 
 
 
 \subsection{The Bounded Stack Data Structure}
 \label{sec:completeness-bounded-stack-definition}
 
-We first address the challenge of simulating the tape of the Turing machine. A common approach to this is to use a data structure consisting of a head element and two stacks, each representing one side of the tape relative to the head element \cite{Okasaki99}. If we use the type $A$ for tape symbols, then the type of our tape data structure could be $\tptens{\tplist{A}}{\tptens{A}{\tplist{A}}}$. % The first element represents the section of the tape to the left of the head, the second element represents the symbol at the head of the tape, and the third element represents the right section of the tape. 
-% Treating elements of $L(A)$ like stacks, we can shift the head to the left by popping a symbol from the left list and pushing the current head symbol to the rightƒ list.
+We first address the challenge of simulating the tape of the Turing machine. A common approach to this is to use a data structure consisting of a head element and two stacks, each representing one side of the tape relative to the head element~\cite{Okasaki99}. If we use the type $A$ for tape symbols, then the type of our tape data structure could be $\tptens{\tplist{A}}{\tptens{A}{\tplist{A}}}$. % The first element represents the section of the tape to the left of the head, the second element represents the symbol at the head of the tape, and the third element represents the right section of the tape. 
+% Treating elements of $L(A)$ like stacks, we can shift the head to the left by popping a symbol from the left list and pushing the current head symbol to the right list.
 %
 However, in \lfpl, we cannot actually use the above data structure; given $n$ diamonds, it can only hold $n + 1$ values. Instead, we construct a type $S(A)$ that depends on the bounding polynomial $P$ and supports a stack-like interface, as long as it doesn't have to hold more than $P(n)$ elements. Then, we use a value of type $\tptens{S(A)}{\tptens{A}{S(A)}}$ to encode the tape.
 
@@ -56,7 +56,7 @@ Both $\code{push}$ and $\code{pop}$ also return a stack and a sum. The left bran
 %
 For $\code{push}$, which takes in an element and a stack, failure means that the input stack is full, and so the input element is returned to us. For $\code{pop}$, failure means the input stack is empty. % If the input stack has at least one element, it is returned to us via the right injection.
 
-This interface is inspired by the array-like data structure used in Hofmann's original completeness proof \cite{hofmannStrengthNonsizeIncreasing2002}. The key difference is that his array data structure has read and write operations requiring an index, given as a binary \lfpl number (i.e. $\tplist{\tpsum{\tpunit}{\tpunit}}$). The extra work of dealing with this index significantly complicates both the implementation and usage of the data structure.
+This interface is inspired by the array-like data structure used in Hofmann's original completeness proof~\cite{hofmannStrengthNonsizeIncreasing2002}. The key difference is that his array data structure has read and write operations requiring an index, given as a binary \lfpl number (i.e. $\tplist{\tpsum{\tpunit}{\tpunit}}$). The extra work of dealing with this index significantly complicates both the implementation and usage of the data structure.
 %
 Arrays are more general but our stack is easier to implement and sufficient for representing a Turing machine's tape, so we believe it is the better choice of data structure for the completeness theorem.
 
@@ -85,9 +85,9 @@ Let $k \in \mathbb N$. Suppose $(S, \code{empty}, \code{push}, \code{pop})$ is a
 The intended use of the $k$-stack data structure is to choose $n \in \mathbb N$ and always pass $m_{n,k}$ to the $\code{push}$ and $\code{pop}$ operations. % In other words, we commit to a value of $n$ at runtime and always provide $nk$ diamonds to the stack operations.
 \pref{def:stack-correctness} ensures that, in this use case, the stack can hold at most $B(n)$ items. Behavior is otherwise undefined. Whenever $\code{push}$ and $\code{pop}$ receive $m_{n,k}$ as input, they return $m_{n,k}$ as the first element of their output, thus making it available for future stack operations.
 
-% The definition only makes claims about valid stacks, i.e. $s \in \tpsem{S}$ such that $V_n(s)$ holds. Naturally, we insist that $\code{empty}$ should always be valid, and that $\code{push}$ and $\code{pop}$ should preserve validity. This extra layer of complexity is necessary; many of the implementations we provide in \pref{sec:completeness-bounded-stack-implementation} will require stack types $S$ which contain elements that would cause the $\code{push}$ and $\code{pop}$ operations to fail their specification. The extension of \lfpl with dependent types studied in \cite{atkeyPolynomialTimeDependent2024} could be helpful here, potentially allowing us to internalize \pref{def:stack-correctness} into the types themselves.
+% The definition only makes claims about valid stacks, i.e. $s \in \tpsem{S}$ such that $V_n(s)$ holds. Naturally, we insist that $\code{empty}$ should always be valid, and that $\code{push}$ and $\code{pop}$ should preserve validity. This extra layer of complexity is necessary; many of the implementations we provide in \pref{sec:completeness-bounded-stack-implementation} will require stack types $S$ which contain elements that would cause the $\code{push}$ and $\code{pop}$ operations to fail their specification. The extension of \lfpl with dependent types studied in~\cite{atkeyPolynomialTimeDependent2024} could be helpful here, potentially allowing us to internalize \pref{def:stack-correctness} into the types themselves.
 
-% The intuition for $\code{push}$ is that, given an element to push $x \in \tpsem{A}$ and a valid input stack $s \in \tpsem{S}$, we case on whether $s$ is full, i.e. $|I_n(s)| = B(n)$. If it's full, we just return $s$ and $x$. Otherwise, we return some new valid stack $s'$ such that the items of $s'$ are $x$ followed by the items of $s$. The intuition for $\code{pop}$ is quite similar, casing on whether $I_n(s)$ is $[]$ or $x :: \ell$ and proceeding accordingly.
+% The intuition for $\code{push}$ is that, given an element to push $x \in \tpsem{A}$ and a valid input stack $s \in \tpsem{S}$, we case on whether $s$ is full, i.e. $|I_n(s)| = B(n)$. If it is full, we just return $s$ and $x$. Otherwise, we return some new valid stack $s'$ such that the items of $s'$ are $x$ followed by the items of $s$. The intuition for $\code{pop}$ is quite similar, casing on whether $I_n(s)$ is $[]$ or $x :: \ell$ and proceeding accordingly.
 
 % \comment{Jan}{The following can be removed if needed.}
 % To summarize, a correct $k$-stack bounded by $B : \mathbb N \to \mathbb N$ is a data structure which, given the user's choice of some number $n \in \mathbb N$ at runtime, behaves like a standard stack in a functional programming language but requires temporary access to $nk$ diamonds and has a storage limit of $B(n)$ elements.
@@ -138,7 +138,7 @@ When implementing $\code{push}'$, we are given as our source of diamonds an inpu
 The implementation of $\code{pop}'$ is similar, but instead we start from $s_1$. If popping $s_1$ fails, it must be empty, so we should try $s_2$. We go all the way down the list, and if popping $s_n$ still fails, then the whole stack must be empty.
 \end{proof}
 
-% Hofmann's original proof in \cite{hofmannStrengthNonsizeIncreasing2002} contains an analogue to \pref{lem:stack-inductive} for his array data structure, but the implementation is significantly more difficult due to the presence of indices. The construction is similar to ours; he chooses $S' = \tparr{\tplist{\tpunit}}{\tplist{S}}$, where $S$ is now assumed to be the implementation type of a correct array data structure, so $S'$ is the type of suspended lists of sub-arrays. Given an index between $0$ and $n B(n)$, the read and write operations need to figure out which sub-array corresponds to that index, and furthermore which index to use for the operations on that sub-array. This involves implementing the binary divmod operation in LFPL, greatly complicating the implementation and proof of its correctness.
+% Hofmann's original proof~\cite{hofmannStrengthNonsizeIncreasing2002} contains an analogue to \pref{lem:stack-inductive} for his array data structure, but the implementation is significantly more difficult due to the presence of indices. The construction is similar to ours; he chooses $S' = \tparr{\tplist{\tpunit}}{\tplist{S}}$, where $S$ is now assumed to be the implementation type of a correct array data structure, so $S'$ is the type of suspended lists of sub-arrays. Given an index between $0$ and $n B(n)$, the read and write operations need to figure out which sub-array corresponds to that index, and furthermore which index to use for the operations on that sub-array. This involves implementing the binary divmod operation in LFPL, greatly complicating the implementation and proof of its correctness.
 
 Now that we've established the main result of this subsection, all it takes is a straightforward induction to combine the above two lemmas to produce stack implementations with monomial bounds.
 
@@ -147,7 +147,7 @@ Now that we've established the main result of this subsection, all it takes is a
 Given $c,k \in \mathbb N$, there exists a $k$-stack implementation with element type $A$ that is correct and bounded by $B(n) = cn^k$.
 \end{lemma}
 
-Since every polynomial $P : \mathbb N \to \mathbb N$ is eventually bounded by some monomial $B(n) = cn^k$, it is technically enough to stop here, which is what Hofmann's original proof does \cite{hofmannStrengthNonsizeIncreasing2002}. However, this introduces an annoying edge case when $n = 0$ because $P(0)$ could be nonzero but $B(0) = 0$ for any choice of $c$ and $k$. We suspect the complexity of the array data structure makes it not worth the trouble to avoid this problem. Due to the simplicity of our stack data structure, this annoyance can be sidestepped and we can combine monomially-bounded stacks to get polynomially-bounded stacks with a few more relatively straightforward implementations.
+Since every polynomial $P : \mathbb N \to \mathbb N$ is eventually bounded by some monomial $B(n) = cn^k$, it is technically enough to stop here, which is what Hofmann's original proof does~\cite{hofmannStrengthNonsizeIncreasing2002}. However, this introduces an annoying edge case when $n = 0$ because $P(0)$ could be nonzero but $B(0) = 0$ for any choice of $c$ and $k$. We suspect the complexity of the array data structure makes it not worth the trouble to avoid this problem. Due to the simplicity of our stack data structure, this annoyance can be sidestepped and we can combine monomially-bounded stacks to get polynomially-bounded stacks with a few more relatively straightforward implementations.
 
 \begin{lemma}[Weakened Stack Construction]
 \label{lem:stack-weakened}
@@ -157,8 +157,8 @@ Fix an element type $A$ and some $k \in \mathbb N$. Suppose $(S, \code{empty}, \
 This construction is relatively obvious; if $\code{push}$ and $\code{pop}$ need only $kn$ diamonds, then instead having to accept $(k + 1)n$ diamonds is no problem. We can reuse the implementation type $S$ as well as the code for $\code{empty}$. For the new stack operations $\code{push}'$ and $\code{pop}'$, they simply make use of the fact that $m_{n,k+1} = (\ell,m_{n,k})$ for some $\ell \in \tpsem{\tplist{\tpunit}}$. They just ignore $\ell$ and call $\code{push}$ and $\code{pop}$ (respectively) with $m_{n,k}$.
 \end{proof}
 
-The following lemma, which shows how to combine two stacks into one stack bounded by the sum of their bounds, is the main tool by which we are able to construct stacks with arbitrary polynomial bounds from stacks with monomial bounds. It is straighforward to do this construction for our stack data structure, but it is not clear how to do it for Hofmann's array data structure, % presents difficulties here similar to the ones discussed after \pref{lem:stack-inductive}. 
-which only yields monomially-bounded arrays \cite{hofmannStrengthNonsizeIncreasing2002}.
+The following lemma, which shows how to combine two stacks into one stack bounded by the sum of their bounds, is the main tool by which we are able to construct stacks with arbitrary polynomial bounds from stacks with monomial bounds. It is straightforward to do this construction for our stack data structure, but it is not clear how to do it for Hofmann's array data structure, % presents difficulties here similar to the ones discussed after \pref{lem:stack-inductive}. 
+which only yields monomially-bounded arrays~\cite{hofmannStrengthNonsizeIncreasing2002}.
 
 \begin{lemma}[Additive Stack Construction]
 \label{lem:stack-additive}
@@ -181,7 +181,7 @@ Write $P(n)$ as $\sum_{i=0}^k c_i n^i$. For each $0 \le i \le k$, we can use \pr
 \subsection{Polynomial Iteration}
 \label{sec:completeness-poly-iter}
 
-We now address the challenge of how to simulate running the transition function of a $P$-time Turing machine for $P(n)$ steps when given an input list of length $n$. Additionally, we need simulate the transition function itself. Fortunately, both of these tasks require comparably simpler solutions than the issue of polynomial storage presented in the previous section. To iterate a function on itself $P(n)$ times, we use the next two lemmas, which are inspired by Proposition 4.1 in Hofmann's work \cite{hofmannLinearTypesNonsizeincreasing1999}.
+We now address the challenge of how to simulate running the transition function of a $P$-time Turing machine for $P(n)$ steps when given an input list of length $n$. Additionally, we need to simulate the transition function itself. Fortunately, both of these tasks require comparably simpler solutions than the issue of polynomial storage presented in the previous section. To iterate a function on itself $P(n)$ times, we use the next two lemmas, which are inspired by Proposition 4.1 in Hofmann's work~\cite{hofmannLinearTypesNonsizeincreasing1999}.
 
 \begin{lemma}[Linear Iteration]
 \label{lem:linear-iterator}
@@ -218,7 +218,7 @@ $$\tpsem{Q} \times (\{ a_0 \} \sqcup \tpsem{A}) \to (\{ q_0 \} \sqcup \tpsem{Q})
 If $(q', a', d) = f(q, a)$, the intent is that $q$ is the current state of the Turing machine, $a$ is the symbol under the tape head, $q'$ is the new state after taking a step, $a'$ is the symbol to overwrite $a$ with, and $d$ is the direction (left or right) to shift the head. So, the type of the \lfpl term encoding $f$ should be:
 $$\tparr{\tptens{Q}{(\tpsum{\tpunit{}}{A})}}{\tptens{(\tpsum{\tpunit{}}{Q})}{\tptens{(\tpsum{\tpunit{}}{A})}{(\tpsum{\tpunit}{\tpunit})}}}$$
 
-The input and output sets of $f$ are both denotations of heap-free types. The following two lemmas that show \lfpl is complete with respect to computations only involving \dfree{\hspace{-0.75em}} types, and thus that $f$ can be implemented.
+The input and output sets of $f$ are both denotations of heap-free types. The following two lemmas show \lfpl is complete with respect to computations only involving types $A$ such that $\dfree{A}$, and thus that $f$ can be implemented.
 
 \begin{lemma}
 Suppose $\dfree{A}$. Then, for every $a \in \tpsem{A}$, there exists a closed term $M_a : A$ such that $\tmsem{M_a}{\envnil} = a$.
@@ -246,14 +246,14 @@ This is nontrivial but ultimately follows how one would implement $\code{divmod}
 Consider the polynomial $Q(m) = (k + 1)(m + 1) + P((k + 1)(m + 1))$, which has degree at most $k + 1$. Let $(m, r) = \code{divmod}_k(n)$ so that $0 \le r \le k$ and $n = m(k + 1) + r$. Then, $(k + 1)(m + 1) = m(k + 1) + (k + 1) > m(k + 1) + r = n$, implying $Q(m) \ge P(n) + n$. Therefore, we can apply \pref{lem:stack-polynomial} to $Q$ to obtain a stack implementation for element type $\tpsum{\tpunit{}}{A}$, say with underlying type $S$. These stacks hold up to $Q(m)$ values assuming we have $m(k + 1)$ diamonds available  and therefore at least $P(n)$ values. So we can model the tape with a data structure of type $\tptens{S}{\tptens{(\tpsum{\tpunit{}}{A})}{S}}$, as discussed earlier.
 
 \comment{Jan}{The following paragraph can be removed if we need more space.}
-This is another place where our stack data structure simplifies the argument from Hofmann's array-based tape implementation \cite{hofmannStrengthNonsizeIncreasing2002}. The array-based tape requires an index representing what element of the array is currently beneath the head of the tape. This index needs additional diamonds to store, creating the additional complexity of properly sharing the total $n$ diamonds between the index and the tape operations.
+This is another place where our stack data structure simplifies the argument from Hofmann's array-based tape implementation~\cite{hofmannStrengthNonsizeIncreasing2002}. The array-based tape requires an index representing what element of the array is currently beneath the head of the tape. This index needs additional diamonds to store, creating the additional complexity of properly sharing the total $n$ diamonds between the index and the tape operations.
 
 We obtain the following more general completeness theorem, which
 drops the size restriction of \pref{thm:completeness-concrete}.
 %
 \begin{theorem}[Polynomial-Time Completeness]
 \label{thm:completeness-general}
-Let $A$ be a type such that $\dfree{A}$ and let $P : \mathbb N \to \mathbb N$ be a polynomial with degree $k$. For every $P$-time computable function $f : \tpsem{A}^* \to \tpsem{\tpsum{\tpunit{}}{A}}^*$, there exists a correct $k$-stack implementation with element type $\tpsum{\tpunit{}}{A}$, say with underlying type $S$ and items functions $I_n : \tpsem{S} \to \tpsem{\tpsum{\tpunit{}}{A}}^*$, and a closed term $M : \tparr{\tplist{A}}{S}$ such that for every $x \in \tpsem{A}^*$:
+Let $A$ be a type such that $\dfree{A}$ and let $P : \mathbb N \to \mathbb N$ be a polynomial with degree $k$. For every $P$-time computable function $f : \tpsem{A}^* \to \tpsem{\tpsum{\tpunit{}}{A}}^*$, there exists a correct $k$-stack implementation with element type $\tpsum{\tpunit{}}{A}$, say with underlying type $S$ and item functions $I_n : \tpsem{S} \to \tpsem{\tpsum{\tpunit{}}{A}}^*$, and a closed term $M : \tparr{\tplist{A}}{S}$ such that for every $x \in \tpsem{A}^*$:
 $$f(x) = I_{|x|}\left(\tmsem{M}{\envnil}(x)\right)$$
 In other words, $M$ outputs a stack with items equal to $f(x)$.
 \end{theorem}
