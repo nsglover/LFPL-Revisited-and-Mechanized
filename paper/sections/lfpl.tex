@@ -23,7 +23,8 @@ append (n :: l1) l2 = n :: append l1 l2
 id : nat list -> nat list
 id l = append (append l nil) nil
 \end{lstlisting}
-In a system which disallows nested iterations, expressing a program like this can be is difficult or impossible due to fact that the output from one call to \lstinline{append} is fed into another call to \lstinline{append}. Meanwhile, \lfpl has no such restrictions, so the above program can be directly translated into \lfpl with minimal modifications. Due this flexibility, \lfpl supports many other natural algorithms such as linear-time list reversal, insertion sort, and integer division by a constant.
+
+In a system which disallows nested iterations, expressing a program like this can be difficult or impossible due to fact that the output from one call to the iterative procedure \lstinline{append} is fed into another such call. Meanwhile, \lfpl has no such restrictions, so the above program can be directly translated into \lfpl with minimal modifications. Due this flexibility, \lfpl supports many other natural algorithms such as linear-time list reversal, insertion sort, and integer division by a constant.
 
 
 
