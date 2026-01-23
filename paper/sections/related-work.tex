@@ -1,10 +1,6 @@
 \section{Related Work}
 
-\paragraph{LFPL}
-
-The most closely related work to ours is that of Atkey~\cite{atkeyPolynomialTimeDependent2024}.
-- What does he do?
-- How are we different?
+The most closely related work to ours is that of Atkey~\cite{atkeyPolynomialTimeDependent2024}. He develops a powerful extension of \lfpl with full dependent types and a ``Cons-free'' iterator much like the stack types we introduced in \pref{sec:soundness}. He also provides a semantic polynomial-time soundness proof using the realizability method of Dal Lago and Hofmann \cite{dallagoRealizabilityModelsImplicit2011}. These developments are mechanized in Agda. Our method for proving soundness differs from his in that it is syntactic rather than semantic and clearly presents explicit polynomial bounds on the cost of evaluation. Furthermore, we devote great attention to mechanizing polynomial-time completeness, ensuring the strongest result by working with a minimal version of \lfpl.
 
 Hofmann's orginal work on LFPL~\cite{hofmannLinearTypesNonsizeincreasing1999,hofmannStrengthNonsizeIncreasing2002} is the basis of this article and has been discussed in detail in Sections \ref{sec:lfpl}, \ref{sec:completeness}, \ref{sec:soundness}.
 %
@@ -12,16 +8,9 @@ The soundness proof is based on previous work by Aehlig and Schwichtenberg~\cite
 %
 None of these articles comes with a mechanization or full account of both soundness and completeness.
 
+\lfpl also directly inspired automatic amortized resource analysis (AARA)~\cite{HoffmJ22}, and so our work could perhaps inspire early steps towards mechanizing the metatheory of AARA. Also, there is a similar polynomial-time completeness result for AARA to the one for \lfpl discussed in \pref{sec:completeness}~\cite{phamTypableFragmentsPolynomial2021}.
 
-
-\paragraph{AARA}
-
-\lfpl directly inspired automatic amortized resource analysis (AARA). Mention Long's AARA completeness paper as well as the original AARA paper.
-
-
-\paragraph{ICC}
-
-There is a large body of work on implicit computational complexity (ICC)~\cite{}.
+Beyond \lfpl, there is a large body of work on implicit computational complexity (ICC)~\cite{}.
 %
 Most of the proofs in these works are not mechanized.
 %
