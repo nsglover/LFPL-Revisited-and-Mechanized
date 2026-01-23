@@ -38,6 +38,7 @@ The polynomial-time completeness theorem states the logical inverse of soundness
 
 
 \subsection{Syntax and Statics}
+\label{sec:lfpl-definition}
 
 The syntax of \lfpl is given in \pref{fig:syntax-tp-tm}. Other than the $\tpdiam$ type and the additional argument and variable appearing in the list introduction and elimination forms respectively, the syntax looks like System T with lists. The first argument $M_d$ in the second list introduction form $\tmcons{M_d}{M_h}{M_t}$ is intended to have type $\tpdiam$; to add an element to a list, we are forced to pay a diamond. Likewise, the first variable $x_d$ in the list elimination $\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}$ is intended to have type $\tpdiam$; when eliminating a list, we earn back the diamonds we paid to construct it, allowing us to construct new lists during recursion. This way, we use elements of type $\tpdiam$ to control the lengths of lists, ensuring that the number of diamonds available to us bounds the maximum length of a list that we can construct at any point.
 

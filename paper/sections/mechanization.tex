@@ -1,7 +1,7 @@
 \section{Mechanization}
 \label{sec:mechanization}
 
-We have mechanized all results stated in Sections \ref{sec:lfpl}, \ref{sec:completeness}, and \ref{sec:soundness} in the proof assistant Istari \cite{istariProofAssistant}. \comment{Nathan}{Link a Zenodo repo here.}
+We have mechanized all results stated in Sections \ref{sec:lfpl}, \ref{sec:completeness}, and \ref{sec:soundness} in the proof assistant Istari \cite{istariProofAssistant}. The mechanization itself may be found at \comment{Nathan}{Link a Zenodo repo here.}
 
 
 
@@ -9,9 +9,9 @@ We have mechanized all results stated in Sections \ref{sec:lfpl}, \ref{sec:compl
 
 We begin by defining the types of \lfpl as an inductive datatype \lstinline{tp} within Istari. \lfpl does not have type variables or anything else that would introduce complexities here. We also define the judgement $\dfree{A}$ within Istari. 
 
-Next, we represent contexts $\ctx$ as an Istari list of \lfpl types. We do not need variable names associated with the types because we use DeBruijn indices (\comment{Jan}{Do we need a reference for DeBruijn indices?}) in the term structure. Importantly, we define a judgement $\code{split} \; \ctx \; \ctx_1 \; \ctx_2$ to indicate when $\ctx$ can be  bipartitioned into $\ctxappend{\ctx_1}{\ctx_2}$, used extensively in the typing rules. Essentially, viewing the contexts as type lists as we do in our mechanization, our definition of $\code{split} \; \ctx \; \ctx_1 \; \ctx_2$ ensures $\code{append}(\ctx_1)(\ctx_2)$ is equivalent to some permutation of $\ctx$.
+Next, we represent contexts $\ctx$ as an Istari list of \lfpl types. We do not need variable names associated with the types because we use DeBruijn indices in the term structure. Importantly, we define a judgement $\code{split} \; \ctx \; \ctx_1 \; \ctx_2$ to indicate when $\ctx$ can be  bipartitioned into $\ctxappend{\ctx_1}{\ctx_2}$, used extensively in the typing rules. Essentially, viewing the contexts as type lists as we do in our mechanization, our definition of $\code{split} \; \ctx \; \ctx_1 \; \ctx_2$ ensures $\code{append}(\ctx_1)(\ctx_2)$ is equivalent to some permutation of $\ctx$.
 
-Instead of presenting an untyped syntax with an extrinsic typing judgement defined afterwards, as have done in \pref{sec:lfpl}, our mechanization defines \lfpl's term syntax and typing rules at once, so that all terms are intrinsically well-typed and ill-typed terms cannot be expressed. These intrinsically-typed terms are represented by an inductive datatype \lstinline{term : ctx -> tp -> type}, where \lstinline{type} refers to Istari types, so that a value of type \lstinline{term G A} corresponds to a term $M$ such that $\types{G}{M}{A}$. For example, the datatype constructor for the term $\tmpair{M_1}{M_2}$ is:
+Instead of presenting an untyped syntax with an extrinsic typing judgement defined afterwards, we do in \pref{sec:lfpl-definition}, our mechanization defines \lfpl's term syntax and typing rules at once, so that all terms are intrinsically well-typed under a known context. These intrinsically-typed terms are represented by an inductive datatype \lstinline{term : ctx -> tp -> type}, where \lstinline{type} refers to Istari types, so that a value of type \lstinline{term G A} corresponds to a term $M$ such that $\types{G}{M}{A}$. For example, the datatype constructor for the term $\tmpair{M_1}{M_2}$ is:
 \begin{lstlisting}
 | pair : forall (G GA GB : ctx) (A B : tp) .
     split G GA GB ->
@@ -51,7 +51,7 @@ It states that if $\evals{\env}{M}{c}{v}$, then $\tpsem{v} = \tmsem{M}{\env}$.
 
 \subsection{Takeaways from Istari}
 
-When beginning this project, we were uncertain about which proof assistant which would be suitable for our purposes, so we began by developing in parallel two mechanizations, one in Agda and one in Istari. Ultimately, around the time of stating some important lemmas for the completeness theorem, we ran into significant roadblocks in Agda.
+When beginning this project, we were uncertain about which proof assistant which would be suitable for our purposes, so we began by developing in parallel two mechanizations, one in Agda and one in Istari. During prelimary work for the completeness theorem, we ran into significant roadblocks in Agda.
 
 The first difficulty was a lack of tactics. Agda expressions are often cleaner and more readable than the proof scripts of tactic-based proof assistants like Rocq and Istari. However, when one constantly needs to reason about equality, say by substituting $e'$ for $e$ in a term $f(e)$ where $f$ is a complex expression, it becomes helpful to have a substitution tactic. In Agda, we needed to manually specify $f$, which is infeasible when $f$ is large.
 
