@@ -43,10 +43,9 @@ This semantics enjoys standard properties such as determinism (there is at most 
 
 
 \subsection{The Non-Size-Increasing Property}
+\label{sec:soundness-size}
 
-We now make precise the non-size-increasing property referred to in previous sections. We formulate size in terms of the operational semantics, whereas the original formulation was in terms of a set-theoretic denotational semantics \cite{hofmannLinearTypesNonsizeincreasing1999}. The operational definition is equivalent and simpler.
-
-Our goal is to assign to each value $v$ a number $\valsize{v} \in \mathbb N$ that, roughly speaking, counts the number of diamond values $\vdiam$ contained within $v$.
+We now make precise the non-size-increasing property referred to in previous sections. Our goal is to assign to each value $v$ a number $\valsize{v} \in \mathbb N$ that, roughly speaking, counts the number of diamond values $\vdiam$ contained within $v$.
 %
 We then show that the size of the result of the evaluation of an
 \lfplplus term is bounded by the size of the values in the evaluation
@@ -64,7 +63,7 @@ Suppose that $\types{\ctx}{M}{A}$. Then, for all environments $\env$, values $v$
 By rule induction on $\evals{\env}{M}{c}{v}$.
 \end{proof}
 
-The relevance of this result to soundness is maybe already clear. An immediate corollary of the theorem is that there are no closed terms of type $\tpdiam$, one of the main properties \lfpl's type system was designed to ensure. The reason is that $\vdiam$ has size $1$ but the empty environment has size $0$.
+The relevance of this result to soundness might already be clear. An immediate corollary of the theorem is that there are no closed terms of type $\tpdiam$, one of the main properties \lfpl's type system was designed to ensure. The reason is that $\vdiam$ has size $1$ but the empty environment has size $0$.
 
 
 
