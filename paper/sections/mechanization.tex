@@ -1,8 +1,7 @@
 \section{Mechanization}
 \label{sec:mechanization}
 
-We have mechanized all results stated in Sections \ref{sec:lfpl}, \ref{sec:completeness}, and \ref{sec:soundness} in the proof assistant Istari \cite{istariProofAssistant}. The mechanization is roughly 10,000 lines of Istari code. Around 3,000 of these are definitions and \lfpl code, around 4,100 are proof scripts, and around 800 are lemma and theorem statements.
-% \comment{Nathan}{Cite a bibtex item that links to the repo. There are a couple of other places at with I refer to the mechanization; you could add the citation there too.}
+We have mechanized all results stated in Sections \ref{sec:lfpl}, \ref{sec:completeness}, and \ref{sec:soundness} in the proof assistant Istari \cite{istariProofAssistant}. The mechanization is roughly 8,000 lines of meaningful Istari code. Around 3,000 of these are definitions and \lfpl code, around 4,100 are proof scripts, and around 900 are lemma and theorem statements~\cite{mechanization}.
 
 \subsection{Defining LFPL}
 
@@ -10,7 +9,7 @@ We begin by defining the types of \lfpl as an inductive datatype \lstinline{tp} 
 
 Next, we represent contexts $\ctx$ as an Istari list of \lfpl types. We do not need variable names associated with the types because we use DeBruijn indices in the term structure. Importantly, we define a judgement $\code{split} \; \ctx \; \ctx_1 \; \ctx_2$ to indicate when $\ctx$ can be  bipartitioned into $\ctxappend{\ctx_1}{\ctx_2}$, used extensively in the typing rules. Essentially, viewing the contexts as type lists as we do in our mechanization, our definition of $\code{split} \; \ctx \; \ctx_1 \; \ctx_2$ ensures $\code{append}(\ctx_1)(\ctx_2)$ is equivalent to some permutation of $\ctx$.
 
-Instead of presenting an untyped syntax with an extrinsic typing judgement defined afterwards, as we do in \pref{sec:lfpl-definition}, our mechanization defines \lfpl's term syntax and typing rules at once, so that all terms are intrinsically well-typed under a known context. These intrinsically typed terms are represented by an inductive datatype \lstinline{term : ctx -> tp -> type}, where \lstinline{type} refers to Istari types, so that a value of type \lstinline{term G A} corresponds to a term $M$ such that $\types{G}{M}{A}$. For example, the datatype constructor for the term $\tmpair{M_1}{M_2}$ is:
+Instead of presenting an untyped syntax with an extrinsic typing judgement, as we do in \pref{sec:lfpl-definition}, our mechanization defines \lfpl's term syntax and typing rules at once, so that all terms are intrinsically well-typed under a known context. These intrinsically typed terms are represented by an inductive datatype \lstinline{term : ctx -> tp -> type}, where \lstinline{type} refers to Istari types, so that a value of type \lstinline{term G A} corresponds to a term $M$ such that $\types{G}{M}{A}$. For example, the rule for the term $\tmpair{M_1}{M_2}$ is:
 \begin{lstlisting}
 | pair : forall (G GA GB : ctx) (A B : tp) .
     split G GA GB -> term GA A -> term GB B ->

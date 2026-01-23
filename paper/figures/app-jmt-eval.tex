@@ -1,5 +1,5 @@
 \RenewDocumentCommand{\RuleEval}{m m m}{\Rule{\text{Eval}:#1}{#2}{#3}}
-\begin{figure*}[b!]
+\begin{figure*}[t!]
 \begin{mathpar}
 \RuleEval{Var}{\evals{\env}{x}{\Cvar}{\env(x)}}{}
 \and
@@ -39,7 +39,7 @@
 \and
 \RuleEval{TreeI$_1$}{\evals{\env}{\tmleaf}{\Cleaf}{\vleaf}}{}
 \and
-\RuleEval{TreeI$_2$}{\evals{\envappend{\env_d}{\envappend{\env_x}{\envappend{\env_l}{\env_r}}}}{\tmnode{M_d}{M_x}{M_l}{M_r}}{c}{\vnode{v_x}{v_l}{v_r}}}{c = c_d + c_x + c_l + c_r + \Cnode \\ \evals{\env_d}{M_d}{c_d}{\vdiam} \\ \evals{\env_x}{M_x}{c_x}{v_x} \\ \evals{\env_l}{M_l}{c_l}{v_l} \\ \evals{\env_r}{M_r}{c_r}{v_r}}
+\RuleEval{TreeI$_2$}{\evals{\envappend{\env_d}{\envappend{\env_x}{\envappend{\env_l}{\env_r}}}}{\tmnode{M_d}{M_x}{M_l}{M_r}}{c_d + c_x + c_l + c_r + \Cnode}{\vnode{v_x}{v_l}{v_r}}}{\evals{\env_d}{M_d}{c_d}{\vdiam} \\ \evals{\env_x}{M_x}{c_x}{v_x} \\ \evals{\env_l}{M_l}{c_l}{v_l} \\ \evals{\env_r}{M_r}{c_r}{v_r}}
 \and
 \RuleEval{TreeE$_1$}{\evals{\env}{\tmtrec{M}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{c + c' + \Ctrec}{v}}{\evals{\env}{M}{c}{\vleaf} \\ \evals{\envnil}{N_1}{c'}{v}}
 \and

@@ -1,7 +1,7 @@
 \section{Soundness Proof Cases}
 \label{app:soundness}
 
-Here, we provide some interesting cases of the soundness proof. First, we go through the function application case in moderate detail to demonstrate the method by which we are able to simultaneously prove termination and a polynomial cost bound. Second, we give the high-level ideas for how to prove the list recursor case, which as a driver of non-constant-time computation is one of the most critical points for polynomial-time soundness. For convenience, we restate the theorem:
+Here, we provide two interesting cases of the soundness proof. The other cases are similar to these but generally more straightforward and can all be found in the mechanization~\cite{mechanization}. First, we go through the function application case in moderate detail to demonstrate the method by which we are able to simultaneously prove termination and a polynomial cost bound. Second, we give a sketch of the list recursor case, which as a driver of variable-time computation is one of the most critical points for polynomial-time soundness.
 \begin{thm}[General Polynomial-Time Soundness]
 For every $k \in \mathbb N$, suppose that $\types{\ctx}{M}{A}$ and $\env : \ctx$. If $n \ge \envsize{\env}$ and $k \ge P_M(n) + P_{\env}(n)$, then there is a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and:
 $$c + P_v(n) \le P_M(n) + P_{\env}(n)$$
@@ -23,7 +23,7 @@ After applying \pref{rule:eval-ArrowE} to conclude the first part of our goal, i
 $$ c_M + c_N + c + P_v(n) \le P_M(n) + P_N(n) + P_{\env}(n) $$
 Adding $\Capp$ to both sides and then increasing the right-hand side to $\max(1, \Capp)$ yields the desired inequality.
 
-\paragraph{List Recursor Case} $\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}{B}$ because:
+\paragraph{Recursor Case} $\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}{B}$ because:
 \begin{itemize}
   \item $\types{\ctx_1}{M}{\tplist{A}}$
   \item $\types{\ctx_2}{N_1}{B}$
@@ -41,5 +41,5 @@ $$ P_M(n) + (\Crec + P_{N_1}(n)) + \mathsf{length}(v_M) (\Cvar + \Crec + P_{N_2}
 
 Here, $\mathsf{length}(v_M)$ is just the number of value constructors in $v_M$ minus one, or intuitively just the length of the list represented by $v_M$. This bound makes intuitive sense; the whole point of multiplying by $n$ there was because it was suppose to count the maximum number of times we could iterate. But we now know we will iterate exactly $\mathsf{length}(v_M)$ times. It is indeed a tighter bound; by \pref{thm:non-size-increasing}, we know $\mathsf{length}(v_M) \le \envsize{\env_1} \le n$.
 
-From here, the strategy is to proceed by induction on the structure of the list $v_M$ and prove termination alongside this tighter bound. The cases of this induction are relatively straightforward and do not require anything complicated like an appeal to the outer strong induction hypothesis.
+From here, the strategy is to proceed by induction on the structure of the list $v_M$ and prove termination alongside this tighter bound. The cases of this induction are relatively straightforward and do not require anything complicated like an appeal to the outer strong induction hypothesis. The base case makes use of the rule induction hypothesis for $N_1$, and the inductive case makes use of the rule induction hypothesis for $N_2$.
 \end{proof}

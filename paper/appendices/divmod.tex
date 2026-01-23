@@ -1,0 +1,9 @@
+\section{Unary Division by a Constant}
+\label{app:divmod}
+
+First, we build up a function on tuples by induction on $k$.
+
+\begin{lstlisting}
+snoc_0 : L(1) -o 1 -o L(1)
+snoc_0 = lam x . lam _ . x
+\end{lstlisting}
