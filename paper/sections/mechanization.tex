@@ -1,7 +1,7 @@
 \section{Mechanization}
 \label{sec:mechanization}
 
-We have mechanized all results stated in Sections \ref{sec:lfpl}, \ref{sec:completeness}, and \ref{sec:soundness} in the proof assistant Istari. \comment{Jan}{Do we need a reference for Istari?} \comment{Nathan}{Link a Zenodo repo here.}
+We have mechanized all results stated in Sections \ref{sec:lfpl}, \ref{sec:completeness}, and \ref{sec:soundness} in the proof assistant Istari \cite{istariProofAssistant}. \comment{Nathan}{Link a Zenodo repo here.}
 
 
 
@@ -9,7 +9,7 @@ We have mechanized all results stated in Sections \ref{sec:lfpl}, \ref{sec:compl
 
 We begin by defining the types of \lfpl as an inductive datatype \lstinline{tp} within Istari. \lfpl does not have type variables or anything else that would introduce complexities here. We also define the judgement $\dfree{A}$ within Istari. 
 
-Next, we represent contexts $\ctx$ as an Istari list of \lfpl types. We do not need variable names associated with the types because we use DeBruijn indicies (\comment{Jan}{Do we need a reference for DeBruijn indices?}) in the term structure. Importantly, we define a judgement $\code{split} \; \ctx \; \ctx_1 \; \ctx_2$ to indicate when $\ctx$ can be  bipartitioned into $\ctxappend{\ctx_1}{\ctx_2}$, used extensively in the typing rules. Essentially, viewing the contexts as type lists as we do in our mechanization, our definition of $\code{split} \; \ctx \; \ctx_1 \; \ctx_2$ ensures $\code{append}(\ctx_1)(\ctx_2)$ is equivalent to some permutation of $\ctx$.
+Next, we represent contexts $\ctx$ as an Istari list of \lfpl types. We do not need variable names associated with the types because we use DeBruijn indices (\comment{Jan}{Do we need a reference for DeBruijn indices?}) in the term structure. Importantly, we define a judgement $\code{split} \; \ctx \; \ctx_1 \; \ctx_2$ to indicate when $\ctx$ can be  bipartitioned into $\ctxappend{\ctx_1}{\ctx_2}$, used extensively in the typing rules. Essentially, viewing the contexts as type lists as we do in our mechanization, our definition of $\code{split} \; \ctx \; \ctx_1 \; \ctx_2$ ensures $\code{append}(\ctx_1)(\ctx_2)$ is equivalent to some permutation of $\ctx$.
 
 Instead of presenting an untyped syntax with an extrinsic typing judgement defined afterwards, as have done in \pref{sec:lfpl}, our mechanization defines \lfpl's term syntax and typing rules at once, so that all terms are intrinsically well-typed and ill-typed terms cannot be expressed. These intrinsically-typed terms are represented by an inductive datatype \lstinline{term : ctx -> tp -> type}, where \lstinline{type} refers to Istari types, so that a value of type \lstinline{term G A} corresponds to a term $M$ such that $\types{G}{M}{A}$. For example, the datatype constructor for the term $\tmpair{M_1}{M_2}$ is:
 \begin{lstlisting}
@@ -41,23 +41,20 @@ As briefly mentioned at the end of \pref{sec:operational-semantics}, we can give
 value_sem : forall (A : tp) . value A -> tp_sem A
 value_sem = ...
 lemma "operational_equiv_denotational"
-/
-  forall (G : ctx) (A : tp) (M : term G A)
-  (V : env G) (v : value A) (c : nat) .
-  evals M V v c -> value_sem v = term_sem M V
-/;
+    forall (G : ctx) (A : tp) (M : term G A)
+    (V : env G) (v : value A) (c : nat) .
+    evals M V v c -> value_sem v = term_sem M V
 \end{lstlisting}
-
 It states that if $\evals{\env}{M}{c}{v}$, then $\tpsem{v} = \tmsem{M}{\env}$.
 
 
 
 \subsection{Takeaways from Istari}
 
-When beginning this project, we were uncertain about which proof assistant which would be suitable for our purposes, so we began by developing in parallel two mechanizations, one in Agda and one in Istari. Ultimately, around the time of stating some important lemmas for the completeness theorem, we ran into significant roadblocks in Agda:
+When beginning this project, we were uncertain about which proof assistant which would be suitable for our purposes, so we began by developing in parallel two mechanizations, one in Agda and one in Istari. Ultimately, around the time of stating some important lemmas for the completeness theorem, we ran into significant roadblocks in Agda.
 
-\paragraph{A lack of tactics.} We generally find Agda expressions cleaner and more readable than the proof scripts of tactic-based proof assistants like Rocq and Istari. However, when one constantly needs to reason about equality, say by substituting $e'$ for $e$ in a term $f(e)$ where $f$ is a complex expression, it becomes helpful to have a substitution tactic. In Agda, we needed to manually specify $f$, which is infeasible when $f$ is large.
+The first difficulty was a lack of tactics. Agda expressions are often cleaner and more readable than the proof scripts of tactic-based proof assistants like Rocq and Istari. However, when one constantly needs to reason about equality, say by substituting $e'$ for $e$ in a term $f(e)$ where $f$ is a complex expression, it becomes helpful to have a substitution tactic. In Agda, we needed to manually specify $f$, which is infeasible when $f$ is large.
 
-\paragraph{Intrinsic typing.} Agda requires that all expressions are well-typed, even in the statement of a theorem yet to be proven. This presents some difficulties. For example, consider the \lfpl type $(\tplist{\tpunit})^k$ used in \pref{sec:completeness-bounded-stack-definition}. We know that $\tpsem{(\tplist{\tpunit})^k} = \tpsem{\tplist{\tpunit}}^k$, so we implicitly switch between these forms as needed in this paper, but in the mechanization this must be explicit. Some parts of our proof are only well-typed if they are given the form on the left-hand side of the equality, and others need the right-hand form. In Agda, we had to state a theorem where some parts of the theorem needed the left form, and others needed the right, so there was no way to formulate this such that it was well-typed without dealing with transport functions, which come with their own difficulties. \comment{Nathan}{Citation about transport functions?} Istari does not care about the well-typedness of the theorem before it is proven. It must be given a type by the end of the proof, but this is not difficult since we have a lemma saying $\tpsem{(\tplist{\tpunit})^k} = \tpsem{\tplist{\tpunit}}^k$. The difference is that Istari permits us to show well-typedness during the proof, whereas Agda demands it upfront before the proof.
+Secondly, Agda requires that all expressions are well-typed, even in the statement of a theorem yet to be proven. This presents some difficulties. For example, consider the \lfpl type $(\tplist{\tpunit})^k$ used in \pref{sec:completeness-bounded-stack-definition}. We know that $\tpsem{(\tplist{\tpunit})^k} = \tpsem{\tplist{\tpunit}}^k$, so we implicitly switch between these forms as needed in this paper, but in the mechanization this must be explicit. Some parts of our proof are only well-typed if they are given the form on the left-hand side of the equality, and others need the right-hand form. In Agda, we had to state a theorem where some parts of the theorem needed the left form, and others needed the right, so there was no way to formulate this such that it was well-typed without dealing with transport functions, which come with their own difficulties. \comment{Anyone}{Citation about transport functions?} Istari does not care about the well-typedness of the theorem before it is proven. It must be given a type by the end of the proof, but this is not difficult since we have a lemma saying $\tpsem{(\tplist{\tpunit})^k} = \tpsem{\tplist{\tpunit}}^k$. The difference is that Istari permits us to show well-typedness during the proof, whereas Agda demands it upfront before the proof.
 
 These two issues made it difficult for us to continue our work in Agda, so we chose to finish the completeness and soundness proofs only in Istari. Retrospectively, it seems it was a good tool for this task, because we never encountered any Istari-related roadblocks. This is not to say there weren't annoyances; as a relatively new proof assistant, Istari sometimes struggles to infer implicit arguments and automatically eliminate vacuous proof cases, requiring manual intervention, in sitatuations where Agda would succeed.
