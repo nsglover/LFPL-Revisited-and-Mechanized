@@ -2,12 +2,13 @@
 \label{sec:mechanization}
 
 We have mechanized all results stated in Sections \ref{sec:lfpl}, \ref{sec:completeness}, and \ref{sec:soundness} in the proof assistant Istari \cite{istariProofAssistant}. The mechanization itself may be found at \comment{Nathan}{Link a Zenodo repo here.}
+\comment{Nathan}{Remove the previous sentence and instead cite a bibtex item that links to the repo. There are a couple of other places at with I refer to the mechanization; you could add the citation there too.}
 
-
+\comment{Nathan}{Provide lines of code of the mechanization here. If possible: how many lines are proofs and how many are lemmas/definitions.}
 
 \subsection{Defining LFPL}
 
-We begin by defining the types of \lfpl as an inductive datatype \lstinline{tp} within Istari. \lfpl does not have type variables or anything else that would introduce complexities here. We also define the judgement $\dfree{A}$ within Istari. 
+We begin by defining the types of \lfpl as an inductive datatype \lstinline{tp} within Istari. \lfpl does not have type variables or similar complexities. We also define the judgement $\dfree{A}$ within Istari. 
 
 Next, we represent contexts $\ctx$ as an Istari list of \lfpl types. We do not need variable names associated with the types because we use DeBruijn indices in the term structure. Importantly, we define a judgement $\code{split} \; \ctx \; \ctx_1 \; \ctx_2$ to indicate when $\ctx$ can be  bipartitioned into $\ctxappend{\ctx_1}{\ctx_2}$, used extensively in the typing rules. Essentially, viewing the contexts as type lists as we do in our mechanization, our definition of $\code{split} \; \ctx \; \ctx_1 \; \ctx_2$ ensures $\code{append}(\ctx_1)(\ctx_2)$ is equivalent to some permutation of $\ctx$.
 
@@ -51,10 +52,15 @@ It states that if $\evals{\env}{M}{c}{v}$, then $\tpsem{v} = \tmsem{M}{\env}$.
 
 \subsection{Takeaways from Istari}
 
-When beginning this project, we were uncertain about which proof assistant which would be suitable for our purposes, so we began by developing in parallel two mechanizations, one in Agda and one in Istari. During prelimary work for the completeness theorem, we ran into significant roadblocks in Agda.
+When beginning this project, we were uncertain which proof assistant would be most suitable for the mechanization, so we began by developing in parallel two mechanizations, one in Agda and one in Istari. During prelimary work for the completeness theorem, we ran into significant roadblocks in Agda.
 
 The first difficulty was a lack of tactics. Agda expressions are often cleaner and more readable than the proof scripts of tactic-based proof assistants like Rocq and Istari. However, when one constantly needs to reason about equality, say by substituting $e'$ for $e$ in a term $f(e)$ where $f$ is a complex expression, it becomes helpful to have a substitution tactic. In Agda, we needed to manually specify $f$, which is infeasible when $f$ is large.
 
-Secondly, Agda requires that all expressions are well-typed, even in the statement of a theorem yet to be proven. This presents some difficulties. For example, consider the \lfpl type $(\tplist{\tpunit})^k$ used in \pref{sec:completeness-bounded-stack-definition}. We know that $\tpsem{(\tplist{\tpunit})^k} = \tpsem{\tplist{\tpunit}}^k$, so we implicitly switch between these forms as needed in this paper, but in the mechanization this must be explicit. Some parts of our proof are only well-typed if they are given the form on the left-hand side of the equality, and others need the right-hand form. In Agda, we had to state a theorem where some parts of the theorem needed the left form, and others needed the right, so there was no way to formulate this such that it was well-typed without dealing with transport functions, which come with their own difficulties. \comment{Anyone}{Citation about transport functions?} Istari does not care about the well-typedness of the theorem before it is proven. It must be given a type by the end of the proof, but this is not difficult since we have a lemma saying $\tpsem{(\tplist{\tpunit})^k} = \tpsem{\tplist{\tpunit}}^k$. The difference is that Istari permits us to show well-typedness during the proof, whereas Agda demands it upfront before the proof.
+Secondly, Agda requires that all expressions are well-typed, even in the statement of a theorem yet to be proven. This presents some difficulties. For example, consider the \lfpl type $(\tplist{\tpunit})^k$ used in \pref{sec:completeness-bounded-stack-definition}. We know that $\tpsem{(\tplist{\tpunit})^k} = \tpsem{\tplist{\tpunit}}^k$, so we implicitly switch between these forms as needed in this paper, but in the mechanization this must be explicit. Some parts of our proof are only well-typed if they are given the form on the left-hand side of the equality, and others need the right-hand form. In Agda, we had to state a theorem where some parts of the theorem needed the left form, and others needed the right, so there was no way to formulate this such that it was well-typed without dealing with transport functions, which come with their own difficulties. \comment{Anyone}{Citation about transport functions?} Istari does not care about the well-typedness of the theorem before it is proven. It must be given a type by the end of the proof, but this is not difficult since we have a lemma stating $\tpsem{(\tplist{\tpunit})^k} = \tpsem{\tplist{\tpunit}}^k$. The difference is that Istari permits us to show well-typedness during the proof, whereas Agda demands it upfront before the proof.
 
-These two issues made it difficult for us to continue our work in Agda, so we chose to finish the completeness and soundness proofs only in Istari. Retrospectively, it seems it was a good tool for this task, because we never encountered any Istari-related roadblocks. This is not to say there weren't annoyances; as a relatively new proof assistant, Istari sometimes struggles to infer implicit arguments and automatically eliminate vacuous proof cases, requiring manual intervention, in sitatuations where Agda would succeed.
+Such issues lead to the choice to finish the completeness and soundness proofs only in Istari. Retrospectively, we can say that it was a more than adequate tool for this task. In fact, we never encountered any Istari-related roadblocks. This is not to say there weren't annoyances; as a relatively new proof assistant, Istari sometimes struggles to infer implicit arguments and automatically eliminate vacuous proof cases, requiring manual intervention in sitatuations where Agda would succeed.
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: "../paper"
+%%% End:
