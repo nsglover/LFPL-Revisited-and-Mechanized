@@ -1,7 +1,8 @@
 \section{LFPL}
 \label{sec:lfpl}
 
-In G\"odel's System T, recursion is controlled in such a way as to ensure the language is still terminating. This is known as primitive or structural recursion. The only way to write variable-time programs in \lfpl is using structural recursion, but that alone is not enough to achieve polynomial time. This pseudocode is an example of an exponential time program using only structural recursion:
+In G\"odel's System T, recursion is controlled in such a way as to ensure the language is still terminating. This is known as primitive or structural recursion. 
+The only way to write variable-time programs in \lfpl is using structural recursion, but that alone is not enough to achieve polynomial time. This pseudocode is an example of an exponential time program using only structural recursion:
 \begin{lstlisting}
 double : nat -> nat
 double zero = zero
@@ -12,7 +13,7 @@ exp zero = succ zero
 exp (succ n) = double (exp n)
 \end{lstlisting}
 
-The main idea of \lfpl is to enforce non-size-increasing computation. In the above example, the exponential behavior relies on the fact that \lstinline{double} increases the size of its input. \lfpl forbids such size-increasing computations. This non-size-increasing property is enforced with an affine type system, thereby treats input size as a limited resource which cannot be duplicated. Formally, size is represented by a type $\tpdiam$, so that one variable of type $\tpdiam$ corresponds to one unit of size. The natural number $n$ requires $n$ elements of type $\tpdiam$ to construct. These resources, which we shall henceforth call diamonds, are returned when the number is consumed. The program \code{double} is no longer possible to write; in the \code{succ} case, one diamond is made available to us, yet we need two diamonds due to the two calls to \code{succ}.
+The main idea of \lfpl is to enforce non-size-increasing computation. In the above example, the exponential behavior relies on the fact that \lstinline{double} increases the size of its input. \lfpl forbids such size-increasing computations. This non-size-increasing property is enforced with an affine type system, which treats input size as a limited resource which cannot be duplicated. Formally, size is represented by a type $\tpdiam$, so that one variable of type $\tpdiam$ corresponds to one unit of size. The natural number $n$ requires $n$ elements of type $\tpdiam$ to construct. These resources, which we shall henceforth call diamonds, are returned when the number is consumed. The program \code{double} is no longer possible to write; in the \code{succ} case, one diamond is made available to us, yet we need two diamonds due to the two calls to \code{succ}.
 
 In contrast to other polynomial-time systems that might restrict iteration such that nested iterations are impossible, \lfpl enables a fairly natural programming style. While many polynomial-time languages are complete with respect to polynomial-time \textit{computations}, they are often unable to express many natural \textit{algorithms}. Consider this psuedocode for a slow identity function on lists:
 \begin{lstlisting}
@@ -24,7 +25,7 @@ id : nat list -> nat list
 id l = append (append l nil) nil
 \end{lstlisting}
 
-In a system which disallows nested iterations, expressing a program like this can be difficult or impossible due to fact that the output from one call to the iterative procedure \lstinline{append} is fed into another such call. Meanwhile, \lfpl has no such restrictions, so the above program can be directly translated into \lfpl with minimal modifications. Due this flexibility, \lfpl supports many other natural algorithms such as linear-time list reversal, insertion sort, and integer division by a constant.
+In a system which disallows nested iterations, expressing a program like this can be difficult or impossible due to fact that the output from one call to the iterative procedure \lstinline{append} is fed into another such call. Meanwhile, \lfpl has no such restrictions, so the above program can be directly translated into \lfpl with minimal modifications. Due to this flexibility, \lfpl supports many other natural algorithms such as linear-time list reversal, insertion sort, and integer division by a constant.
 
 
 
@@ -34,14 +35,14 @@ The defining property of \lfpl is its non-size-increasing property. Consider a l
 
 The most complete version of the polynomial-time soundness theorem states that any function on the natural numbers expressible in \lfpl is also computable by a polynomial-time Turing machine. We only prove one step in the path from \lfpl to Turing machines: In a high-level cost semantics, given an \lfpl program and some inputs with size $n$, there exists a polynomial $P : \mathbb N \to \mathbb N$ such that evaluating the program costs at most $P(n)$. Our theorem is actually the only step in this path which contains reasoning specific to \lfpl; given this theorem, it is a well-known and standard procedure to justify the polynomial bound for our high-level cost semantics in terms of a low-level model such as a Turing machine \cite{BlellG96,Accattoli2019}.
 
-The polynomial-time completeness theorem states the logical inverse of soundness: Any function on the natural numbers which is computable by a polynomial-time Turing machine is expressible in \lfpl. As stated, this is blatantly false for \lfpl; $\code{double}$ is computable in linear-time yet is not expressible in \lfpl. We can fix this by instead proving completeness for all polynomial-time computable functions which do not increase the size of their input. Surprisingly, we will see later that the original theorem statement is only \textit{barely} false; there is a very reasonable perspective in which \lfpl is able to express all polynomial-time computations, even the size-increasing ones.
+The polynomial-time completeness theorem states the logical inverse of soundness: Any function on the natural numbers which is computable by a polynomial-time Turing machine is expressible in \lfpl. As stated, this is not quite true for \lfpl; $\code{double}$ is computable in linear-time yet is not expressible in \lfpl. We can fix this by instead proving completeness for all polynomial-time computable functions which do not increase the size of their input. Surprisingly, we will see later that the original theorem statement is only \textit{barely} false; there is a very reasonable perspective in which \lfpl is able to express all polynomial-time computations, even the size-increasing ones.
 
 
 
 \subsection{Syntax and Statics}
 \label{sec:lfpl-definition}
 
-The syntax of \lfpl is given in \pref{fig:syntax-tp-tm}. Other than the $\tpdiam$ type and the additional argument and variable appearing in the list introduction and elimination forms respectively, the syntax looks like System T with lists. The first argument $M_d$ in the second list introduction form $\tmcons{M_d}{M_h}{M_t}$ is intended to have type $\tpdiam$; to add an element to a list, we are forced to pay a diamond. Likewise, the first variable $x_d$ in the list elimination $\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}$ is intended to have type $\tpdiam$; when eliminating a list, we earn back the diamonds we paid to construct it, allowing us to construct new lists during recursion. This way, we use elements of type $\tpdiam$ to control the lengths of lists, ensuring that the number of diamonds available to us bounds the maximum length of a list that we can construct at any point.
+The syntax of \lfpl is given in \pref{fig:syntax-tp-tm}. Other than the $\tpdiam$ type and the additional argument and variable appearing in the list introduction and elimination forms respectively, the syntax looks like System T with lists. The first argument $M_d$ in the second list introduction form $\tmcons{M_d}{M_h}{M_t}$ is intended to have type $\tpdiam$; to add an element to a list, we are forced to pay a diamond. Likewise, the first variable $x_d$ in the list elimination $\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}$ is intended to have type $\tpdiam$; when eliminating a list, we earn back the diamonds we paid to construct it, allowing us to construct new lists during recursion. In this way, we use elements of type $\tpdiam$ to control the lengths of lists, ensuring that the number of diamonds available to us bounds the maximum length of a list that we can construct at any point.
 
 \input{figures/syntax-tp-tm}
 
@@ -85,7 +86,7 @@ expCalls (cons (_, _, n)) =
 \end{lstlisting}
 Calling $\tmapp{\tmapp{\code{expCalls}}{n}}{f}$ yields a function which calls $f$ on itself $2^{|n|}$ times. If $f$ incurs any cost, then the resulting function will definitely not run in polynomial time.
 
-A simple way to deal with this that doesn't hinder the programmer too much is simply to add top-level metavariables, much like how we have been writing closed terms in pseudocode. No recursion or mutual dependency is allowed, of course. A program consisting of some top-level metavariables is very straightforward to compile away into one big \lfpl expression; simply paste in the code for metavariable $f$ every time metavariable $f$ appears after it is declared. Since this compilation step is very simple, and clearly preserves cost and semantics, we do not explore properties of this language with top-level declarations.
+A simple way to deal with this that doesn't hinder the programmer too much is simply to add top-level metavariables, much like how we have been writing closed terms in pseudocode. No recursion or mutual dependency is allowed, of course. A program consisting of some top-level metavariables is straightforward to compile away into one big \lfpl expression; simply paste in the code for metavariable $f$ every time metavariable $f$ appears after it is declared. Since this compilation step is simple, and clearly preserves cost and semantics, we do not explore properties of this language with top-level declarations.
 
 
 
@@ -158,7 +159,7 @@ susp = lam x . rec x .
                 letp (_, n') = q in cons (d', x, f n')
     , cons (d, <>, m))
 \end{lstlisting}
-This example is very important for the completeness proof, so it is worth stating its semantics: If $x \in \tpsem{A}^*$, then $\tmsem{susp}{\envnil}(x) = (f, m)$, where $f(m) = x$. Note that $m$ is the unique element of $\tpsem{\tpunit}^*$ with length $|m|$, so we recover $x$ as long as we give $f$ enough diamonds.
+This example is important for the completeness proof, so it is worth stating its semantics: If $x \in \tpsem{A}^*$, then $\tmsem{susp}{\envnil}(x) = (f, m)$, where $f(m) = x$. Note that $m$ is the unique element of $\tpsem{\tpunit}^*$ with length $|m|$, so we recover $x$ as long as we give $f$ enough diamonds.
 \end{example}
 
 %%% Local Variables:
