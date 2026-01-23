@@ -36,7 +36,15 @@ By separating values from terms, we ensure \lfplplus terms remain polynomial-tim
 
 To account for the cost of evaluation, we give a cost-annoted big-step operational semantics, represented by the judgement $\evals{\env}{M}{c}{v}$, read ``term $M$ evaluates under the environment $\env$ to a value $v$ with cost $c$''. A representative set of rules for this judgement is given in \pref{fig:jmt-eval}, and a complete set of rules can be found in \pref{app:evaluation}. Note the presence a constants $\Cvar, \Cnull, \ldots, \Ctrec \in \mathbb N$ (one for each syntactic construct) in the conclusion of each rule. These are left arbitrary so that our cost model is generic with respect to the particular costs of each primitve operation of the language.
 
-Polynomial-time soundness is meant to be a statement about the computational complexity (of functions encoded by \lfpl) with respect to some machine model like a Turing machine. These big-step operational semantics are somewhat removed from a Turing machine's cost model. However, for standard programming languages like G\"odel's System T, it is well-known how to justify a big-step operational cost semantics in terms of a small-step one. In turn, it is well known how to justify these in terms of a low-level model such as a Turing machine \cite{BlellG96,Accattoli2019}. The only real difference between \lfpl and System T is that \lfpl is affine and has the nonstandard type $\tpdiam$. Both of these can be forgotten in a simple cost-preserving translation from \lfpl to System T. Thus, when proving true polynomial-time soundness of \lfpl, the only part which relies on \lfpl-specific reasoning is the very first step of giving a polynomial bound on the cost in \lfpl's big-step semantics; after that, these standard methods will carry the polynomial bound all the way down to the machine cost model. As focus of this paper is \lfpl, we only mechanize the construction and verification of the polynomial cost bound.
+Polynomial-time soundness is meant to be a statement about the computationalƒ complexity (of functions encoded by \lfpl) with respect to some machine model like a Turing machine. The big-step cost semantics is somewhat removed from a Turing machine's cost model.
+%
+However, it is well understood how to justify a cost semantics for a functional language like \lfplplus in terms of a low-level model such as a Turing machine \cite{BlellG96,Accattoli2019}.
+%
+The only non-standard features of \lfpl are the affine type system and the type $\tpdiam$.
+%
+However, both of these can be forgotten in a simple cost-preserving translation.
+%
+Thus, when proving true polynomial-time soundness of \lfpl, the only part which relies on \lfpl-specific reasoning is the very first step of giving a polynomial bound on the cost in \lfpl's big-step semantics; after that, these standard methods will carry the polynomial bound all the way down to the machine cost model. As focus of this paper is \lfpl, we only mechanize the construction and verification of the polynomial cost bound.
 
 \input{figures/jmt-eval}
 
