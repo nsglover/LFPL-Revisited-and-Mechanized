@@ -4,18 +4,10 @@ The most closely related work to ours is that of Atkey~\cite{atkeyPolynomialTime
 
 Hofmann's orginal work on LFPL~\cite{hofmannLinearTypesNonsizeincreasing1999,hofmannStrengthNonsizeIncreasing2002} is the basis of this article and has been discussed in detail in Sections \ref{sec:lfpl}, \ref{sec:completeness}, \ref{sec:soundness}.
 %
-The soundness proof is based on previous work by Aehlig and Schwichtenberg~\cite{aehligSyntacticalAnalysisNonsizeincreasing2002}, which introduces the technique of constructing explicit polynomials from \lfpl syntax to bound the cost of evaluation.
+The soundness proof is based on previous work by Aehlig and Schwichtenberg~\cite{aehligSyntacticalAnalysisNonsizeincreasing2002}, which introduces the technique of constructing explicit polynomials from \lfpl syntax to bound the cost of evaluation. Ours is the first work to apply their technique to a big-step operational semantics.
 %
 None of these articles comes with a mechanization or full account of both soundness and completeness.
 
 \lfpl also directly inspired automatic amortized resource analysis (AARA)~\cite{HoffmJ22}, and so our work could perhaps inspire early steps towards mechanizing the metatheory of AARA. Also, there is a similar polynomial-time completeness result for AARA to the one for \lfpl discussed in \pref{sec:completeness}~\cite{phamTypableFragmentsPolynomial2021}.
 
-Beyond \lfpl, there is a large body of work on implicit computational complexity (ICC)~\cite{}.
-%
-Most of the proofs in these works are not mechanized.
-%
-Some exceptions include ...
-%
-Cite some papers from people on the PC.
-%
-Take a look at google scholar at well-cited papers that cite Martin's LFPL papers. Maybe we can also say that LFPL inspired some work in ICC.
+Beyond \lfpl, there is a large body of work on implicit computational complexity (ICC)~\cite{dallagoImplicitComputationComplexity2022}, though we are not aware of any results in ICC besides ours and Atkey's~\cite{atkeyPolynomialTimeDependent2024} which are significantly mechanized. Polynomial-cost in time or space are a common focus~\cite{gaboardiSoftLinearLogic2008,gaboardiImplicitCharacterizationPSPACE2012}, though there has been interest in logarithmic space usage as well~\cite{schoppStratifiedBoundedAffine2007, ramyaaRamifiedCorecurrenceLogspace2011}. Interestingly, Hofmann~\cite{hofmannStrengthNonsizeIncreasing2002} noticed that, if the structural recursor of \lfpl is replaced with general recursion, the terminating fragment of the language characterizes exponential-time computation. \lfpl is an influential language in ICC, helping to inspire numerous developments in the field~\cite{dallagoRealizabilityModelsImplicit2011,marion2003,marion2011,baillot2016,dalLago2009,bonfante2011}.
