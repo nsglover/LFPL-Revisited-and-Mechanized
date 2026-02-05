@@ -1,12 +1,11 @@
-openModule /Nat/;
 openModule /List/;
 
 File.import "../../math/load.iml";
 
 File.loadWithoutDependencies "language.isto";
-openModule /Language/;
+openModule /ExtLanguage/;
 
-beginModule "Operational";
+beginModule "ExtOperational";
 
 
 
@@ -425,239 +424,164 @@ qed ();
 
 
 
-(* COST MODEL *)
-
-define /cost_model/
-/
-  exists
-    (Cdrop : nat)
-    (Cvar : nat)
-    (Ctriv : nat)
-    (Crecord : nat)
-    (Cproj1 : nat)
-    (Cproj2 : nat)
-    (Cinj1 : nat)
-    (Cinj2 : nat)
-    (Cmatch : nat)
-    (Cpair : nat)
-    (Cletp : nat)
-    (Clam : nat)
-    (Capp : nat)
-    (Csempty : nat)
-    (Cspush : nat)
-    (Cspop : nat)
-    (Clnil : nat)
-    (Clcons : nat)
-    (Clrec : nat)
-    (Ctleaf : nat)
-    (Ctnode : nat)
-    (Ctrec : nat)
-  . unit
-//
-  intersect (i : level) . U i
-/;
-withTypecheck (unfold /cost_model/). qed ();
-
-
-define /Cdrop C/ /C ## 0/ /cost_model -> nat/; withTypecheck (unfold /Cdrop/). qed ();
-define /Cvar C/ /C ## 1/ /cost_model -> nat/; withTypecheck (unfold /Cvar/). qed ();
-define /Ctriv C/ /C ## 2/ /cost_model -> nat/; withTypecheck (unfold /Ctriv/). qed ();
-define /Crecord C/ /C ## 3/ /cost_model -> nat/; withTypecheck (unfold /Crecord/). qed ();
-define /Cproj1 C/ /C ## 4/ /cost_model -> nat/; withTypecheck (unfold /Cproj1/). qed ();
-define /Cproj2 C/ /C ## 5/ /cost_model -> nat/; withTypecheck (unfold /Cproj2/). qed ();
-define /Cinj1 C/ /C ## 6/ /cost_model -> nat/; withTypecheck (unfold /Cinj1/). qed ();
-define /Cinj2 C/ /C ## 7/ /cost_model -> nat/; withTypecheck (unfold /Cinj2/). qed ();
-define /Cmatch C/ /C ## 8/ /cost_model -> nat/; withTypecheck (unfold /Cmatch/). qed ();
-define /Cpair C/ /C ## 9/ /cost_model -> nat/; withTypecheck (unfold /Cpair/). qed ();
-define /Cletp C/ /C ## 10/ /cost_model -> nat/; withTypecheck (unfold /Cletp/). qed ();
-define /Clam C/ /C ## 11/ /cost_model -> nat/; withTypecheck (unfold /Clam/). qed ();
-define /Capp C/ /C ## 12/ /cost_model -> nat/; withTypecheck (unfold /Capp/). qed ();
-define /Csempty C/ /C ## 13/ /cost_model -> nat/; withTypecheck (unfold /Csempty/). qed ();
-define /Cspush C/ /C ## 14/ /cost_model -> nat/; withTypecheck (unfold /Cspush/). qed ();
-define /Cspop C/ /C ## 15/ /cost_model -> nat/; withTypecheck (unfold /Cspop/). qed ();
-define /Clnil C/ /C ## 16/ /cost_model -> nat/; withTypecheck (unfold /Clnil/). qed ();
-define /Clcons C/ /C ## 17/ /cost_model -> nat/; withTypecheck (unfold /Clcons/). qed ();
-define /Clrec C/ /C ## 18/ /cost_model -> nat/; withTypecheck (unfold /Clrec/). qed ();
-define /Ctleaf C/ /C ## 19/ /cost_model -> nat/; withTypecheck (unfold /Ctleaf/). qed ();
-define /Ctnode C/ /C ## 20/ /cost_model -> nat/; withTypecheck (unfold /Ctnode/). qed ();
-define /Ctrec C/ /C ## 21/ /cost_model -> nat/; withTypecheck (unfold /Ctrec/). qed ();
-
-
-
-(* COST-AWARE EVALUATION DYNAMICS *)
+(* EVALUATION JUDGEMENT *)
 
 typedef
 /
   datatype
-    intersect (i : level) .
-    forall (CM : cost_model) .
-    U i
+    intersect (i : level) . U i
   of
-    evals_raw : forall (G : ctx) (A : tp) . term G A -> env G -> value A -> nat -> type =
+    evals : forall (G : ctx) (A : tp) . term G A -> env G -> value A -> type =
     | evals_drop :
-      forall (G : ctx) (A B : tp) (M : term G B) (S : env G) (V : value A) (VM : value B) (cM : nat) .
-      evals_raw G B M S VM cM ->
-      evals_raw (A :: G) B (drop M) (env_cons V S) VM (Cdrop CM + cM)
+      forall (G : ctx) (A B : tp) (M : term G B) (S : env G) (V : value A) (VM : value B) .
+      evals G B M S VM ->
+      evals (A :: G) B (drop M) (env_cons V S) VM
     | evals_var :
       forall (G : ctx) (A : tp) (S : env G) (V : value A) .
-      evals_raw (A :: G) A var (env_cons V S) V (Cvar CM)
+      evals (A :: G) A var (env_cons V S) V
     | evals_triv :
       forall (G : ctx) (S : env G) .
-      evals_raw G one triv S vtriv (Ctriv CM)
+      evals G one triv S vtriv
     | evals_record :
       forall (G : ctx) (A B : tp) (M1 : term G A) (M2 : term G B) (S : env G) .
-      evals_raw G (times A B) (record M1 M2) S (vrecord S M1 M2) (Crecord CM)
+      evals G (times A B) (record M1 M2) S (vrecord S M1 M2)
     | evals_proj1 :
       forall (G : ctx) (A B : tp) (M : term G (times A B)) (S : env G)
-      (G' : ctx) (S' : env G') (M1 : term G' A) (M2 : term G' B) (cM : nat) (vM' : value A) (cM' : nat) .
-      evals_raw G (times A B) M S (vrecord S' M1 M2) cM ->
-      evals_raw G' A M1 S' vM' cM' ->
-      evals_raw G A (proj1 M) S vM' (Cproj1 CM + cM + cM')
+      (G' : ctx) (S' : env G') (M1 : term G' A) (M2 : term G' B) (vM' : value A) .
+      evals G (times A B) M S (vrecord S' M1 M2) ->
+      evals G' A M1 S' vM' ->
+      evals G A (proj1 M) S vM'
     | evals_proj2 :
       forall (G : ctx) (A B : tp) (M : term G (times A B)) (S : env G)
-      (G' : ctx) (S' : env G') (M1 : term G' A) (M2 : term G' B) (cM : nat) (vM' : value B) (cM' : nat) .
-      evals_raw G (times A B) M S (vrecord S' M1 M2) cM ->
-      evals_raw G' B M2 S' vM' cM' ->
-      evals_raw G B (proj2 M) S vM' (Cproj2 CM + cM + cM')
+      (G' : ctx) (S' : env G') (M1 : term G' A) (M2 : term G' B) (vM' : value B) .
+      evals G (times A B) M S (vrecord S' M1 M2) ->
+      evals G' B M2 S' vM' ->
+      evals G B (proj2 M) S vM'
     | evals_inj1 :
-      forall (G : ctx) (A B : tp) (M : term G A) (S : env G) (VM : value A) (cM : nat) .
-      evals_raw G A M S VM cM ->
-      evals_raw G (plus A B) (inj1 M) S (vinj1 VM) (Cinj1 CM + cM)
+      forall (G : ctx) (A B : tp) (M : term G A) (S : env G) (VM : value A) .
+      evals G A M S VM ->
+      evals G (plus A B) (inj1 M) S (vinj1 VM)
     | evals_inj2 :
-      forall (G : ctx) (A B : tp) (M : term G B) (S : env G) (VM : value B) (cM : nat) .
-      evals_raw G B M S VM cM ->
-      evals_raw G (plus A B) (inj2 M) S (vinj2 VM) (Cinj2 CM + cM)
+      forall (G : ctx) (A B : tp) (M : term G B) (S : env G) (VM : value B) .
+      evals G B M S VM ->
+      evals G (plus A B) (inj2 M) S (vinj2 VM)
     | evals_match1 :
       forall (G GAB GC : ctx) (A B C : tp) (T : split G GAB GC)
       (M : term GAB (plus A B)) (N1 : term (A :: GC) C) (N2 : term (B :: GC) C)
-      (S : env G) (VM : value A) (cM : nat) (VN : value C) (cN : nat) .
-      evals_raw GAB (plus A B) M (env_split T S #1) (vinj1 VM) cM ->
-      evals_raw (A :: GC) C N1 (env_cons VM (env_split T S #2)) VN cN ->
-      evals_raw G C (match T M N1 N2) S VN (Cmatch CM + cM + cN)
+      (S : env G) (VM : value A) (VN : value C) .
+      evals GAB (plus A B) M (env_split T S #1) (vinj1 VM) ->
+      evals (A :: GC) C N1 (env_cons VM (env_split T S #2)) VN ->
+      evals G C (match T M N1 N2) S VN
     | evals_match2 :
       forall (G GAB GC : ctx) (A B C : tp) (T : split G GAB GC)
       (M : term GAB (plus A B)) (N1 : term (A :: GC) C) (N2 : term (B :: GC) C)
-      (S : env G) (VM : value B) (cM : nat) (VN : value C) (cN : nat) .
-      evals_raw GAB (plus A B) M (env_split T S #1) (vinj2 VM) cM ->
-      evals_raw (B :: GC) C N2 (env_cons VM (env_split T S #2)) VN cN ->
-      evals_raw G C (match T M N1 N2) S VN (Cmatch CM + cM + cN)
+      (S : env G) (VM : value B) (VN : value C) .
+      evals GAB (plus A B) M (env_split T S #1) (vinj2 VM) ->
+      evals (B :: GC) C N2 (env_cons VM (env_split T S #2)) VN ->
+      evals G C (match T M N1 N2) S VN
     | evals_pair :
       forall (G GA GB : ctx) (A B : tp) (T : split G GA GB)
-      (M1 : term GA A) (M2 : term GB B)
-      (S : env G) (V1 : value A) (c1 : nat) (V2 : value B) (c2 : nat) .
-      evals_raw GA A M1 (env_split T S #1) V1 c1 -> evals_raw GB B M2 (env_split T S #2) V2 c2 ->
-      evals_raw G (tensor A B) (pair T M1 M2) S (vpair V1 V2) (Cpair CM + c1 + c2)
+      (M1 : term GA A) (M2 : term GB B) (S : env G) (V1 : value A) (V2 : value B) .
+      evals GA A M1 (env_split T S #1) V1 -> evals GB B M2 (env_split T S #2) V2 ->
+      evals G (tensor A B) (pair T M1 M2) S (vpair V1 V2)
     | evals_letp :
       forall (G GAB GC : ctx) (A B C : tp) (T : split G GAB GC)
       (M : term GAB (tensor A B)) (N : term (A :: B :: GC) C)
-      (S : env G) (VM1 : value A) (VM2 : value B) (cM : nat) (VN : value C) (cN : nat) .
-      evals_raw GAB (tensor A B) M (env_split T S #1) (vpair VM1 VM2) cM ->
-      evals_raw (A :: B :: GC) C N (env_cons VM1 (env_cons VM2 (env_split T S #2))) VN cN ->
-      evals_raw G C (letp T M N) S VN (Cletp CM + cM + cN)
+      (S : env G) (VM1 : value A) (VM2 : value B) (VN : value C) .
+      evals GAB (tensor A B) M (env_split T S #1) (vpair VM1 VM2) ->
+      evals (A :: B :: GC) C N (env_cons VM1 (env_cons VM2 (env_split T S #2))) VN ->
+      evals G C (letp T M N) S VN
     | evals_lam :
       forall (G : ctx) (A B : tp) (M : term (A :: G) B) (S : env G) .
-      evals_raw G (arrow A B) (lam M) S (vlam S M) (Clam CM)
+      evals G (arrow A B) (lam M) S (vlam S M)
     | evals_app :
       forall (G GAB GA : ctx) (A B : tp) (T : split G GAB GA)
       (M : term GAB (arrow A B)) (N : term GA A)
-      (S : env G) (G' : ctx) (S' : env G') (M' : term (A :: G') B) (cM : nat) (VN : value A) (cN : nat)
-      (VM' : value B) (cM' : nat) .
-      evals_raw GAB (arrow A B) M (env_split T S #1) (vlam S' M') cM ->
-      evals_raw GA A N (env_split T S #2) VN cN ->
-      evals_raw (A :: G') B M' (env_cons VN S') VM' cM' ->
-      evals_raw G B (app T M N) S VM' (Capp CM + cM + cN + cM')
+      (S : env G) (G' : ctx) (S' : env G') (M' : term (A :: G') B) (VN : value A)
+      (VM' : value B) .
+      evals GAB (arrow A B) M (env_split T S #1) (vlam S' M') ->
+      evals GA A N (env_split T S #2) VN ->
+      evals (A :: G') B M' (env_cons VN S') VM' ->
+      evals G B (app T M N) S VM'
     | evals_sempty :
       forall (G : ctx) (A : tp) (S : env G) .
-      evals_raw G (stack A) sempty S vempty (Csempty CM)
+      evals G (stack A) sempty S vempty
     | evals_spush :
       forall (G Gh Gt : ctx) (A : tp) (T : split G Gh Gt) (Mh : term Gh A) (Mt : term Gt (stack A))
-      (S : env G) (Vh : value A) (ch : nat) (Vt : value (stack A)) (ct : nat) .
-      evals_raw Gh A Mh (env_split T S #1) Vh ch ->
-      evals_raw Gt (stack A) Mt (env_split T S #2) Vt ct ->
-      evals_raw G (stack A) (spush T Mh Mt) S (vpush Vh Vt) (Cspush CM + ch + ct)
+      (S : env G) (Vh : value A) (Vt : value (stack A)) .
+      evals Gh A Mh (env_split T S #1) Vh ->
+      evals Gt (stack A) Mt (env_split T S #2) Vt ->
+      evals G (stack A) (spush T Mh Mt) S (vpush Vh Vt)
     | evals_spop1 :
       forall (G GA GB : ctx) (A B : tp) (T : split G GA GB)
       (M : term GA (stack A)) (N1 : term GB B) (N2 : term (A :: stack A :: GB) B)
-      (S : env G) (cM : nat) (VN : value B) (cN : nat) .
-      evals_raw GA (stack A) M (env_split T S #1) vempty cM ->
-      evals_raw GB B N1 (env_split T S #2) VN cN ->
-      evals_raw G B (spop T M N1 N2) S VN (Cspop CM + cM + cN)
+      (S : env G) (VN : value B) .
+      evals GA (stack A) M (env_split T S #1) vempty ->
+      evals GB B N1 (env_split T S #2) VN ->
+      evals G B (spop T M N1 N2) S VN
     | evals_spop2 :
       forall (G GA GB : ctx) (A B : tp) (T : split G GA GB)
       (M : term GA (stack A)) (N1 : term GB B) (N2 : term (A :: stack A :: GB) B)
-      (S : env G) (VA : value A) (VM : value (stack A)) (cM : nat) (VN : value B) (cN : nat) .
-      evals_raw GA (stack A) M (env_split T S #1) (vpush VA VM) cM ->
-      evals_raw (A :: stack A :: GB) B N2 (env_cons VA (env_cons VM (env_split T S #2))) VN cN ->
-      evals_raw G B (spop T M N1 N2) S VN (Cspop CM + cM + cN)
+      (S : env G) (VA : value A) (VM : value (stack A)) (VN : value B) .
+      evals GA (stack A) M (env_split T S #1) (vpush VA VM) ->
+      evals (A :: stack A :: GB) B N2 (env_cons VA (env_cons VM (env_split T S #2))) VN ->
+      evals G B (spop T M N1 N2) S VN
     | evals_lnil :
       forall (G : ctx) (A : tp) (S : env G) .
-      evals_raw G (dlist A) lnil S vnil (Clnil CM)
+      evals G (dlist A) lnil S vnil
     | evals_lcons :
       forall (G Gd Ght Gh Gt : ctx) (A : tp) (T1 : split G Gd Ght) (T2 : split Ght Gh Gt)
       (Md : term Gd diam) (Mh : term Gh A) (Mt : term Gt (dlist A))
-      (S : env G) (cd : nat) (Vh : value A) (ch : nat) (Vt : value (dlist A)) (ct : nat) .
-      evals_raw Gd diam Md (env_split T1 S #1) vdiam cd ->
-      evals_raw Gh A Mh (env_split T2 (env_split T1 S #2) #1) Vh ch ->
-      evals_raw Gt (dlist A) Mt (env_split T2 (env_split T1 S #2) #2) Vt ct ->
-      evals_raw G (dlist A) (lcons T1 T2 Md Mh Mt) S (vcons Vh Vt) (Clcons CM + cd + ch + ct)
+      (S : env G) (Vh : value A) (Vt : value (dlist A)) .
+      evals Gd diam Md (env_split T1 S #1) vdiam ->
+      evals Gh A Mh (env_split T2 (env_split T1 S #2) #1) Vh ->
+      evals Gt (dlist A) Mt (env_split T2 (env_split T1 S #2) #2) Vt ->
+      evals G (dlist A) (lcons T1 T2 Md Mh Mt) S (vcons Vh Vt)
     | evals_lrec_nil :
       forall (G Gl Gn : ctx) (A B : tp) (T : split G Gl Gn) (M : term Gl (dlist A))
       (N1 : term Gn B) (N2 : term (diam :: A :: B :: nil) B)
-      (S : env G) (cM : nat) (VN : value B) (cN : nat) .
-      evals_raw Gl (dlist A) M (env_split T S #1) vnil cM ->
-      evals_raw Gn B N1 (env_split T S #2) VN cN ->
-      evals_raw G B (lrec T M N1 N2) S VN (Clrec CM + cM + cN)
+      (S : env G) (VN : value B) .
+      evals Gl (dlist A) M (env_split T S #1) vnil ->
+      evals Gn B N1 (env_split T S #2) VN ->
+      evals G B (lrec T M N1 N2) S VN
     | evals_lrec_cons :
       forall (G Gl Gn : ctx) (A B : tp) (T : split G Gl Gn) (M : term Gl (dlist A))
       (N1 : term Gn B) (N2 : term (diam :: A :: B :: nil) B)
-      (S : env G) (Vh : value A) (Vt : value (dlist A)) (cM : nat)
-      (Vrec : value B) (cRec : nat) (VN : value B) (cN : nat) .
-      evals_raw Gl (dlist A) M (env_split T S #1) (vcons Vh Vt) cM ->
-      evals_raw (dlist A :: Gn) B (lrec (left all_right) var N1 N2) (env_cons Vt (env_split T S #2)) Vrec cRec ->
-      evals_raw (diam :: A :: B :: nil) B N2 (env_cons vdiam (env_cons Vh (env_single Vrec))) VN cN ->
-      evals_raw G B (lrec T M N1 N2) S VN (Clrec CM + cM + cRec + cN)
+      (S : env G) (Vh : value A) (Vt : value (dlist A))
+      (Vrec : value B) (VN : value B) .
+      evals Gl (dlist A) M (env_split T S #1) (vcons Vh Vt) ->
+      evals (dlist A :: Gn) B (lrec (left all_right) var N1 N2) (env_cons Vt (env_split T S #2)) Vrec ->
+      evals (diam :: A :: B :: nil) B N2 (env_cons vdiam (env_cons Vh (env_single Vrec))) VN ->
+      evals G B (lrec T M N1 N2) S VN
     | evals_tleaf :
       forall (G : ctx) (A : tp) (S : env G) .
-      evals_raw G (dtree A) tleaf S vleaf (Ctleaf CM)
+      evals G (dtree A) tleaf S vleaf
     | evals_tnode :
       forall (G Gd Gxlr Gx Glr Gl Gr : ctx) (A : tp)
       (Td : split G Gd Gxlr) (Tx : split Gxlr Gx Glr) (Tl : split Glr Gl Gr)
       (Md : term Gd diam) (Mx : term Gx A) (Ml : term Gl (dtree A)) (Mr : term Gr (dtree A))
-      (S : env G) (cd : nat) (Vx : value A) (cx : nat)
-      (Vl : value (dtree A)) (cl : nat) (Vr : value (dtree A)) (cr : nat) .
-      evals_raw Gd diam Md (env_split Td S #1) vdiam cd ->
-      evals_raw Gx A Mx (env_split Tx (env_split Td S #2) #1) Vx cx ->
-      evals_raw Gl (dtree A) Ml (env_split Tl (env_split Tx (env_split Td S #2) #2) #1) Vl cl ->
-      evals_raw Gr (dtree A) Mr (env_split Tl (env_split Tx (env_split Td S #2) #2) #2) Vr cr ->
-      evals_raw G (dtree A) (tnode Td Tx Tl Md Mx Ml Mr) S (vnode Vx Vl Vr) (Ctnode CM + cd + cx + cl + cr)
+      (S : env G) (Vx : value A) (Vl Vr : value (dtree A)) .
+      evals Gd diam Md (env_split Td S #1) vdiam ->
+      evals Gx A Mx (env_split Tx (env_split Td S #2) #1) Vx ->
+      evals Gl (dtree A) Ml (env_split Tl (env_split Tx (env_split Td S #2) #2) #1) Vl ->
+      evals Gr (dtree A) Mr (env_split Tl (env_split Tx (env_split Td S #2) #2) #2) Vr ->
+      evals G (dtree A) (tnode Td Tx Tl Md Mx Ml Mr) S (vnode Vx Vl Vr)
     | evals_trec_leaf :
       forall (G : ctx) (A B : tp) (M : term G (dtree A)) (N1 : term nil B) (N2 : term (diam :: A :: B :: B :: nil) B)
-      (S : env G) (cM : nat) (VN : value B) (cN : nat) .
-      evals_raw G (dtree A) M S vleaf cM ->
-      evals_raw nil B N1 env_nil VN cN ->
-      evals_raw G B (trec M N1 N2) S VN (Ctrec CM + cM + cN)
+      (S : env G) (VN : value B) .
+      evals G (dtree A) M S vleaf ->
+      evals nil B N1 env_nil VN ->
+      evals G B (trec M N1 N2) S VN
     | evals_trec_node :
       forall (G : ctx) (A B : tp) (M : term G (dtree A)) (N1 : term nil B) (N2 : term (diam :: A :: B :: B :: nil) B)
-      (S : env G) (Vx : value A) (Vl Vr : value (dtree A)) (cM : nat)
-      (VL VR : value B) (cL cR : nat) (VN : value B) (cN : nat) .
-      evals_raw G (dtree A) M S (vnode Vx Vl Vr) cM ->
-      evals_raw (dtree A :: nil) B (trec var N1 N2) (env_single Vl) VL cL ->
-      evals_raw (dtree A :: nil) B (trec var N1 N2) (env_single Vr) VR cR ->
-      evals_raw (diam :: A :: B :: B :: nil) B N2 (env_cons vdiam (env_cons Vx (env_cons VL (env_single VR)))) VN cN ->
-      evals_raw G B (trec M N1 N2) S VN (Ctrec CM + cM + cL + cR + cN)
+      (S : env G) (Vx : value A) (Vl Vr : value (dtree A)) (VL VR VN : value B) .
+      evals G (dtree A) M S (vnode Vx Vl Vr)  ->
+      evals (dtree A :: nil) B (trec var N1 N2) (env_single Vl) VL ->
+      evals (dtree A :: nil) B (trec var N1 N2) (env_single Vr) VR ->
+      evals (diam :: A :: B :: B :: nil) B N2 (env_cons vdiam (env_cons Vx (env_cons VL (env_single VR)))) VN ->
+      evals G B (trec M N1 N2) S VN
 /;
-
-
-define /evals {G A} CM M/
-/
-  evals_raw CM G A M
-//
-  intersect (i : level) .
-  forall (G : ctx) (A : tp) .
-  cost_model -> term G A -> env G -> value A -> nat -> U i
-/;
-withTypecheck (unfold /evals/). qed ();
-setOpacity (parseConstant /evals/) Constant.SOFT;
+Database.setImplicits (parseConstant /evals/) 2;
 
 
 

@@ -3,6 +3,8 @@ openModule /List/;
 openModule /Partial/;
 
 File.import "../../math/load.iml";
+openModule /PolynomialWithDegree/;
+
 File.import "../../turing-machine/load.iml";
 File.import "../core/load-denotational.iml";
 File.import "../lib/heap-free/load.iml";

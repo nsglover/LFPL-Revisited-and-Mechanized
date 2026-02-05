@@ -2,6 +2,8 @@ openModule /Nat/;
 openModule /List/;
 
 File.import "../../math/load.iml";
+openModule /Polynomial/;
+
 File.import "../core/load-operational.iml";
 
 File.loadWithoutDependencies "size.isto";
@@ -88,8 +90,6 @@ induction /HA/.
   intro /A B HA A_ih CB B_ih V n/.
   so /tensor_canonical_form A B V/ /VA VB V_eq/.
   subst /V/.
-  reduce //.
-  rewrite /-> p_plus_correct/.
   so /A_ih VA n/ /A_bound/.
   so /B_ih VB n/ /B_bound/.
   omega.
@@ -100,8 +100,6 @@ induction /HA/.
   subst /V/.
   induction /LV/ >>> [reflexivity, idtac].
   intro /V LV ih'/.
-  unfold /value_bound/.
-  rewrite /-> p_plus_correct/.
   rewrite /-> ih V n, -> ih'/.
   reflexivity.
 }
@@ -118,7 +116,6 @@ so /dlist_canonical_form A V/ /LV V_eq/.
 subst /V/.
 induction /LV/ >>> [reflexivity, idtac].
 intro /V LV ih/.
-rewrite /-> p_plus_correct at all/.
 rewrite /-> heap_free_value_bound_eq_zero CM A HA V n/.
 rewrite /-> ih/.
 reflexivity.
@@ -131,30 +128,26 @@ qed ();
 lemma "polynomial_time_soundness"
 /
   forall (CM : cost_model) (A B : tp) (HA : heap_free A) (M : term (dlist A :: nil) B) (L : list (value A)) .
-  exists (V : value B) (c : nat) .
-  evals CM M (env_cons (vlist L) env_nil) V c &
-  c <= p_eval (term_bound CM M) (length L)
+  exists (V : value B) (e : evals M (env_cons (vlist L) env_nil) V) .
+  cost CM _# 5 e <= p_eval (term_bound CM M) (length L)
 /;
 intro /CM A B HA M L/.
 so
 /
   evals_terminates_with_polynomial_cost CM _# 2 M (env_cons (vlist L) env_nil) (length L) __
 //
-  V c h_evals c_bound
+  V h_evals c_bound
 /.
 {
   reduce //.
   rewrite /-> heap_free_list_size_eq_length A HA L/.
   omega.
 }
-existses [/V/, /c/].
-split >>> [exact /h_evals/, clear /h_evals/].
+existses [/V/, /h_evals/].
 reduce /c_bound/.
 unfold /env_bound in c_bound/.
 reduce /c_bound/.
 fold /value_bound CM (vlist L) in c_bound/.
-rewrite /-> p_plus_correct in c_bound/.
-reduce /c_bound/.
 rewrite /-> heap_free_list_bound_eq_zero CM A HA (vlist L) in c_bound/.
 omega.
 qed ();

@@ -10,6 +10,7 @@ File.loadWithoutDependencies "transition.isto";
 openModule /Transition/;
 
 File.import "../math/load.iml";
+openModule /PolynomialWithDegree/;
 
 beginModule "Machine";
 

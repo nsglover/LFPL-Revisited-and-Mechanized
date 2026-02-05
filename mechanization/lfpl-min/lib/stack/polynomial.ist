@@ -2,17 +2,20 @@ openModule /Nat/;
 openModule /List/;
 
 File.import "../../../math/load.iml";
+openModule /PolynomialWithDegree/;
+
 File.import "../../core/load-denotational.iml";
 File.import "../list/load.iml";
 File.import "../memory/load.iml";
 
 File.loadWithoutDependencies "interface.isto";
+openModule /Interface/;
+
 File.loadWithoutDependencies "base.isto";
 File.loadWithoutDependencies "inductive.isto";
 File.loadWithoutDependencies "additive.isto";
 File.loadWithoutDependencies "weakened.isto";
 
-openModule /Interface/;
 
 beginModule "PolyStack";
 

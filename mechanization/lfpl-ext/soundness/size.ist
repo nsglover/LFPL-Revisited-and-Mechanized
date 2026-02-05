@@ -61,13 +61,13 @@ qed ();
 
 lemma "non_size_increasing"
 /
-  forall (CM : cost_model) (G : ctx) (A : tp) (M : term G A) (S : env G) (V : value A) (c : nat) .
-  evals CM M S V c -> size V <= env_size S
+  forall (G : ctx) (A : tp) (M : term G A) (S : env G) (V : value A) .
+  evals M S V -> size V <= env_size S
 /;
-intro /CM G A M S V c M_evals/.
+intro /G A M S V M_evals/.
 induction /M_evals/.
 {
-  intro /G A B M S V VM cM M_evals M_ih/.
+  intro /G A B M S V VM M_evals M_ih/.
   omega.
 }
 {
@@ -83,43 +83,43 @@ induction /M_evals/.
   reflexivity.
 }
 {
-  intro /G A B M S G' S' M1 M2 cM vM' cM' M_evals M_ih M'_evals M'_ih/.
+  intro /G A B M S G' S' M1 M2 vM' M_evals M_ih M'_evals M'_ih/.
   omega.
 }
 {
-  intro /G A B M S G' S' M1 M2 cM vM' cM' M_evals M_ih M'_evals M'_ih/.
+  intro /G A B M S G' S' M1 M2 vM' M_evals M_ih M'_evals M'_ih/.
   omega.
 }
 {
-  intro /G A B M S VM cM M_evals ih/.
+  intro /G A B M S VM M_evals ih/.
   exact /ih/.
 }
 {
-  intro /G A B M S VM cM M_evals ih/.
+  intro /G A B M S VM M_evals ih/.
   exact /ih/.
 }
 {
-  intro /G GAB GC A B C T M N1 N2 S VM cM VN cN M_evals M_ih N_evals N_ih/.
+  intro /G GAB GC A B C T M N1 N2 S VM VN M_evals M_ih N_evals N_ih/.
   rewrite /-> N_ih/.
   rewrite /-> plus_leq _# 4 M_ih (leq_refl _)/.
   rewrite /-> split_size G GAB GC T/.
   reflexivity.
 }
 {
-  intro /G GAB GC A B C T M N1 N2 S VM cM VN cN M_evals M_ih N_evals N_ih/.
+  intro /G GAB GC A B C T M N1 N2 S VM VN M_evals M_ih N_evals N_ih/.
   rewrite /-> N_ih/.
   rewrite /-> plus_leq _# 4 M_ih (leq_refl _)/.
   rewrite /-> split_size G GAB GC T/.
   reflexivity.
 }
 {
-  intro /G GA GB A B T M1 M2 S V1 c1 V2 c2 M1_evals M1_ih M2_evals M2_ih/.
+  intro /G GA GB A B T M1 M2 S V1 V2 M1_evals M1_ih M2_evals M2_ih/.
   rewrite /-> plus_leq _# 4 M1_ih M2_ih/.
   rewrite /-> split_size G GA GB T/.
   reflexivity.
 }
 {
-  intro /G GAB GC A B C T M N S VM1 VM2 cM VN cN M_evals M_ih N_evals N_ih/.
+  intro /G GAB GC A B C T M N S VM1 VM2 VN M_evals M_ih N_evals N_ih/.
   rewrite /-> N_ih/.
   rewrite /<- plus_assoc/.
   rewrite /-> plus_leq _# 4 M_ih (leq_refl _)/.
@@ -131,7 +131,7 @@ induction /M_evals/.
   reflexivity.
 }
 {
-  intro /G GAB GA A B T M N S G' S' M' cM VN cN V c M_evals M_ih N_evals N_ih M'_evals M'_ih/.
+  intro /G GAB GA A B T M N S G' S' M' VN V M_evals M_ih N_evals N_ih M'_evals M'_ih/.
   rewrite /-> M'_ih/.
   rewrite /-> plus_leq _# 4 N_ih (leq_refl _)/.
   rewrite /-> plus_leq _# 4 (leq_refl _) M_ih/.
@@ -143,17 +143,17 @@ induction /M_evals/.
   omega.
 }
 {
-  intro /G Gh Gt A T Mh Mt S Vh ch Vt ct M_evals M_ih N_evals N_ih/.
+  intro /G Gh Gt A T Mh Mt S Vh Vt M_evals M_ih N_evals N_ih/.
   rewrite /-> split_size _# 3 T/.
   omega.
 }
 {
-  intro /G GA GB A B T M N1 N2 S cM VN cN M_evals M_ih N_evals N_ih/.
+  intro /G GA GB A B T M N1 N2 S VN M_evals M_ih N_evals N_ih/.
   rewrite /-> split_size _# 3 T/.
   omega.
 }
 {
-  intro /G GA GB A B T M N1 N2 S VA VM cM VN cN M_evals M_ih N_evals N_ih/.
+  intro /G GA GB A B T M N1 N2 S VA VM VN M_evals M_ih N_evals N_ih/.
   rewrite /-> split_size _# 3 T/.
   omega.
 }
@@ -162,18 +162,18 @@ induction /M_evals/.
   omega.
 }
 {
-  intro /G Gd Ght Gh Gt A T1 T2 Md Mh Mt S cd Vh ch Vt ct _ Md_ih _ Mh_ih _ Mt_ih/.
+  intro /G Gd Ght Gh Gt A T1 T2 Md Mh Mt S Vh Vt _ Md_ih _ Mh_ih _ Mt_ih/.
   rewrite /-> split_size _# 3 T1/.
   rewrite /-> split_size _# 3 T2/.
   omega.
 }
 {
-  intro /G Gl Gn A B T M N1 N2 S cM VN cN M_evals M_ih N_evals N_ih/.
+  intro /G Gl Gn A B T M N1 N2 S VN M_evals M_ih N_evals N_ih/.
   rewrite /-> split_size _# 3 T/.
   omega.
 }
 {
-  intro /G Gl Gn A B T M N1 N2 S Vh Vt cM Vrec cRec VN cN M_evals M_ih rec_evals rec_ih N_evals N_ih/.
+  intro /G Gl Gn A B T M N1 N2 S Vh Vt Vrec VN M_evals M_ih rec_evals rec_ih N_evals N_ih/.
   rewrite /-> split_size _# 3 T/.
   omega.
 }
@@ -182,7 +182,7 @@ induction /M_evals/.
   omega.
 }
 {
-  intro /G Gd Gxlr Gx Glr Gl Gr A Td Tx Tl Md Mx Ml Mr S cd Vx cx Vl cl Vr cr/.
+  intro /G Gd Gxlr Gx Glr Gl Gr A Td Tx Tl Md Mx Ml Mr S Vx Vl Vr/.
   intro /Md_evals Md_ih Mx_evals Mx_ih Ml_evals Ml_ih Mr_evals Mr_ih/.
   rewrite /-> split_size _# 3 Td/.
   rewrite /-> split_size _# 3 Tx/.
@@ -190,11 +190,11 @@ induction /M_evals/.
   omega.
 }
 {
-  intro /G A B M N1 N2 S cM VN cN M_evals M_ih N_evals N_ih/.
+  intro /G A B M N1 N2 S VN M_evals M_ih N_evals N_ih/.
   omega.
 }
 {
-  intro /G A B M N1 N2 S Vx Vl Vr cM VL VR cL cR VN cN M_evals M_ih L_evals L_ih R_evals R_ih N_evals N_ih/.
+  intro /G A B M N1 N2 S Vx Vl Vr VL VR VN M_evals M_ih L_evals L_ih R_evals R_ih N_evals N_ih/.
   omega.
 }
 qed ();

@@ -1,0 +1,50 @@
+openModule /List/;
+
+File.import "../math/load.iml";
+
+File.import "../lfpl-ext/core/load-all.iml";
+File.import "../lfpl-min/core/load-all.iml";
+aliasModule /Ext/ /ExtLanguage/;
+
+beginModule "Translation";
+
+
+
+defineInd //
+/
+  tp_trans : tp -> Ext.tp of
+  | diam . Ext.diam
+  | one . Ext.one
+  | plus A B . Ext.plus (tp_trans A) (tp_trans B)
+  | tensor A B . Ext.tensor (tp_trans A) (tp_trans B)
+  | arrow A B . Ext.arrow (tp_trans A) (tp_trans B)
+  | dlist A . Ext.dlist (tp_trans A)
+//
+  tp -> Ext.tp
+/;
+
+
+define /ctx_trans G/
+/
+  map tp_trans G
+//
+  ctx -> Ext.ctx
+/;
+withTypecheck (unfold /ctx_trans/). qed ();
+setOpacity (parseConstant /ctx_trans/) Constant.SOFT;
+
+
+defineInd //
+/
+  split_trans : split G G1 G2 -> Ext.split (ctx_trans G) (ctx_trans G1) (ctx_trans G2) of
+  | none . Ext.none
+  | left G G1 G2 A T . `Ext.left (ctx_trans G) (ctx_trans G1) (ctx_trans G2) (tp_trans A) (split_trans T)
+  | right G G1 G2 A T . `Ext.right (ctx_trans G) (ctx_trans G1) (ctx_trans G2) (tp_trans A) (split_trans T)
+//
+  forall (G G1 G2 : ctx) . split G G1 G2 -> Ext.split (ctx_trans G) (ctx_trans G1) (ctx_trans G2)
+/;
+
+
+
+
+endModule ();

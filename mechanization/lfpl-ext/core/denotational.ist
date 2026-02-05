@@ -3,9 +3,9 @@ openModule /List/;
 File.import "../../math/load.iml";
 
 File.loadWithoutDependencies "language.isto";
-openModule /Language/;
+openModule /ExtLanguage/;
 
-beginModule "Denotational";
+beginModule "ExtDenotational";
 
 
 

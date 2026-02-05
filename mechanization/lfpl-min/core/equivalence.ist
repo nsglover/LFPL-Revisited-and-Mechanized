@@ -40,164 +40,6 @@ Database.setImplicits (parseConstant /env_sem/) 1;
 
 
 
-(* DETERMINISTIC EVALUATION *)
-
-lemma "evals_deterministic"
-/
-  forall (G : ctx) (A : tp) (M : term G A) (S : Operational.env G) (V V' : value A) (c c' : nat) .
-  evals M S V c -> evals M S V' c' -> V = V' : value A & c = c' : nat
-/;
-intro /G A M S V V' c c' M_evals/.
-revert /V' c'/.
-induction /M_evals/.
-{
-  intro /G A S V' c' evals'/.
-  destructThin /S/ /{Vdrop S}/.
-  destructThin /evals'/ /{h_V' h_c'}/.
-  reduce //.
-  auto.
-}
-{
-  intro /G S V' c' M'_evals/.
-  destructThin /M'_evals/ /{h_V' h_c'}/.
-  auto.
-}
-{
-  intro /G A B M S V c M_evals ih VM' c' evals'/.
-  destructThin /evals'/ /{V' M_evals' h_V'}/.
-  subst /VM'/.
-  so /ih V' c' M_evals'/ /goal/.
-  auto.
-}
-{
-  intro /G A B M S V c M_evals ih VM' c' evals'/.
-  destructThin /evals'/ /{V' M_evals' h_V'}/.
-  subst /VM'/.
-  so /ih V' c' M_evals'/ /goal/.
-  auto.
-}
-{
-  intro /G GAB GC A B C T M N1 N2 S VM cM VN cN M_evals M_ih N_evals N_ih VN' c' evals'/.
-  destructThin /evals'/ /{VM' cM' cN' M_evals' N_evals' h_c' | VM' cM' cN' M_evals' N_evals' h_c'}/.
-  {
-    subst /c'/.
-    so /M_ih _# 2 M_evals'/ /h_VM h_cM/.
-    injection /h_VM/. clear /h_VM/.
-    reintro /_ _ h_VM/.
-    subst /VM' cM'/.
-    so /N_ih _# 2 N_evals'/ /goal/.
-    auto.
-  }
-  {
-    so /M_ih _# 2 M_evals'/ /h_VM h_cM/.
-    injection /h_VM/.
-  }
-}
-{
-  intro /G GAB GC A B C T M N1 N2 S VM cM VN cN M_evals M_ih N_evals N_ih VN' c' evals'/.
-  destructThin /evals'/ /{VM' cM' cN' M_evals' N_evals' h_c' | VM' cM' cN' M_evals' N_evals' h_c'}/.
-  {
-    so /M_ih _# 2 M_evals'/ /h_VM h_cM/.
-    injection /h_VM/.
-  }
-  {
-    subst /c'/.
-    so /M_ih _# 2 M_evals'/ /h_VM h_cM/.
-    injection /h_VM/. clear /h_VM/.
-    reintro /_ _ h_VM/.
-    subst /VM' cM'/.
-    so /N_ih _# 2 N_evals'/ /goal/.
-    auto.
-  }
-}
-{
-  intro /G GA GB A B T M1 M2 S V1 c1 V2 c2 M1_evals M1_ih M2_evals M2_ih V' c' evals'/.
-  destructThin /evals'/ /{V1' c1' V2' c2' M1_evals' M2_evals' h_V' h_c'}/.
-  subst /V' c'/.
-  so /M1_ih _# 2 M1_evals'/ /goal1/.
-  so /M2_ih _# 2 M2_evals'/ /goal2/.
-  auto.
-}
-{
-  intro /G GAB GC A B C T M N S VM1 VM2 cM VN cN M_evals M_ih N_evals N_ih VN' c' evals'/.
-  destructThin /evals'/ /{VM1' VM2' cM' cN' M_evals' N_evals' h_c'}/.
-  subst /c'/.
-  so /M_ih _# 2 M_evals'/ /h_V' h_cM'/.
-  injection /h_V'/. clear /h_V'/.
-  reintro /_ _ h_VM1' h_VM2'/.
-  subst /VM1' VM2' cM'/.
-  so /N_ih _# 2 N_evals'/ /goal/.
-  auto.
-}
-{
-  intro /G A B M S V' c' evals'/.
-  destructThin /evals'/ /{h_V' h_c'}/.
-  subst /V' c'/.
-  split >> reflexivity.
-}
-{
-
-  intro /G GAB GA A B T M N S Gapp Sapp Mapp cM VN cN V cMapp M_evals M_ih N_evals N_ih app_evals app_ih V' c' evals'/.
-  destructThin /evals'/ /{Gapp' Sapp' Mapp' cM' VN' cN' cMapp' M_evals' N_evals' app_evals' h_c'}/.
-  subst /c'/.
-  so /M_ih _# 2 M_evals'/ /h_V' h_cM'/.
-  injection /h_V'/. clear /h_V'/.
-  reintro /h_Gapp' _ _ h_Sapp' h_Mapp'/.
-  subst /cM' Gapp' Sapp' Mapp'/.
-  so /N_ih _# 2 N_evals'/ /h_VN' h_cN'/.
-  subst /VN' cN'/.
-  so /app_ih _# 2 app_evals'/ /goal/.
-  auto.
-}
-{
-  intro /G A S V' c' evals'/.
-  destructThin /evals'/ /{h_V' h_c'}/.
-  subst /V' c'/.
-  auto.
-}
-{
-  intro /G Gd Ght Gh Gt A T1 T2 Md Mh Mt S cd Vh ch Vt ct Md_evals Md_ih Mh_evals Mh_ih Mt_evals Mt_ih V' c' evals'/.
-  destructThin /evals'/ /{cd' Vh' ch' Vt' ct' Md_evals' Mh_evals' Mt_evals' h_V' h_c'}/.
-  subst /V' c'/.
-  auto.
-}
-{
-  intro /G Gl Gn A B T M N1 N2 S cM VN cN M_evals M_ih N_evals N_ih VN' c' evals'/.
-  destructThin /evals'/ /{cM' cN' M_evals' N_evals' h_c' | Vh' Vt' cM' Vr' cr' cN' M_evals' rec_evals' N_evals' h_c'}/.
-  {
-    so /M_ih _# 2 M_evals'/ /_ h_cM'/.
-    subst /c' cM'/.
-    so /N_ih _# 2 N_evals'/ /h_VN' h_CN'/.
-    subst /VN' cN'/.
-    split >> reflexivity.
-  }
-  {
-    so /M_ih _# 2 M_evals'/ /h_V' _/.
-    injection /h_V'/.
-  }
-}
-{
-  intro /G Gl Gn A B T M N1 N2 S Vh Vt cM Vr cr VN cN M_evals M_ih rec_evals rec_ih N_evals N_ih VN' c' evals'/.
-  destructThin /evals'/ /{cM' cN' M_evals' N_evals' h_c' | Vh' Vt' cM' Vr' cr' cN' M_evals' rec_evals' N_evals' h_c'}/.
-  {
-    so /M_ih _# 2 M_evals'/ /h_V' _/.
-    injection /h_V'/.
-  }
-  {
-    so /M_ih _# 2 M_evals'/ /h_VM' h_cM'/.
-    injection /h_VM'/. clear /h_VM'/. reintro /_ h_Vh' h_Vt'/.
-    subst /c' cM' Vh' Vt'/.
-    so /rec_ih _# 2 rec_evals'/ /h_Vr' h_cr'/.
-    subst /Vr' cr'/.
-    so /N_ih _# 2 N_evals'/ /h_VN' h_cN'/.
-    subst /VN' cN'/.
-    split >> reflexivity.
-  }
-}
-qed ();
-
-
-
 (* OPERATIONAL AND DENOTATIONAL EQUIVALENCE *)
 
 lemma "split_equiv"
@@ -221,15 +63,13 @@ qed ();
 
 lemma "operational_equiv_denotational"
 /
-  forall (G : ctx) (A : tp) (M : term G A) (S : Operational.env G) (V : value A) (c : nat) . evals M S V c ->
+  forall (G : ctx) (A : tp) (M : term G A) (S : Operational.env G) (V : value A) . evals M S V ->
   value_sem V = term_sem M (env_sem S) : tp_sem A
 /;
-intro /G A M S V c M_evals/.
+intro /G A M S V M_evals/.
 induction /M_evals/.
 {
-  intro /G A S/.
-  destruct /S/ /{h | A' G' Vdrop S h}/ >> injection /h/ >> subst /A' G'/ >> clear /h/.
-  reduce //.
+  intro /G A S V/.
   reflexivity.
 }
 {
@@ -237,17 +77,17 @@ induction /M_evals/.
   reflexivity.
 }
 {
-  intro /G A B M S VM cM M_evals ih/.
+  intro /G A B M S VM M_evals ih/.
   compat.
   exact /ih/.
 }
 {
-  intro /G A B M S VM cM M_evals ih/.
+  intro /G A B M S VM M_evals ih/.
   compat.
   exact /ih/.
 }
 {
-  intro /G GAB GC A B C T M N1 N2 S VM cM VN cN M_evals M_ih N_evals N_ih/.
+  intro /G GAB GC A B C T M N1 N2 S VM VN M_evals M_ih N_evals N_ih/.
   rewrite /-> split_equiv _# 3 T S #1 in M_ih/.
   rewrite /-> split_equiv _# 3 T S #2 in N_ih/.
   rewrite /<- M_ih/.
@@ -255,7 +95,7 @@ induction /M_evals/.
   exact /N_ih/.
 }
 {
-  intro /G GAB GC A B C T M N1 N2 S VM cM VN cN M_evals M_ih N_evals N_ih/.
+  intro /G GAB GC A B C T M N1 N2 S VM VN M_evals M_ih N_evals N_ih/.
   rewrite /-> split_equiv _# 3 T S #1 in M_ih/.
   rewrite /-> split_equiv _# 3 T S #2 in N_ih/.
   rewrite /<- M_ih/.
@@ -263,13 +103,13 @@ induction /M_evals/.
   exact /N_ih/.
 }
 {
-  intro /G GA GB A B T M1 M2 S V1 c1 V2 c2 M1_evals M1_ih M2_evals M2_ih/.
+  intro /G GA GB A B T M1 M2 S V1 V2 M1_evals M1_ih M2_evals M2_ih/.
   rewrite /-> split_equiv _# 3 T S #1 in M1_ih/.
   rewrite /-> split_equiv _# 3 T S #2 in M2_ih/.
   auto.
 }
 {
-  intro /G GAB GC A B C T M N S VM1 VM2 cM VN cN M_evals M_ih N_evals N_ih/.
+  intro /G GAB GC A B C T M N S VM1 VM2 VN M_evals M_ih N_evals N_ih/.
   unfold /Tuple.letpair/.
   rewrite /-> split_equiv _# 3 T S #1 in M_ih/.
   rewrite /-> split_equiv _# 3 T S #2 in N_ih/.
@@ -282,7 +122,7 @@ induction /M_evals/.
   reflexivity.
 }
 {
-  intro /G GAB GA A B T M N S G' S' M' cM VN cN VM' cM' M_evals M_ih N_evals N_ih M'_evals M'_ih/.
+  intro /G GAB GA A B T M N S G' S' M' VN VM' M_evals M_ih N_evals N_ih M'_evals M'_ih/.
   rewrite /-> split_equiv _# 3 T S #1 in M_ih/.
   rewrite /-> split_equiv _# 3 T S #2 in N_ih/.
   rewrite /<- M_ih/.
@@ -295,7 +135,7 @@ induction /M_evals/.
   reflexivity.
 }
 {
-  intro /G Gd Ght Gh Gt A T1 T2 Md Mh Mt S cd Vh ch Vt ct _ _ Mh_evals Mh_ih Mt_evals Mt_ih/.
+  intro /G Gd Ght Gh Gt A T1 T2 Md Mh Mt S Vh Vt _ _ Mh_evals Mh_ih Mt_evals Mt_ih/.
   rewrite /-> Mh_ih, -> Mt_ih/.
   rewrite /-> split_equiv _# 3 T2 (Operational.env_split T1 S #2) #1/.
   rewrite /-> split_equiv _# 3 T2 (Operational.env_split T1 S #2) #2/.
@@ -303,14 +143,14 @@ induction /M_evals/.
   reflexivity.
 }
 {
-  intro /G Gl Gn A B T M N1 N2 S cM VN cN M_evals M_ih N_evals N_ih/.
+  intro /G Gl Gn A B T M N1 N2 S VN M_evals M_ih N_evals N_ih/.
   rewrite /-> split_equiv _# 3 T S #1 in M_ih/.
   rewrite /-> split_equiv _# 3 T S #2 in N_ih/.
   rewrite /<- M_ih/.
   exact /N_ih/.
 }
 {
-  intro /G Gl Gn A B T M N1 N2 S Vh Vt cM Vrec cRec VN cN M_evals M_ih rec_evals rec_ih N_evals N_ih/.
+  intro /G Gl Gn A B T M N1 N2 S Vh Vt Vrec VN M_evals M_ih rec_evals rec_ih N_evals N_ih/.
   rewrite /-> split_equiv _# 3 T S #1 in M_ih/.
   rewrite /-> split_equiv _# 3 T S #2 in rec_ih/.
   rewrite /-> env_split_all_right in rec_ih/.

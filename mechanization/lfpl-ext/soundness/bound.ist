@@ -2,6 +2,7 @@ openModule /Nat/;
 openModule /List/;
 
 File.import "../../math/load.iml";
+openModule /Polynomial/;
 
 File.import "../core/load-operational.iml";
 
@@ -16,7 +17,7 @@ beginModule "PolynomialCostBound";
 
 defineInd /CM/
 /
-  bound_raw : term G A -> exists (d : nat) . polynomial d of
+  bound_raw : term G A -> polynomial of
   | drop G A B M . p_plus (p_const (Cdrop CM)) (bound_raw M)
   | var G A . p_const (Cvar CM)
   | triv G . p_const (Ctriv CM)
@@ -40,17 +41,17 @@ defineInd /CM/
     p_plus (p_const (Clcons CM)) (p_plus (bound_raw Md) (p_plus (bound_raw Mh) (bound_raw Mt)))
   | lrec G Gl Gn A B T M N1 N2 .
     (* P_{lrec M N1 N2}(n) = Clrec + (Cvar + Clrec) * n + P_M(n) + P_N1(n) + n * P_N2(n) *)
-    p_plus (1, monomial (Cvar CM + Clrec CM) (const (Clrec CM)))
+    p_plus (p_linear (Clrec CM) (Cvar CM + Clrec CM))
     (p_plus (bound_raw M) (p_plus (bound_raw N1) (p_shift (bound_raw N2))))
   | tleaf G A . p_const (Ctleaf CM)
   | tnode G Gd Gxlr Gx Glr Gl Gr A Td Tx Tl Md Mx Ml Mr .
     p_plus (p_const (Ctnode CM)) (p_plus (bound_raw Md) (p_plus (bound_raw Mx) (p_plus (bound_raw Ml) (bound_raw Mr))))
   | trec G A B M N1 N2 .
     (* P_{trec M N1 N2}(n) = Ctrec + 2 * (Cvar + Ctrec) * n + P_M(n) + (n + 1) * P_N1(n) + n * P_N2(n) *)
-    p_plus (1, monomial (2 * (Cvar CM + Ctrec CM)) (const (Ctrec CM)))
+    p_plus (p_linear (Ctrec CM) (2 * (Cvar CM + Ctrec CM)))
     (p_plus (bound_raw M) (p_plus (bound_raw N1) (p_shift (p_plus (bound_raw N1) (bound_raw N2)))))
 //
-  cost_model -> forall (G : ctx) (A : tp) . term G A -> exists (d : nat) . polynomial d
+  cost_model -> forall (G : ctx) (A : tp) . term G A -> polynomial
 /;
 
 
@@ -58,7 +59,7 @@ define /term_bound {G A} CM/
 /
   bound_raw CM G A
 //
-  forall (G : ctx) (A : tp) . cost_model -> term G A -> exists (d : nat) . polynomial d
+  forall (G : ctx) (A : tp) . cost_model -> term G A -> polynomial
 /;
 withTypecheck (unfold /term_bound/). qed ();
 setOpacity (parseConstant /term_bound/) Constant.SOFT;
@@ -66,7 +67,7 @@ setOpacity (parseConstant /term_bound/) Constant.SOFT;
 
 defineInd /CM/
 /
-  value_bound_raw : value A -> exists (d : nat) . polynomial d of
+  value_bound_raw : value A -> polynomial of
   | vdiam . p_const 0
   | vtriv . p_const 0
   | vrecord G A B S M1 M2 . p_plus (env_bound_raw S) (p_max (term_bound CM M1) (term_bound CM M2))
@@ -81,13 +82,13 @@ defineInd /CM/
   | vleaf A . p_const 0
   | vnode A VA VL VR . p_plus (value_bound_raw VA) (p_plus (value_bound_raw VL) (value_bound_raw VR))
   and
-  env_bound_raw : env G -> exists (d : nat) . polynomial d of
+  env_bound_raw : env G -> polynomial of
   | env_nil . p_const 0
   | env_cons G A V S . p_plus (value_bound_raw V) (env_bound_raw S)
 //
-  cost_model -> forall (A : tp) . value A -> exists (d : nat) . polynomial d
+  cost_model -> forall (A : tp) . value A -> polynomial
   and
-  cost_model -> forall (G : ctx) . env G -> exists (d : nat) . polynomial d
+  cost_model -> forall (G : ctx) . env G -> polynomial
 /;
 
 
@@ -95,7 +96,7 @@ define /value_bound {A} CM/
 /
   value_bound_raw CM A
 //
-  forall (A : tp) . cost_model -> value A -> exists (d : nat) . polynomial d
+  forall (A : tp) . cost_model -> value A -> polynomial
 /;
 withTypecheck (unfold /value_bound/). qed ();
 setOpacity (parseConstant /value_bound/) Constant.SOFT;
@@ -105,7 +106,7 @@ define /env_bound {G} CM/
 /
   env_bound_raw CM G
 //
-  forall (G : ctx) . cost_model -> env G -> exists (d : nat) . polynomial d
+  forall (G : ctx) . cost_model -> env G -> polynomial
 /;
 withTypecheck (unfold /env_bound/). qed ();
 setOpacity (parseConstant /value_bound/) Constant.SOFT;
@@ -123,7 +124,7 @@ intro /CM G G1 G2 T/.
   intro /G G1 G2 A T ih S n/ >>
   destruct /S/ /{h | A' G' V S h}/ >> injection /h/ >>
   unfold /Tuple.letpair at all/ >> subst /A' G'/ >> clear /h/ >>
-  reduce // >> rewrite /-> p_plus_correct at all, -> ih S n/ >> omega
+  reduce // >> rewrite /-> ih S n/ >> omega
 ).
 qed ();
 
@@ -133,9 +134,9 @@ qed ();
 
 lemma "evals_terminates_with_polynomial_cost"
 /
-  forall (CM : cost_model) (G : ctx) (A : tp) (M : term G A) (S : env G) (n : nat) .
-  env_size S <= n -> exists (V : value A) (c : nat) . evals CM M S V c &
-  c + p_eval (value_bound CM V) n <= p_eval (term_bound CM M) n + p_eval (env_bound CM S) n
+  forall (CM : cost_model) (G : ctx) (A : tp) (M : term G A) (S : env G) (n : nat) . env_size S <= n ->
+  exists (V : value A) (e : evals M S V) .
+  cost CM _# 5 e + p_eval (value_bound CM V) n <= p_eval (term_bound CM M) n + p_eval (env_bound CM S) n
 /;
 intro /CM G A M S n h_n/.
 rememberAt /p_eval (term_bound CM M) n + p_eval (env_bound CM S) n/ /nat/ // /fuel/ /fuel_eq/.
@@ -152,201 +153,144 @@ induction /M/.
   intro /G A B M M_ih S h_n h_fuel/.
   destruct /S/ /{h | A' G' V S h}/ >> injection /h/ >> subst /A' G'/ >> clear /h/.
   reduce /h_n h_fuel/.
-  rewrite /-> p_plus_correct in h_fuel at all/.
-  rewrite /-> p_plus_correct at all/.
-  so /M_ih S __ __/ /VM cM M_evals cM_bound/ >>> [omega, omega, idtac].
-  existses [/VM/, /Cdrop CM + cM/].
-  reduce //.
-  split >>> [apply /evals_drop/ >> exact /M_evals/, omega].
+  so /M_ih S __ __/ /VM M_evals cM_bound/ >>> [omega, omega, idtac].
+  existses [/VM/, /evals_drop _# 7 M_evals/].
+  omega.
 }
 {
   clear /ih/.
   intro /G A S _ _/.
   destruct /S/ /{h | A' G' V S h}/ >> injection /h/ >> subst /A' G'/ >> clear /h/.
-  existses [/V/, /Cvar CM/].
-  rewrite /-> p_plus_correct/.
-  split >>> [apply /evals_var/, omega].
+  existses [/V/, /evals_var _# 4/].
+  omega.
 }
 {
   clear /ih/.
   intro /G S _ _/.
-  existses [/vtriv/, /Ctriv CM/].
-  reduce //.
-  split >>> [apply /evals_triv/, omega].
+  existses [/vtriv/, /evals_triv _# 2/].
+  omega.
 }
 {
   clear /ih/.
   intro /G A B M1 M1_ih M2 M2_ih S h_n h_fuel/.
-  existses [/vrecord S M1 M2/, /Crecord CM/].
-  rewrite /-> p_plus_correct at all/.
-  split >>> [apply /evals_record/, omega].
+  existses [/vrecord S M1 M2/, /evals_record _# 6/].
+  omega.
 }
 {
-  intro /G A B M M_ih S h_n/.
-  rewrite /-> p_plus_correct at all/.
-  reduce //.
-  intro /h_fuel/.
-  so /M_ih S h_n __/ /VM cM M_evals cM_bound/ >>> [omega, idtac].
+  intro /G A B M M_ih S h_n h_fuel/.
+  so /M_ih S h_n __/ /VM M_evals cM_bound/ >>> [omega, idtac].
   so /times_canonical_form _# 2 VM/ /G' S' M1 M2 h_VM/.
   subst /VM/.
   reduce /cM_bound/.
-  rewrite /-> p_plus_correct in cM_bound at all/.
-  so /non_size_increasing _# 7 M_evals/ /VM_size/.
+  so /non_size_increasing _# 5 M_evals/ /VM_size/.
   reduce /VM_size/.
   so /ih (p_eval (bound_raw CM _# 2 M) n + p_eval (env_bound_raw CM G S) n) __/ /tmp/ >>>
   [omega, clear /ih/ >> reintro /ih/].
-  so /p_max_correct (bound_raw CM _# 2 M1) (bound_raw CM _# 2 M2) n/ /h_max_correct _/.
-  so /ih _# 2 M1 S' __ __/ /VM' cM' M'_evals cM'_bound/ >>> [omega, omega, idtac].
-  existses [/VM'/, /Cproj1 CM + cM + cM'/].
-  split >>> [exact /evals_proj1 _# 13 M_evals M'_evals/, omega].
+  so /ih _# 2 M1 S' __ __/ /VM' M'_evals cM'_bound/ >>> [omega, omega, idtac].
+  existses [/VM'/, /evals_proj1 _# 10 M_evals M'_evals/].
+  omega.
 }
 {
-  intro /G A B M M_ih S h_n/.
-  rewrite /-> p_plus_correct at all/.
-  reduce //.
-  intro /h_fuel/.
-  so /M_ih S h_n __/ /VM cM M_evals cM_bound/ >>> [omega, idtac].
+  intro /G A B M M_ih S h_n h_fuel/.
+  so /M_ih S h_n __/ /VM M_evals cM_bound/ >>> [omega, idtac].
   so /times_canonical_form _# 2 VM/ /G' S' M1 M2 h_VM/.
   subst /VM/.
   reduce /cM_bound/.
-  rewrite /-> p_plus_correct in cM_bound at all/.
-  so /non_size_increasing _# 7 M_evals/ /VM_size/.
+  so /non_size_increasing _# 5 M_evals/ /VM_size/.
   reduce /VM_size/.
   so /ih (p_eval (bound_raw CM _# 2 M) n + p_eval (env_bound_raw CM G S) n) __/ /tmp/ >>>
   [omega, clear /ih/ >> reintro /ih/].
-  so /p_max_correct (bound_raw CM _# 2 M1) (bound_raw CM _# 2 M2) n/ /_ h_max_correct/.
-  so /ih _# 2 M2 S' __ __/ /VM' cM' M'_evals cM'_bound/ >>> [omega, omega, idtac].
-  existses [/VM'/, /Cproj2 CM + cM + cM'/].
-  split >>> [exact /evals_proj2 _# 13 M_evals M'_evals/, omega].
+  so /ih _# 2 M2 S' __ __/ /VM' M'_evals cM'_bound/ >>> [omega, omega, idtac].
+  existses [/VM'/, /evals_proj2 _# 10 M_evals M'_evals/].
+  omega.
 }
 {
   clear /ih/.
-  intro /G A B M M_ih S h_n/.
-  rewrite /-> p_plus_correct at all/.
-  reduce //.
-  intro /h_fuel/.
-  so /M_ih S h_n __/ /V c M_evals c_bound/ >>> [omega, idtac].
-  existses [/vinj1 V/, /Cinj1 CM + c/].
-  split >>> [apply /evals_inj1/ >> exact /M_evals/, omega].
+  intro /G A B M M_ih S h_n h_fuel/.
+  so /M_ih S h_n __/ /V M_evals c_bound/ >>> [omega, idtac].
+  existses [/vinj1 V/, /evals_inj1 _# 6 M_evals/].
+  omega.
 }
 {
   clear /ih/.
-  intro /G A B M M_ih S h_n/.
-  rewrite /-> p_plus_correct at all/.
-  reduce //.
-  intro /h_fuel/.
-  so /M_ih S h_n __/ /V c M_evals c_bound/ >>> [omega, idtac].
-  existses [/vinj2 V/, /Cinj2 CM + c/].
-  split >>> [apply /evals_inj2/ >> exact /M_evals/, omega].
+  intro /G A B M M_ih S h_n h_fuel/.
+  so /M_ih S h_n __/ /V M_evals c_bound/ >>> [omega, idtac].
+  existses [/vinj2 V/, /evals_inj2 _# 6 M_evals/].
+  omega.
 }
 {
   clear /ih/.
   intro /G GAB GC A B C T M M_ih N1 N1_ih N2 N2_ih S h_n/.
-  rewrite /-> p_plus_correct at all/.
-  reduce //.
   rewrite /-> split_bound _# 4 T S at all/.
   intro /h_fuel/.
   rewrite /-> split_size _# 3 T S in h_n/.
-  so /M_ih (env_split T S #1) __ __/ /(VM cM M_evals cM_bound)/ >>> [omega, omega, clear /M_ih/].
-  so /non_size_increasing _# 7 M_evals/ /VM_size/.
+  so /M_ih (env_split T S #1) __ __/ /(VM M_evals cM_bound)/ >>> [omega, omega, clear /M_ih/].
+  so /non_size_increasing _# 5 M_evals/ /VM_size/.
   so /plus_canonical_form _# 2 VM/ /VM_cf/.
   destruct /VM_cf/ /(VMA VM_eq) | (VMB VM_eq)/ >> subst /VM/ >> reduce /cM_bound/.
   {
     clear /N2_ih/.
-    so /p_max_correct (term_bound CM N1) (term_bound CM N2) n #1/ /p_max1/.
-    unfold /term_bound in p_max1 at all/.
-    so /N1_ih (env_cons VMA (env_split T S #2)) __ __/ /(VN1 cN1 N1_evals cN1_bound)/ >>> [omega, idtac, clear /N1_ih/].
-    {
-      reduce //.
-      rewrite /-> p_plus_correct/.
-      omega.
-    }
+    so /N1_ih (env_cons VMA (env_split T S #2)) __ __/ /(VN N_evals cN_bound)/ >>> [omega, omega, clear /N1_ih/].
     clear /h_n h_fuel/.
-    existses [/VN1/, /Cmatch CM + cM + cN1/].
-    reduce /cN1_bound/.
-    rewrite /-> p_plus_correct in cN1_bound/.
-    split >>> [exact /evals_match1 _# 16 M_evals N1_evals/, omega].
+    existses [/VN/, /evals_match1 _# 13 M_evals N_evals/].
+    omega.
   }
   {
     clear /N1_ih/.
-    so /p_max_correct (term_bound CM N1) (term_bound CM N2) n #2/ /p_max2/.
-    unfold /term_bound in p_max2 at all/.
-    so /N2_ih (env_cons VMB (env_split T S #2)) __ __/ /(VN2 cN2 N2_evals cN2_bound)/ >>> [omega, idtac, clear /N2_ih/].
-    {
-      reduce //.
-      rewrite /-> p_plus_correct/.
-      omega.
-    }
+    so /N2_ih (env_cons VMB (env_split T S #2)) __ __/ /(VN N_evals cN_bound)/ >>> [omega, omega, clear /N2_ih/].
     clear /h_n h_fuel/.
-    existses [/VN2/, /Cmatch CM + cM + cN2/].
-    reduce /cN2_bound/.
-    rewrite /-> p_plus_correct in cN2_bound/.
-    split >>> [exact /evals_match2 _# 16 M_evals N2_evals/, omega].
+    existses [/VN/, /evals_match2 _# 13 M_evals N_evals/].
+    omega.
   }
 }
 {
   clear /ih/.
   intro /G GA GB A B T M1 M1_ih M2 M2_ih S h_n/.
-  rewrite /-> p_plus_correct at all/.
   rewrite /-> split_bound _# 4 T S at all/.
   intro /h_fuel/.
   rewrite /-> split_size _# 3 T S in h_n/.
-  so /M1_ih (env_split T S #1) __ __/ /VM1 cM1 M1_evals cM1_bound/ >>> [omega, omega, clear /M1_ih/].
-  so /M2_ih (env_split T S #2) __ __/ /VM2 cM2 M2_evals cM2_bound/ >>> [omega, omega, clear /M2_ih/].
-  existses [/vpair VM1 VM2/, /Cpair CM + cM1 + cM2/].
-  reduce //.
-  rewrite /-> p_plus_correct/.
-  split >>> [exact /evals_pair _# 14 M1_evals M2_evals/, omega].
+  so /M1_ih (env_split T S #1) __ __/ /VM1 M1_evals cM1_bound/ >>> [omega, omega, clear /M1_ih/].
+  so /M2_ih (env_split T S #2) __ __/ /VM2 M2_evals cM2_bound/ >>> [omega, omega, clear /M2_ih/].
+  existses [/vpair VM1 VM2/, /evals_pair _# 11 M1_evals M2_evals/].
+  omega.
 }
 {
   clear /ih/.
   intro /G GAB GC A B C T M M_ih N N_ih S h_n/.
-  rewrite /-> p_plus_correct at all/.
   rewrite /-> split_bound _# 4 T S at all/.
   intro /h_fuel/.
   rewrite /-> split_size _# 3 T S in h_n/.
-  so /M_ih (env_split T S #1) __ __/ /VM cM M_evals cM_bound/ >>> [omega, omega, clear /M_ih/].
+  so /M_ih (env_split T S #1) __ __/ /VM M_evals cM_bound/ >>> [omega, omega, clear /M_ih/].
   so /tensor_canonical_form _# 2 VM/ /VM1 VM2 VM_eq/.
   subst /VM/.
   reduce /cM_bound/.
-  rewrite /-> p_plus_correct in cM_bound/.
-  so /non_size_increasing _# 7 M_evals/ /VM_size/.
+  so /non_size_increasing _# 5 M_evals/ /VM_size/.
   reduce /VM_size/.
-  so /N_ih (env_cons VM1 (env_cons VM2 (env_split T S #2))) __ __/ /VN cN N_evals cN_bound/ >>>
-  [omega, idtac, clear /N_ih/].
-  {
-    reduce //.
-    rewrite /-> p_plus_correct at all/.
-    omega.
-  }
+  so /N_ih (env_cons VM1 (env_cons VM2 (env_split T S #2))) __ __/ /VN N_evals cN_bound/ >>>
+  [omega, omega, clear /N_ih/].
   clear /h_n h_fuel/.
   reduce /cN_bound/.
-  rewrite /-> p_plus_correct in cN_bound at all/.
-  existses [/VN/, /Cletp CM + cM + cN/].
-  split >>> [exact /evals_letp _# 16 M_evals N_evals/, omega].
+  existses [/VN/, /evals_letp _# 13 M_evals N_evals/].
+  omega.
 }
 {
   clear /ih/.
   intro /G A B M _ S _ _/.
-  existses [/vlam S M/, /Clam CM/].
-  reduce //.
-  split >>> [apply /evals_lam/, idtac].
-  rewrite /-> p_plus_correct at all/.
+  existses [/vlam S M/, /evals_lam _# 5/].
   omega.
 }
 {
   intro /G GAB GA A B T M M_ih N N_ih S h_n/.
-  rewrite /-> p_plus_correct at all/.
   reduce //.
   rewrite /-> split_bound _# 4 T S at all/.
   intro /h_fuel/.
   rewrite /-> split_size _# 3 T S in h_n/.
-  so /M_ih (env_split T S #1) __ __/ /VM cM M_evals cM_bound/ >>> [omega, omega, clear /M_ih/].
-  so /N_ih (env_split T S #2) __ __/ /VN cN N_evals cN_bound/ >>> [omega, omega, clear /N_ih/].
+  so /M_ih (env_split T S #1) __ __/ /VM M_evals cM_bound/ >>> [omega, omega, clear /M_ih/].
+  so /N_ih (env_split T S #2) __ __/ /VN N_evals cN_bound/ >>> [omega, omega, clear /N_ih/].
   so /arrow_canonical_form _# 2 VM/ /G' S' M' VM_eq/.
   subst /VM/.
-  so /non_size_increasing _# 7 M_evals/ /VM_size/.
-  so /non_size_increasing _# 7 N_evals/ /VN_size/.
+  so /non_size_increasing _# 5 M_evals/ /VM_size/.
+  so /non_size_increasing _# 5 N_evals/ /VN_size/.
   reduce /VM_size/.
   so
   /
@@ -359,159 +303,111 @@ induction /M/.
   //
     tmp
   / >>> [omega, clear /ih/ >> reintro /ih/].
-  so /ih (A :: G') B M' (env_cons VN S') __ __/ /VM' cM' M'_evals cM'_bound/ >>> [omega, idtac, clear /ih/].
-  {
-    reduce //.
-    rewrite /-> p_plus_correct/.
-    reduce /cM_bound/.
-    rewrite /-> p_plus_correct in cM_bound/.
-    omega.
-  }
+  so /ih (A :: G') B M' (env_cons VN S') __ __/ /VM' M'_evals cM'_bound/ >>> [omega, omega, clear /ih/].
   clear /h_n h_fuel/.
-  existses [/VM'/, /Capp CM + cM + cN + cM'/].
-  split >>> [exact /evals_app _# 18 M_evals N_evals M'_evals/, idtac].
-  reduce /cM_bound cM'_bound/.
-  rewrite /-> p_plus_correct in cM_bound, -> p_plus_correct in cM'_bound/.
+  existses [/VM'/, /evals_app _# 14 M_evals N_evals M'_evals/].
   omega.
 }
 {
   intro /G A S h_n h_fuel/.
-  existses [/vempty/, /Csempty CM/].
-  split >>> [apply /evals_sempty/, omega].
+  existses [/vempty/, /evals_sempty _# 3/].
+  omega.
 }
 {
   intro /G Gh Gt A T Mh Mh_ih Mt Mt_ih S h_n/.
-  rewrite /-> p_plus_correct at all/.
   rewrite /-> split_bound _# 4 T S at all/.
-  reduce //.
   intro /h_fuel/.
   rewrite /-> split_size _# 3 T S in h_n/.
-  so /Mh_ih (env_split T S #1) __ __/ /Vh ch Mh_evals ch_bound/ >>> [omega, omega, clear /Mh_ih/].
-  so /Mt_ih (env_split T S #2) __ __/ /Vt ct Mt_evals ct_bound/ >>> [omega, omega, clear /Mt_ih/].
+  so /Mh_ih (env_split T S #1) __ __/ /Vh Mh_evals ch_bound/ >>> [omega, omega, clear /Mh_ih/].
+  so /Mt_ih (env_split T S #2) __ __/ /Vt Mt_evals ct_bound/ >>> [omega, omega, clear /Mt_ih/].
   clear /h_n h_fuel/.
-  existses [/vpush Vh Vt/, /Cspush CM + ch + ct/].
-  split >>> [exact /evals_spush _# 13 Mh_evals Mt_evals/, idtac].
-  rewrite /-> p_plus_correct/.
+  existses [/vpush Vh Vt/, /evals_spush _# 10 Mh_evals Mt_evals/].
   omega.
 }
 {
   clear /ih/.
   intro /G GA GB A B T M M_ih N1 N1_ih N2 N2_ih S h_n/.
-  rewrite /-> p_plus_correct at all/.
   rewrite /-> split_bound _# 4 T S at all/.
-  reduce //.
   intro /h_fuel/.
   rewrite /-> split_size _# 3 T S in h_n/.
-  so /M_ih (env_split T S #1) __ __/ /VM cM M_evals cM_bound/ >>> [omega, omega, idtac].
-  so /non_size_increasing _# 7 M_evals/ /VM_size/.
+  so /M_ih (env_split T S #1) __ __/ /VM M_evals cM_bound/ >>> [omega, omega, idtac].
+  so /non_size_increasing _# 5 M_evals/ /VM_size/.
   so /stack_canonical_form _ VM/ /LV VM_eq/.
   subst /VM/.
   destruct /LV/ /| VA LV/.
   {
     clear /N2_ih/.
-    so /p_max_correct (term_bound CM N1) (term_bound CM N2) n #1/ /p_max1/.
-    unfold /term_bound in p_max1 at all/.
-    so /N1_ih (env_split T S #2) __ __/ /VN cN N_evals cN_bound/ >>> [omega, omega, idtac].
-    existses [/VN/, /Cspop CM + cM + cN/].
-    split >>> [exact /evals_spop1 _# 14 M_evals N_evals/, omega].
+    so /N1_ih (env_split T S #2) __ __/ /VN N_evals cN_bound/ >>> [omega, omega, idtac].
+    existses [/VN/, /evals_spop1 _# 11 M_evals N_evals/].
+    omega.
   }
   {
     clear /N1_ih/.
-    so /p_max_correct (term_bound CM N1) (term_bound CM N2) n #2/ /p_max2/.
-    unfold /term_bound in p_max2 at all/.
-    reduce /cM_bound/.
-    rewrite /-> p_plus_correct in cM_bound/.
-    so /N2_ih (env_cons VA (env_cons (vstack LV) (env_split T S #2))) __ __/ /VN cN N_evals cN_bound/ >>>
-    [omega, idtac, idtac].
-    {
-      reduce //.
-      rewrite /-> p_plus_correct at all/.
-      omega.
-    }
-    existses [/VN/, /Cspop CM + cM + cN/].
-    split >>> [exact /evals_spop2 _# 16 M_evals N_evals/, idtac].
-    reduce /cN_bound/.
-    rewrite /-> p_plus_correct in cN_bound at all/.
+    so /N2_ih (env_cons VA (env_cons (vstack LV) (env_split T S #2))) __ __/ /VN N_evals cN_bound/ >>>
+    [omega, omega, idtac].
+    existses [/VN/, /evals_spop2 _# 13 M_evals N_evals/].
     omega.
   }
 }
 {
   clear /ih/.
   intro /G A S h_n h_fuel/.
-  existses [/vnil/, /Clnil CM/].
-  split >>> [apply /evals_lnil/, omega].
+  existses [/vnil/, /evals_lnil _# 3/].
+  omega.
 }
 {
   clear /ih/.
   intro /G Gd Ght Gh Gt A T1 T2 Md Md_ih Mh Mh_ih Mt Mt_ih S h_n/.
-  rewrite /-> p_plus_correct at all/.
   rewrite /-> split_bound _# 4 T1 S at all, -> split_bound _# 4 T2 _ at all/.
   intro /h_fuel/.
   rewrite /-> split_size _# 3 T1 S in h_n, -> split_size _# 3 T2 _ in h_n/.
-  so /Md_ih (env_split T1 S #1) __ __/ /Vd cd Md_evals cd_bound/ >>> [omega, omega, clear /Md_ih/].
-  so /Mh_ih (env_split T2 (env_split T1 S #2) #1) __ __/ /Vh ch Mh_evals ch_bound/ >>> [omega, omega, clear /Mh_ih/].
-  so /Mt_ih (env_split T2 (env_split T1 S #2) #2) __ __/ /Vt ct Mt_evals ct_bound/ >>> [omega, omega, clear /Mt_ih/].
+  so /Md_ih (env_split T1 S #1) __ __/ /Vd Md_evals cd_bound/ >>> [omega, omega, clear /Md_ih/].
+  so /Mh_ih (env_split T2 (env_split T1 S #2) #1) __ __/ /Vh Mh_evals ch_bound/ >>> [omega, omega, clear /Mh_ih/].
+  so /Mt_ih (env_split T2 (env_split T1 S #2) #2) __ __/ /Vt Mt_evals ct_bound/ >>> [omega, omega, clear /Mt_ih/].
   clear /h_n h_fuel/.
-  existses [/vcons Vh Vt/, /Clcons CM + cd + ch + ct/].
-  destructThin /Vd/ /{}/.
-  split >>> [exact /evals_lcons _# 18 Md_evals Mh_evals Mt_evals/, idtac].
-  reduce /concl cd_bound/.
-  rewrite /-> p_plus_correct/.
+  so /diam_canonical_form Vd/ /Vd_eq/.
+  subst /Vd/.
+  existses [/vcons Vh Vt/, /evals_lcons _# 14 Md_evals Mh_evals Mt_evals/].
   omega.
 }
 {
   clear /ih/.
   intro /G Gl Gn A B T M M_ih N1 N1_ih N2 N2_ih S h_n/.
-  rewrite /-> p_plus_correct at all/.
-  unfold /p_eval at 6 0/.
-  reduce //.
-  rewrite /-> times_1_r at all, -> p_shift_correct at all, -> split_bound _# 4 T S at all/.
+  rewrite /-> times_1_r at all, -> split_bound _# 4 T S at all/.
   intro /h_fuel/.
   rewrite /-> split_size _# 3 T S in h_n/.
-  so /M_ih (env_split T S #1) __ __/ /VM cM M_evals cM_bound/ >>> [omega, omega, clear /M_ih/].
-  so /non_size_increasing _# 7 M_evals/ /VM_size/.
+  so /M_ih (env_split T S #1) __ __/ /VM M_evals cM_bound/ >>> [omega, omega, clear /M_ih/].
+  so /non_size_increasing _# 5 M_evals/ /VM_size/.
   so /dlist_canonical_form _ VM/ /LV VM_eq/.
   subst /VM/.
   assert /length LV <= n/ /h_len/.
   {
     rewrite /<- h_n, <- VM_size/.
-    clear /fuel n h_n B M N1 N1_ih N2 N2_ih h_fuel cM M_evals cM_bound VM_size/.
+    clear /fuel n h_n B M N1 N1_ih N2 N2_ih h_fuel M_evals cM_bound VM_size/.
     induction /LV/ >>> [omega, intro /V LV/ >> omega].
   }
-  reduce //.
   rewrite /<- h_len at 4 1/.
   moveAfter /h_fuel/ /h_len/.
   rewrite /<- h_len in h_fuel at 3 0/.
   clear /h_len/.
-  reduce /cM_bound/.
-  revert /G Gl Gn T M N1 N1_ih S cM M_evals cM_bound h_n h_fuel VM_size/.
+  revert /G Gl Gn T M N1 N1_ih S M_evals cM_bound h_n h_fuel VM_size/.
   induction /LV/.
   {
     clear /N2_ih/.
-    intro /G Gl Gn T M N1 N1_ih S cM M_evals cM_bound h_n h_fuel h_size/.
-    so /N1_ih (env_split T S #2) __ __/ /VN cN N_evals cN_bound/ >>> [omega, omega, clear /N1_ih/].
-    reduce /cN_bound/.
-    existses [/VN/, /Clrec CM + cM + cN/].
-    split >>> [exact /evals_lrec_nil _# 14 M_evals N_evals/, omega].
+    intro /G Gl Gn T M N1 N1_ih S M_evals cM_bound h_n h_fuel h_size/.
+    so /N1_ih (env_split T S #2) __ __/ /VN N_evals cN_bound/ >>> [omega, omega, clear /N1_ih/].
+    existses [/VN/, /evals_lrec_nil _# 11 M_evals N_evals/].
+    omega.
   }
   {
-    intro /V LV ih G Gl Gn T M N1 N1_ih S cM M_evals cM_bound h_n h_fuel h_size/.
-    rewrite /-> times_dist_succ_r, -> times_dist_plus_l/.
-    rewrite /-> times_dist_plus_l in ih at all/.
-    rewrite /-> times_dist_succ_r in h_fuel, -> times_dist_plus_l in h_fuel/.
-    rewrite /-> p_plus_correct in cM_bound at all/.
+    intro /V LV ih G Gl Gn T M N1 N1_ih S M_evals cM_bound h_n h_fuel h_size/.
     so
     /
       ih (dlist A :: Gn) _ _ (left all_right) var N1 N1_ih
-      (env_cons (vlist LV) (env_split T S #2)) (Cvar CM) (evals_var _# 5) __ __ __ __
+      (env_cons (vlist LV) (env_split T S #2)) (evals_var _# 4) __ __ __ __
     //
-      Vrec cRec rec_evals cRec_bound
-    / >>> [idtac, idtac, idtac, omega, clear /N1_ih ih/].
-    {
-      reduce //.
-      rewrite /-> p_plus_correct/.
-      omega.
-    }
+      Vrec rec_evals cRec_bound
+    / >>> [omega, idtac, idtac, omega, clear /N1_ih ih/].
     {
       reduce //.
       rewrite /-> env_split_all_right at all/.
@@ -520,166 +416,111 @@ induction /M/.
     }
     {
       reduce //.
-      rewrite /-> p_plus_correct/.
       rewrite /-> env_split_all_right at all/.
       reduce //.
       omega.
     }
-    so /non_size_increasing _# 7 rec_evals/ /Vrec_size/.
+    so /non_size_increasing _# 5 rec_evals/ /Vrec_size/.
     reduce /Vrec_size/.
     reduce /cRec_bound/.
-    rewrite /-> p_plus_correct in cRec_bound/.
     rewrite /-> env_split_all_right in cRec_bound at all/.
     reduce /cRec_bound/.
-    so /N2_ih (env_cons vdiam (env_cons V (env_cons Vrec env_nil))) __ __/ /VN cN N_evals cN_bound/ >>>
-    [omega, idtac, clear /N2_ih/].
-    {
-      reduce //.
-      rewrite /-> p_plus_correct at all/.
-      reduce //.
-      omega.
-    }
-    reduce /cN_bound/.
-    rewrite /-> p_plus_correct in cN_bound at all/.
-    existses [/VN/, /Clrec CM + cM + cRec + cN/].
-    split >>> [exact /evals_lrec_cons _# 18 M_evals rec_evals N_evals/, omega].
+    so /N2_ih (env_cons vdiam (env_cons V (env_cons Vrec env_nil))) __ __/ /VN N_evals cN_bound/ >>>
+    [omega, omega, clear /N2_ih/].
+    existses [/VN/, /evals_lrec_cons _# 14 M_evals rec_evals N_evals/].
+    omega.
   }
 }
 {
   intro /G A S h_n h_fuel/.
-  existses [/vleaf/, /Ctleaf CM/].
-  split >>> [apply /evals_tleaf/, omega].
+  existses [/vleaf/, /evals_tleaf _# 3/].
+  omega.
 }
 {
   intro /G Gd Gxlr Gx Glr Gl Gr A Td Tx Tl Md Md_ih Mx Mx_ih Ml Ml_ih Mr Mr_ih S h_n/.
-  rewrite /-> p_plus_correct at all/.
   rewrite /-> split_bound _# 4 Td _ at all/.
   rewrite /-> split_bound _# 4 Tx _ at all/.
   rewrite /-> split_bound _# 4 Tl _ at all/.
-  reduce //.
   intro /h_fuel/.
   rewrite /-> split_size _# 3 Td _ in h_n/.
   rewrite /-> split_size _# 3 Tx _ in h_n/.
   rewrite /-> split_size _# 3 Tl _ in h_n/.
-  so /Md_ih (env_split Td S #1) __ __/ /Vd cd Md_evals cd_bound/ >>> [omega, omega, clear /Md_ih/].
-  so /Mx_ih (env_split Tx (env_split Td S #2) #1) __ __/ /Vx cx Mx_evals cx_bound/ >>> [omega, omega, clear /Mx_ih/].
-  so /Ml_ih (env_split Tl (env_split Tx (env_split Td S #2) #2) #1) __ __/ /Vl cl Ml_evals cl_bound/ >>>
+  so /Md_ih (env_split Td S #1) __ __/ /Vd Md_evals cd_bound/ >>> [omega, omega, clear /Md_ih/].
+  so /Mx_ih (env_split Tx (env_split Td S #2) #1) __ __/ /Vx Mx_evals cx_bound/ >>> [omega, omega, clear /Mx_ih/].
+  so /Ml_ih (env_split Tl (env_split Tx (env_split Td S #2) #2) #1) __ __/ /Vl Ml_evals cl_bound/ >>>
   [omega, omega, clear /Ml_ih/].
-  so /Mr_ih (env_split Tl (env_split Tx (env_split Td S #2) #2) #2) __ __/ /Vr cr Mr_evals cr_bound/ >>>
+  so /Mr_ih (env_split Tl (env_split Tx (env_split Td S #2) #2) #2) __ __/ /Vr Mr_evals cr_bound/ >>>
   [omega, omega, clear /Mr_ih/].
-  existses [/vnode Vx Vl Vr/, /Ctnode CM + cd + cx + cl + cr/].
-  destructThin /Vd/ /{}/.
-  split >>> [exact /evals_tnode _# 24 Md_evals Mx_evals Ml_evals Mr_evals/, idtac].
-  reduce //.
-  rewrite /-> p_plus_correct at all/.
+  so /diam_canonical_form Vd/ /Vd_eq/.
+  subst /Vd/.
+  existses [/vnode Vx Vl Vr/, /evals_tnode _# 19 Md_evals Mx_evals Ml_evals Mr_evals/].
   omega.
 }
 {
   clear /ih/.
   intro /G A B M M_ih N1 N1_ih N2 N2_ih S h_n/.
-  rewrite /-> p_plus_correct at all, -> p_shift_correct at all, -> p_plus_correct at all/.
-  unfold /p_eval at 7 0/.
-  reduce //.
-  rewrite /-> times_1_r at all/.
   rewrite /-> plus_0_r at all/.
   intro /h_fuel/.
-  so /M_ih S __ __/ /VM cM M_evals cM_bound/ >>> [omega, omega, clear /M_ih/].
-  so /non_size_increasing _# 7 M_evals/ /VM_size/.
+  so /M_ih S __ __/ /VM M_evals cM_bound/ >>> [omega, omega, clear /M_ih/].
+  so /non_size_increasing _# 5 M_evals/ /VM_size/.
   so /dtree_canonical_form _ VM/ /TV VM_eq/.
   subst /VM/.
   assert /nodes TV <= n/ /h_len/.
   {
     rewrite /<- h_n, <- VM_size/.
-    clear /fuel n h_n B M N1 N1_ih N2 N2_ih h_fuel cM M_evals cM_bound VM_size/.
+    clear /fuel n h_n B M N1 N1_ih N2 N2_ih h_fuel M_evals cM_bound VM_size/.
     induction /TV/ >>> [omega, intro /V TL L_ih TR R_ih/ >> omega].
   }
-  reduce //.
   rewrite /<- h_len at 4 1/.
   moveAfter /h_fuel/ /h_len/.
   rewrite /<- h_len in h_fuel at 3 0/.
   clear /h_len/.
-  reduce /cM_bound/.
-  revert /G M N1 N1_ih S cM M_evals cM_bound h_n h_fuel VM_size/.
+  revert /G M N1 N1_ih S M_evals cM_bound h_n h_fuel VM_size/.
   induction /TV/.
   {
     clear /N2_ih/.
-    intro /G M N1 N1_ih S cM M_evals cM_bound h_n h_fuel h_size/.
-    so /N1_ih env_nil __ __/ /VN cN N_evals cN_bound/ >>> [omega, omega, idtac].
-    existses [/VN/, /Ctrec CM + cM + cN/].
-    rewrite /-> times_0_r/.
-    split >>> [exact /evals_trec_leaf _# 11 M_evals N_evals/, omega].
+    intro /G M N1 N1_ih S M_evals cM_bound h_n h_fuel h_size/.
+    so /N1_ih env_nil __ __/ /VN N_evals cN_bound/ >>> [omega, omega, idtac].
+    existses [/VN/, /evals_trec_leaf _# 8 M_evals N_evals/].
+    omega.
   }
   {
-    intro /Vx Tl ih_l Tr ih_r G M N1 N1_ih S cM M_evals cM_bound h_n h_fuel h_size/.
-    rewrite /-> times_dist_succ_r at all, -> times_dist_plus_l at all, -> times_dist_plus_r at all/.
-    rewrite /-> times_dist_plus_l in ih_l at all, -> times_dist_plus_r in ih_l at all/.
-    rewrite /-> times_dist_plus_l in ih_r at all, -> times_dist_plus_r in ih_r at all/.
-    rewrite /-> times_dist_succ_r in h_fuel at all/.
+    intro /Vx Tl ih_l Tr ih_r G M N1 N1_ih S M_evals cM_bound h_n h_fuel h_size/.
+    rewrite /-> times_dist_plus_l at all, -> times_dist_plus_r at all/.
+    rewrite /-> times_dist_plus_r in ih_l at all, -> times_dist_plus_r in ih_r at all/.
     rewrite /-> times_dist_plus_l in h_fuel at all, -> times_dist_plus_r in h_fuel at all/.
-    rewrite /-> p_plus_correct in cM_bound at all/.
     so
     /
-      ih_l (dtree A :: nil) var N1 N1_ih (env_single (vtree Tl)) (Cvar CM) (evals_var _# 5) __ __ __ __
+      ih_l (dtree A :: nil) var N1 N1_ih (env_single (vtree Tl)) (evals_var _# 4) __ __ __ __
     //
-      VL cL L_evals cL_bound
-    / >>> [idtac, idtac, idtac, omega, clear /ih_l/].
+      VL L_evals cL_bound
+    / >>> [omega, omega, idtac, omega, clear /ih_l/].
     {
-      reduce //.
-      rewrite /-> p_plus_correct/.
-      omega.
-    }
-    {
-      reduce //.
-      omega.
-    }
-    {
-      reduce //.
-      rewrite /-> p_plus_correct/.
       reduce //.
       rewrite /-> times_dist_plus_r/.
       omega.
     }
     so
     /
-      ih_r (dtree A :: nil) var N1 N1_ih (env_single (vtree Tr)) (Cvar CM) (evals_var _# 5) __ __ __ __
+      ih_r (dtree A :: nil) var N1 N1_ih (env_single (vtree Tr)) (evals_var _# 4) __ __ __ __
     //
-      VR cR R_evals cR_bound
-    / >>> [idtac, idtac, idtac, omega, clear /ih_r/].
+      VR R_evals cR_bound
+    / >>> [omega, omega, idtac, omega, clear /ih_r/].
     {
-      reduce //.
-      rewrite /-> p_plus_correct/.
-      omega.
-    }
-    {
-      reduce //.
-      omega.
-    }
-    {
-      reduce //.
-      rewrite /-> p_plus_correct/.
       reduce //.
       rewrite /-> times_dist_plus_r/.
       omega.
     }
-    so /non_size_increasing _# 7 L_evals/ /VL_size/.
-    so /non_size_increasing _# 7 R_evals/ /VR_size/.
+    so /non_size_increasing _# 5 L_evals/ /VL_size/.
+    so /non_size_increasing _# 5 R_evals/ /VR_size/.
     reduce /VL_size VR_size/.
     reduce /cL_bound cR_bound/.
     rewrite /-> times_dist_plus_r in cL_bound, -> times_dist_plus_r in cR_bound/.
-    rewrite /-> p_plus_correct in cL_bound at all, -> p_plus_correct in cR_bound at all/.
     reduce /cL_bound cR_bound/.
-    so /N2_ih (env_cons vdiam (env_cons Vx (env_cons VL (env_cons VR env_nil)))) __ __/ /VN cN N_evals cN_bound/ >>>
-    [omega, idtac, idtac].
-    {
-      reduce //.
-      rewrite /-> p_plus_correct at all/.
-      reduce //.
-      omega.
-    }
-    existses [/VN/, /Ctrec CM + cM + cL + cR + cN/].
-    reduce /cN_bound/.
-    rewrite /-> p_plus_correct in cN_bound at all/.
-    split >>> [exact /evals_trec_node _# 18 M_evals L_evals R_evals N_evals/, omega].
+    so /N2_ih (env_cons vdiam (env_cons Vx (env_cons VL (env_cons VR env_nil)))) __ __/ /VN N_evals cN_bound/ >>>
+    [omega, omega, idtac].
+    existses [/VN/, /evals_trec_node _# 13 M_evals L_evals R_evals N_evals/].
+    omega.
   }
 }
 qed ();

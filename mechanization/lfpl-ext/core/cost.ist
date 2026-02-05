@@ -1,0 +1,108 @@
+openModule /Nat/;
+openModule /List/;
+
+File.import "../../math/load.iml";
+
+File.loadWithoutDependencies "language.isto";
+openModule /ExtLanguage/;
+
+File.loadWithoutDependencies "operational.isto";
+openModule /ExtOperational/;
+
+beginModule "ExtCost";
+
+
+
+(* COST MODEL *)
+
+define /cost_model/
+/
+  exists
+    (Cdrop : nat)
+    (Cvar : nat)
+    (Ctriv : nat)
+    (Crecord : nat)
+    (Cproj1 : nat)
+    (Cproj2 : nat)
+    (Cinj1 : nat)
+    (Cinj2 : nat)
+    (Cmatch : nat)
+    (Cpair : nat)
+    (Cletp : nat)
+    (Clam : nat)
+    (Capp : nat)
+    (Csempty : nat)
+    (Cspush : nat)
+    (Cspop : nat)
+    (Clnil : nat)
+    (Clcons : nat)
+    (Clrec : nat)
+    (Ctleaf : nat)
+    (Ctnode : nat)
+    (Ctrec : nat)
+  . unit
+//
+  intersect (i : level) . U i
+/;
+withTypecheck (unfold /cost_model/). qed ();
+
+
+define /Cdrop C/ /C ## 0/ /cost_model -> nat/; withTypecheck (unfold /Cdrop/). qed ();
+define /Cvar C/ /C ## 1/ /cost_model -> nat/; withTypecheck (unfold /Cvar/). qed ();
+define /Ctriv C/ /C ## 2/ /cost_model -> nat/; withTypecheck (unfold /Ctriv/). qed ();
+define /Crecord C/ /C ## 3/ /cost_model -> nat/; withTypecheck (unfold /Crecord/). qed ();
+define /Cproj1 C/ /C ## 4/ /cost_model -> nat/; withTypecheck (unfold /Cproj1/). qed ();
+define /Cproj2 C/ /C ## 5/ /cost_model -> nat/; withTypecheck (unfold /Cproj2/). qed ();
+define /Cinj1 C/ /C ## 6/ /cost_model -> nat/; withTypecheck (unfold /Cinj1/). qed ();
+define /Cinj2 C/ /C ## 7/ /cost_model -> nat/; withTypecheck (unfold /Cinj2/). qed ();
+define /Cmatch C/ /C ## 8/ /cost_model -> nat/; withTypecheck (unfold /Cmatch/). qed ();
+define /Cpair C/ /C ## 9/ /cost_model -> nat/; withTypecheck (unfold /Cpair/). qed ();
+define /Cletp C/ /C ## 10/ /cost_model -> nat/; withTypecheck (unfold /Cletp/). qed ();
+define /Clam C/ /C ## 11/ /cost_model -> nat/; withTypecheck (unfold /Clam/). qed ();
+define /Capp C/ /C ## 12/ /cost_model -> nat/; withTypecheck (unfold /Capp/). qed ();
+define /Csempty C/ /C ## 13/ /cost_model -> nat/; withTypecheck (unfold /Csempty/). qed ();
+define /Cspush C/ /C ## 14/ /cost_model -> nat/; withTypecheck (unfold /Cspush/). qed ();
+define /Cspop C/ /C ## 15/ /cost_model -> nat/; withTypecheck (unfold /Cspop/). qed ();
+define /Clnil C/ /C ## 16/ /cost_model -> nat/; withTypecheck (unfold /Clnil/). qed ();
+define /Clcons C/ /C ## 17/ /cost_model -> nat/; withTypecheck (unfold /Clcons/). qed ();
+define /Clrec C/ /C ## 18/ /cost_model -> nat/; withTypecheck (unfold /Clrec/). qed ();
+define /Ctleaf C/ /C ## 19/ /cost_model -> nat/; withTypecheck (unfold /Ctleaf/). qed ();
+define /Ctnode C/ /C ## 20/ /cost_model -> nat/; withTypecheck (unfold /Ctnode/). qed ();
+define /Ctrec C/ /C ## 21/ /cost_model -> nat/; withTypecheck (unfold /Ctrec/). qed ();
+
+
+
+(* COST SEMANTICS *)
+
+defineInd /CM/
+/
+  cost : evals G A M S V -> nat of
+  | evals_drop _ _ _ _ _ _ _ eM . Cdrop CM + cost eM
+  | evals_var _ _ _ _ . Cvar CM
+  | evals_triv _ _ . Ctriv CM
+  | evals_record _ _ _ _ _ _ . Crecord CM
+  | evals_proj1 _ _ _ _ _ _ _ _ _ _ eM eM' . Cproj1 CM + cost eM + cost eM'
+  | evals_proj2 _ _ _ _ _ _ _ _ _ _ eM eM' . Cproj2 CM + cost eM + cost eM'
+  | evals_inj1 _ _ _ _ _ _ eM . Cinj1 CM + cost eM
+  | evals_inj2 _ _ _ _ _ _ eM . Cinj2 CM + cost eM
+  | evals_match1 _ _ _ _ _ _ _ _ _ _ _ _ _ eM eN . Cmatch CM + cost eM + cost eN
+  | evals_match2 _ _ _ _ _ _ _ _ _ _ _ _ _ eM eN . Cmatch CM + cost eM + cost eN
+  | evals_pair _ _ _ _ _ _ _ _ _ _ _ e1 e2 . Cpair CM + cost e1 + cost e2
+  | evals_letp _ _ _ _ _ _ _ _ _ _ _ _ _ eM eN . Cletp CM + cost eM + cost eN
+  | evals_lam _ _ _ _ _ . Clam CM
+  | evals_app _ _ _ _ _ _ _ _ _ _ _ _ _ _ eM eM' eN . Capp CM + cost eM + cost eM' + cost eN
+  | evals_sempty _ _ _ . Csempty CM
+  | evals_spush _ _ _ _ _ _ _ _ _ _ eh et . Cspush CM + cost eh + cost et
+  | evals_spop1 _ _ _ _ _ _ _ _ _ _ _ eM eN . Cspop CM + cost eM + cost eN
+  | evals_spop2 _ _ _ _ _ _ _ _ _ _ _ _ _ eM eN . Cspop CM + cost eM + cost eN
+  | evals_lnil _ _ _ . Clnil CM
+  | evals_lcons _ _ _ _ _ _ _ _ _ _ _ _ _ _ ed eh et . Clcons CM + cost ed + cost eh + cost et
+  | evals_lrec_nil _ _ _ _ _ _ _ _ _ _ _ eM eN . Clrec CM + cost eM + cost eN
+  | evals_lrec_cons _ _ _ _ _ _ _ _ _ _ _ _ _ _ eM eRec eN . Clrec CM + cost eM + cost eRec + cost eN
+  | evals_tleaf _ _ _ . Ctleaf CM
+  | evals_tnode _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ed ex el er . Ctnode CM + cost ed + cost ex + cost el + cost er
+  | evals_trec_leaf _ _ _ _ _ _ _ _ eM eN . Ctrec CM + cost eM + cost eN
+  | evals_trec_node _ _ _ _ _ _ _ _ _ _ _ _ _ eM eRecL eRecR eN . Ctrec CM + cost eM + cost eRecL + cost eRecR + cost eN
+//
+  cost_model -> forall (G : ctx) (A : tp) (M : term G A) (S : env G) (V : value A) . evals M S V -> nat
+/;
