@@ -11,19 +11,18 @@
 \and
 \RuleTy{TensorI}{\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmpair{M_1}{M_2}}{\tptens{A_1}{A_2}}}{\types{\ctx_1}{M_1}{A_1} \\ \types{\ctx_2}{M_2}{A_2}}
 \and
-\RuleTy{ListI$_1$}{\types{\ctx}{\tmnil}{\tplist{A}}}{}
-\and
 \RuleTy{TensorE}{\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmletp{M}{x_1}{x_2}{N}}{B}}{\types{\ctx_1}{M}{\tptens{A_1}{A_2}} \\ \types{\ctxcons{\ctxcons{\ctx_2}{x_1}{A_1}}{x_2}{A_2}}{N}{B}}
 \and
 \RuleTy{ArrowI}{\types{\ctx}{\tmlam{x}{M}}{\tparr{A}{B}}}{\types{\ctxcons{\ctx}{x}{A}}{M}{B}}
 \and
 \RuleTy{ArrowE}{\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmapp{M}{N}}{B}}{\types{\ctx_1}{M}{\tparr{A}{B}} \\ \types{\ctx_2}{N}{A}}
 \and
+\RuleTy{ListI$_1$}{\types{\ctx}{\tmnil}{\tplist{A}}}{}
+\and
 \RuleTy{ListI$_2$}{\types{\ctxappend{\ctx_d}{\ctxappend{\ctx_h}{\ctx_t}}}{\tmcons{M_d}{M_h}{M_t}}{\tplist{A}}}{\types{\ctx_d}{M_d}{\tpdiam} \\ \types{\ctx_h}{M_h}{A} \\ \types{\ctx_t}{M_t}{\tplist{A}}}
 \and
 \RuleTy{ListE}{\types{\ctxappend{\ctx}{\ctx'}}{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}{B}}{\types{\ctx}{M}{\tplist{A}} \\ \types{\ctx'}{N_1}{B} \\ \types{\ctxcons{\ctxcons{\ctxcons{\ctxnil}{x_d}{\tpdiam}}{x_h}{A}}{x_t}{B}}{N_2}{B}}
 \end{mathpar}
-\Description{An inductive definition of the affine typing judgement for LFPL}
 \caption{\lfpl's affine typing rules}
 \label{fig:jmt-ty}
 \end{figure}

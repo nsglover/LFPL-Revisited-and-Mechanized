@@ -4,22 +4,22 @@
 This section shows that \lfpl programs can be evaluated in polynomial
 time.
 %
-To strengthen the soundness result and illustrate how to add features to \lfpl while maintaining polynomial-time soundness, we extend the language and refer to the result as \lfplplus. The features are the standard product type, which manifests as the lazy product in an affine setting, a type of unbounded stacks which are similar to lists but do not require diamonds to construct and do not support recursion, and the inductive type of binary trees. The syntax and typing rules of these language constructs are given in \pref{fig:ext-syntax-tp-tm} and \pref{fig:ext-jmt-ty} respectively.
+To strengthen the soundness result and illustrate how to add features to \lfpl while maintaining polynomial-time soundness, we extend the language and refer to the result as \lfplplus. The features are the standard product type, which manifests as the lazy product in an affine setting, a type of unbounded stacks which are similar to lists but do not support recursion, and the inductive type of binary trees. The syntax and typing rules of these language constructs are given in \pref{fig:ext-syntax-tp-tm} and \pref{fig:ext-jmt-ty} respectively.
 
 \input{figures/ext-syntax-tp-tm}
 \input{figures/ext-jmt-ty}
 
-The typing rules for stacks of type $\tpstack{A}$ correspond to those for lists in a standard non-affine functional programming language, where the elimination form is case analysis rather than structural recursor and construction does not require diamonds.
+The typing rules for stacks of type $\tpstack{A}$ correspond to those for lists in a standard non-affine functional programming language, where the elimination form is case analysis rather than structural recursion and the introduction form does not require diamonds.
 %
 These stacks do not violate \lfpl's core principle of controlling recursion by diamonds because they do not support recursion.
 
-The typing rules for the tree type $\tptree{A}$, an inductive type which does support recursion, are similar to those of lists $\tplist{A}$. The primary difference is that, in \pref{rule:ty-TreeE}, the base case $N_1$ is typed under an empty context. Unlike lists, where there is only ever one terminal $\tmnil$, $N_1$ needs to be run for each leaf and allowing access to a context potentially containing diamonds would allow for the duplication of diamonds.
+The typing rules for the tree type $\tptree{A}$, an inductive type which does support recursion, are similar to those of lists $\tplist{A}$. The primary difference is that, in \pref{rule:ty-TreeE}, the base case $N_1$ is typed under an empty context. Like the list recursor, the tree recursor has two cases: the inductive and base case. The difference is that for the list recursor, the base case $N_1$ is only run once, so it may have access to part of the context (though this is not necessary for completeness). In the tree recursor, $N_1$ may be run many times, as a tree can have many leaves. So, to respect linearity, it cannot use anything from the context.
 
 The denotational semantics for these new constructs are relatively straightforward. We set $\tpsem{\tpprod{A}{B}} = \tpsem{A} \times \tpsem{B}$ and $\tpsem{\tpstack{A}} = \tpsem{A}^*$. Giving a semantics for $\tptree{A}$ and its related terms boils down to giving a mathematical account of binary trees (in the same manner we have used the Kleene star to give a simple mathematical account of lists).
 %
 The semantics for terms involving these types can be found in the mechanization (see \pref{sec:mechanization}).
 
-The stack type $\tpstack{A}$ is a particularly powerful addition to \lfpl. The vast majority of the difficulty in proving polynomial-time completeness of \lfpl, and by far the most complex aspect of our entire mechanization, was the definition and implementation of the bounded stack data structure discussed in \pref{sec:completeness-bounded-stack-definition} and \pref{sec:completeness-bounded-stack-implementation}. The addition of unbounded, $\tpdiam$-free stacks to \lfpl makes all of this unnecessary; \lfplplus admits a much simpler completeness proof.
+The stack type $\tpstack{A}$ is a particularly powerful addition to \lfpl. The vast majority of the difficulty in proving polynomial-time completeness of \lfpl, and by far the most complex aspect of our entire mechanization, was the definition and implementation of the bounded stack data structure discussed in \pref{sec:completeness-bounded-stack-definition} and \pref{sec:completeness-bounded-stack-implementation}. So, the addition of unbounded, $\tpdiam$-free stacks to \lfpl means \lfplplus admits a much simpler completeness proof. In essence, \lfplplus internalizes the bounded stack data structure from \pref{sec:completeness-bounded-stack-definition} and removes the boundedness restriction. No diamonds are required to interface with the stacks of \lfplplus, and there is no upper bound on the number of stack elements. The addition of a feature like this to \lfpl would eliminate the need for the hardest part of our completeness proof. \lfplplus also contains some other generally useful features to showcase our method of proving soundness, such as lazy products and binary trees.
 
 
 
@@ -34,7 +34,28 @@ By separating values from terms, we ensure \lfplplus terms remain polynomial-tim
 
 \input{figures/syntax-val}
 
-To account for the cost of evaluation, we give a cost-annotated big-step operational semantics, represented by the judgement $\evals{\env}{M}{c}{v}$, read ``term $M$ evaluates under the environment $\env$ to a value $v$ with cost $c$''. A representative set of rules for this judgement is given in \pref{fig:jmt-eval}, and a complete set of rules can be found in \pref{app:evaluation}. Note the presence of constants $\Cvar, \Cnull, \ldots, \Ctrec \in \mathbb N$ (one for each syntactic construct) in the conclusion of each rule. These are left arbitrary so that our cost model is generic with respect to the particular costs of each primitive operation of the language.
+To account for the cost of evaluation, we give a cost-annotated big-step operational semantics, represented by the judgement $\evals{\env}{M}{c}{v}$, read ``term $M$ evaluates under the environment $\env$ to a value $v$ with cost $c$''. A representative set of rules for this judgement is given in \pref{fig:jmt-eval}, and a complete set of rules can be found in{
+  \ifdefined\FULLVERSION
+    \pref{app:evaluation}
+  \else
+    Appendix A of this paper's full version~\cite{fullversion}
+  \fi
+}. Note the presence of constants $\Cvar, \Cnull, \ldots, \Ctrec \in \mathbb N$ (one for each syntactic construct) in the conclusion of each rule. These are left arbitrary so that our cost model is generic with respect to the particular costs of each primitive operation of the language.
+
+This semantics enjoys several standard properties such as determinism and preservation of typing, which we state here and prove in the mechanization.
+
+\begin{theorem}[Determinism]
+If $\evals{\env}{M}{c}{v}$ and $\evals{\env}{M}{c'}{v'}$ then $c = c'$ and $v = v'$.
+\end{theorem}
+
+\begin{theorem}[Preservation]
+If $\types{\Gamma}{M}{A}$, $\envtypes{\env}{\Gamma}$, and $\evals{\env}{M}{c}{v}$, then $v : A$.
+\end{theorem}
+We can also give a denotational semantics for values and environments, and prove that they cohere with the denotational semantics for terms. In particular, given $v : A$ and $\envtypes{\env}{\Gamma}$, we define $\tpsem{v} \in \tpsem{A}$ and $\tpsem{\env} \in \tpsem{\Gamma}$ by mutual induction on the structures of $v$ and $\env$. Most cases are straightforward; for example, $\tpsem{\vpair{v_1}{v_2}} = (\tpsem{v_1}, \tpsem{v_2})$. For closures such as function values, we appeal to the term denotational semantics: $\tpsem{\vlam{\env}{x}{M}} = \lambda v . \tmsem{M}{\envcons{\tpsem{\env}}{x}{v}}$. We prove the following in the mechanization:
+
+\begin{theorem}[Coherence]
+If $\types{\Gamma}{M}{A}$, $\envtypes{\env}{\Gamma}$, and $\evals{\env}{M}{c}{v}$, then $\tpsem{v} = \tmsem{M}{\tpsem{\env}}$.
+\end{theorem}
 
 Polynomial-time soundness is meant to be a statement about the computational complexity (of functions encoded by \lfpl) with respect to some machine model like a Turing machine. The big-step cost semantics is somewhat removed from a Turing machine's cost model.
 %
@@ -48,8 +69,6 @@ Thus, when proving true polynomial-time soundness of \lfpl, the only part which 
 
 \input{figures/jmt-eval}
 
-This semantics enjoys standard properties such as determinism (there is at most one value and cost that a given program may evaluate to), preservation of typing (a well-typed expression evaluates to a value with the same type, assuming all values in the environment have the correct type), and equivalence with the denotational semantics, assuming a sensible denotation $\tpsem{v}$ of values. We have mechanized both of these results, but neglect stating or proving them here because they are straightforward and not relevant to the discussion of polynomial-time soundness.
-
 
 
 \subsection{The Non-Size-Increasing Property}
@@ -57,10 +76,7 @@ This semantics enjoys standard properties such as determinism (there is at most 
 
 We now make precise the non-size-increasing property referred to in previous sections. Our goal is to assign to each value $v$ a number $\valsize{v} \in \mathbb N$ that, roughly speaking, counts the number of diamond values $\vdiam$ contained within $v$.
 %
-We then show that the size of the result of the evaluation of an
-\lfplplus term is bounded by the size of the values in the evaluation
-environment. We define the mutually inductive size
-function on values and environments in \pref{fig:size-val-env}.
+We then show that the size of the value resulting from the evaluation of an \lfplplus term is bounded by the size of the values in the environment. We define size by mutual induction on values and environments in \pref{fig:size-val-env}.
 
 \input{figures/size-val-env}
 
@@ -81,19 +97,17 @@ The relevance of this result to soundness might already be clear. An immediate c
 
 Our goal in this subsection is to prove the following:
 
-\begin{theorem}[Concrete Polynomial-Time Soundness]
+\begin{theorem}[Concrete Polynomial-Time Soundness of \lfplplus]
 \label{thm:soundness-concrete}
-Suppose $\types{\ctxcons{\ctxnil}{x}{\tplist{A}}}{M}{B}$, where $\dfree{A}$. Then, there exists a polynomial $P_M : \mathbb N \to \mathbb N$ such that, for any value $v_x : \tplist{A}$ made up of $n$ nodes (i.e. the list represented by $v$ has length $n$), there exists a value $v : B$ and a cost $c \in \mathbb N$ such that $\evals{\envcons{\envnil}{x}{v_x}}{M}{c}{v}$ and $c \le P_M(n)$.
+Suppose $\types{\ctxcons{\ctxnil}{\ell}{\tplist{A}}}{M}{B}$, where $\dfree{A}$. Then, there exists a polynomial $P_M : \mathbb N \to \mathbb N$ such that, for any value $v_\ell : \tplist{A}$ representing a list of length $n$, there exists a value $v : B$ and a cost $c \in \mathbb N$ such that $\evals{\envcons{\envnil}{\ell}{v_\ell}}{M}{c}{v}$ and $c \le P_M(n)$.
 \end{theorem}
 
-It is important that the polynomial only depends on $M$, i.e. it is quantified before $\env$. % Otherwise, we could just do cost-agnostic termination proof via standard methods to obtain $v$ and $c$, and then take $P_M(n) = c$, trivializing the proof and not saying anything useful about \lfplplus.
-%
-Taking $B = \tplist{\tpunit}$ and $A = \tpunit$, we recover the basic notion of soundness for \lfplplus functions on natural numbers. We present this more general form to motivate our transition to the even more general form we need to successfully prove it. As usual, we must reason about arbitrary terms under arbitrary contexts. It is tempting to say the following:
+Note it is important that the polynomial only depends on $M$, i.e. it is quantified before the input $v_\ell$. Taking $B = \tplist{\tpunit}$ and $A = \tpunit$, we recover the basic notion of soundness for \lfplplus functions on natural numbers. We present this more general form to motivate our transition to the even more general form we need to successfully prove it. As usual, we must reason about arbitrary terms under arbitrary contexts. It is tempting to say the following:
 
 \begin{center}
 \parbox{.9\linewidth}{
   \it
-Suppose $\types{\ctx}{M}{A}$. Then, there exists a polynomial $P_M : \mathbb N \to \mathbb N$ such that, for any $\env : \Gamma$, there exists a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and $c \le P_M(\envsize{\env})$.
+Suppose $\types{\ctx}{M}{A}$. There exists a polynomial $P_M : \mathbb N \to \mathbb N$ such that, if $\env : \Gamma$, there exists a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and $c \le P_M(\envsize{\env})$.
 }
 \end{center}
 
@@ -107,32 +121,30 @@ Suppose $\types{\ctx}{M}{A}$. Then, for any $\env : \Gamma$, there exists a valu
 $$c + P_v(\envsize{\env}) \le P_M(\envsize{\env}) + P_{\env}(\envsize{\env})$$
 \end{theorem}
 
-This theorem is true, though as stated it is not strong enough to be proven by rule induction on $\types{\ctx}{M}{A}$. Before discussing this further, we first define the polynomials used in this theorem.
-
-We define the polynomial $\max(P,Q) : \mathbb N \to \mathbb N$ to have coefficients equal to the pairwise maximums of the coefficients of polynomials $P,Q : \mathbb N \to \mathbb N$. This way, $\max(P(n), Q(n)) \le \max(P,Q)(n)$.
+This theorem is true, though as stated it is not strong enough to be proven by rule induction on $\types{\ctx}{M}{A}$. Before discussing this further, we first define the polynomials used in this theorem. We define the polynomial $\max(P,Q) : \mathbb N \to \mathbb N$ to have coefficients equal to the pairwise maximums of the coefficients of polynomials $P,Q : \mathbb N \to \mathbb N$. This way, $\max(P(n), Q(n)) \le \max(P,Q)(n)$.
 
 \begin{definition}[Term Polynomial]
 Let $M$ be a \lfplplus term. We inductively define the polynomial $P_M : \mathbb N \to \mathbb N$ as follows.
-  \begin{align*}
+\upshape{
+\begin{align*}
 P_{x}(n) &= \Cvar \\
 P_{\tmrecord{M_1}{M_2}}(n) &= \Crecord + \max(P_{M_1}, P_{M_2})(n) \\
-P_{\tmproj{i}{M}}(n) &= \max(1, \Cproj{i}) + P_M(n) \\
+P_{\tmproj{i}{M}}(n) &= \Cproj{i} + P_M(n) \\
 P_{\tmlam{x}{M}}(n) &= \Clam + P_M(n) \\
-P_{\tmapp{M}{N}}(n) &= \max(1, \Capp) + P_M(n) + P_N(n) \\
+P_{\tmapp{M}{N}}(n) &= \Capp + P_M(n) + P_N(n) \\
 P_{\tmcase{M}{x_1}{N_1}{x_2}{N_2}}(n) &= \Ccase + P_M(n) + \max(P_{N_1}, P_{N_2})(n) \\
 P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n) &= P_M(n) + (\Crec + P_{N_1}(n)) \\
 &\quad\quad + n (\Cvar + \Crec + P_{N_2}(n)) \\
 P_{\tmtrec{M}{N_1}{x}{y}{z}{w}{N_2}}(n) &= P_M(n) + (n + 1) (\Ctrec + P_{N_1}(n)) \\
 &\quad\quad + n (2\Cvar + \Ctrec + P_{N_2}(n))
 \end{align*}
+}
 The remaining cases are similar and provided in the mechanization.
 \end{definition}
 
-The aim of the polynomial $P_M : \mathbb N \to \mathbb N$ is to bound the cost of evaluating $M$, and the future cost of using any functions (or lazy pairs) it evaluates to, by $P_M(n)$ in an environment containing $n$ diamonds.
+The aim of $P_M$ is to bound the cost of evaluating $M$, and the future cost of using any closures it evaluates to, by $P_M(n)$ in an environment containing $n$ diamonds. The intuition behind $P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n)$ is that $M$ and $N_1$ are evaluated once, and $N_2$ could be evaluated up to $n$ times, where $n = \envsize{\env}$ is the number of diamonds available the environment. Similarly, for $P_{\tmtrec{M}{N_1}{x}{y}{z}{w}{N_2}}$, the base case $N_1$ could be evaluated $n + 1$ times (a tree with $n$ internal nodes has $n + 1$ leaf nodes) and $N_2$ could be evaluated $n$ times.
 
-The intuition behind $P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n)$ is that $M$ and $N_1$ are evaluated once, and $N_2$ could be evaluated up to $n$ times, where $n = \envsize{\env}$ is the number of diamonds available the environment. Similarly, for $P_{\tmtrec{M}{N_1}{x}{y}{z}{w}{N_2}}$, the base case $N_1$ could be evaluated $n + 1$ times (a binary tree with $n$ internal nodes has $n + 1$ leaf nodes) and $N_2$ could be evaluated $n$ times.
-
-The weakening of the bound to $\max(1, \Capp)$ in $P_{\tmlam{x}{M}}$ instead of just $\Capp$ (and similarly in $P_{\tmproj{i}{M}}$) is necessary for how we approach the soundness proof; its purpose becomes evident in \pref{sec:proving-general-soundness}
+The weakening of the bound to $\max(1, \Capp)$ in $P_{\tmlam{x}{M}}$ instead of just $\Capp$ (and similarly in $P_{\tmproj{i}{M}}$) is necessary for how we approach the soundness proof; its purpose becomes evident in \pref{sec:proving-general-soundness}.
 
 \begin{definition}[Value and Environment Polynomials]
   We define polynomials $P_\env : \mathbb N \to \mathbb N$ and
@@ -146,9 +158,7 @@ P_{\envnil} &= 0 \quad\text{and}\quad P_{\envcons{\env}{x}{v}} = P_\env + P_v
 \end{align*}
 The definition of $P_v$ for other values $v$ is given in the mechanization.
 \end{definition}
-The idea of  $P_v$ and $P_\env$ is to bound the cost of evaluating all of the function bodies and lazy pairs stored inside $v$ and $\env$ respectively.
-
-With these choices of polynomials, \pref{thm:soundness-general-weak} implies \pref{thm:soundness-concrete}, because $P_v = 0$ and $\valsize{v} = n$, where $n$ is the length of the list represented by $v$, when $v : \tplist{A}$ and $\dfree{A}$.
+The idea of  $P_v$ and $P_\env$ is to bound the cost of evaluating all of the function bodies and lazy pairs stored inside $v$ and $\env$ respectively. With these choices of polynomials, \pref{thm:soundness-general-weak} implies \pref{thm:soundness-concrete}, because $P_v = 0$ and $\valsize{v} = n$, where $n$ is the length of the list represented by $v$, when $v : \tplist{A}$ and $\dfree{A}$.
 
 
 
@@ -168,7 +178,11 @@ While $k$ may seem to have no real involvement in the theorem statement, it is t
 
 Next, we go by rule induction on $\types{\ctx}{M}{A}$. At the cases for $\tmapp{M}{N}$ and $\tmproj{i}{M}$, where we have designed the polynomial for these terms to be strictly larger than the polynomials for its subterms, we are able invoke our outer induction hypothesis about $k$ to reason about, for example, the term $M'$ where $\evals{\env}{M}{c}{\vlam{\env'}{x}{M'}}$.
 
-\pref{thm:non-size-increasing} comes up in nearly every case, since we need to satisfy the premise $n \ge \envsize{\env}$ of any inductive hypotheses. Importantly, we actually make use of this premise in the list and tree recursor cases, where we can say for example that the length of any list value $v$ is at most $\envsize{\env}$ and therefore at most $n$.
-
-Most cases are verbose but straightforward, and a couple of the less straightforward cases can be found in \pref{app:soundness}.
+\pref{thm:non-size-increasing} comes up in nearly every case, since we need to satisfy the premise $n \ge \envsize{\env}$ of any inductive hypotheses. Importantly, we actually make use of this premise in the list and tree recursor cases, where we can say for example that the length of any list value $v$ is at most $\envsize{\env}$ and therefore at most $n$. Most cases are verbose but straightforward, and a couple of the less straightforward cases can be found in{
+  \ifdefined\FULLVERSION
+    \pref{app:soundness}
+  \else
+    Appendix B of the full version~\cite{fullversion}
+  \fi
+}.
 \end{proof}

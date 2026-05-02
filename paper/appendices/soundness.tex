@@ -9,7 +9,7 @@ $$c + P_v(n) \le P_M(n) + P_{\env}(n)$$
 \begin{proof}
 By strong induction, we may assume the theorem holds for all $k' < k$. Now we go by rule induction on $\types{\ctx}{M}{A}$.
 
-\paragraph{Application Case} $\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmapp{M}{N}}{B}$ because $\types{\ctx_1}{M}{\tparr{A}{B}}$ and $\types{\ctx_2}{N}{B}$. Let $\envappend{\env_1}{\env_2}$ be the biparition of $\env$ corresponding to $\ctxappend{\ctx_1}{\ctx_2}$. Firstly, by the inner induction hypotheses for $M$ and $N$:
+\paragraph{Application Case} $\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmapp{M}{N}}{B}$ because $\types{\ctx_1}{M}{\tparr{A}{B}}$ and $\types{\ctx_2}{N}{A}$. Let $\envappend{\env_1}{\env_2}$ be the bipartition of $\env$ corresponding to $\ctxappend{\ctx_1}{\ctx_2}$. Firstly, by the inner induction hypotheses for $M$ and $N$:
 \begin{itemize}
   \item There is a value $v_M = \vlam{\env'}{x}{M'}$ and a cost $c_M$ such that $\evals{\env_1}{M}{c_M}{v_M}$ and:
   $$ c_M + P_{\env'}(n) + P_{M'}(n) \le P_M(n) + P_{\env_1}(n) $$

@@ -1,5 +1,5 @@
 OUTFILES = paper.synctex.gz paper.pdf
-JUNKFILES = paper.aux paper.bbl paper.blg paper.dvi paper.fdb_latexmk paper.fls paper.out paper.log paper.xcp
+JUNKFILES = paper.aux paper.bbl paper.blg paper.dvi paper.fdb_latexmk paper.fls paper.out paper.log paper.xcp paper.vtc
 COMPILE = pdflatex -interaction=batchmode -synctex=4 paper.tex
 
 pdf : paper.tex

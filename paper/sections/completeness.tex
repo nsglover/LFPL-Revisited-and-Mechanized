@@ -15,10 +15,9 @@ diamonds.
 Suppose $\dfree{A}$. Then, for every polynomial-time computable function $f : \tpsem{A}^* \to \tpsem{A}^*$ such that $|f(x)| \le |x|$ for all $x \in \tpsem{A}^*$, there exists a closed term $M : \tparr{\tplist{A}}{\tplist{A}}$ such that $\tmsem{M}{\envnil} = f$.
 \end{theorem}
 
-This theorem was originally proven for $A = \tpunit$~\cite{hofmannStrengthNonsizeIncreasing2002}. The constraint that $f$ does not increase the length of its input is necessary because of the non-size-increasing property enforced upon LFPL functions. % ; a closed \lfpl function on unit lists % has no source of diamonds other than the elements of the input list, so the output list cannot have more diamonds (and therefore more elements) than the input list.
-As we see in \pref{sec:completeness-general-thm}, this constraint can be removed if we don't enforce that the output type of $M$ is an \lfpl list.
+This theorem was originally proven for $A = \tpunit$~\cite{hofmannStrengthNonsizeIncreasing2002}. The constraint that $f$ does not increase the length of its input is necessary because of the non-size-increasing property enforced upon LFPL functions. As we see in \pref{sec:completeness-general-thm}, this constraint can be removed if we don't enforce that the output type of $M$ is an \lfpl list.
 
-Proving \pref{thm:completeness-concrete} boils down to simulating the polynomial-time Turing machine that computes the function $f$. This immediately presents two challenges. Say that $P : \mathbb N \to \mathbb N$ is the polynomial encoding how many steps the Turing machine takes to compute $f$. The first challenge is to represent the tape of the machine, which for an input list of size $n$ could contain up to $P(n)$ additional values by the time the machine halts. We only have $n$ diamonds from the input list, yet we have to store up to $P(n)$ additional values.% ; clearly a list will not work for this, since every element of a list must be accompanied by a diamond.
+Proving \pref{thm:completeness-concrete} boils down to simulating the polynomial-time Turing machine that computes the function $f$. This immediately presents two challenges. Say that $P : \mathbb N \to \mathbb N$ is the polynomial encoding how many steps the Turing machine takes to compute $f$. The first challenge is to represent the tape of the machine, which for an input list of size $n$ could contain up to $P(n)$ additional values by the time the machine halts. We only have $n$ diamonds from the input list, yet we have to store up to $P(n)$ additional values.
 
 The second challenge is to simulate the Turing machine for $P(n)$ steps. At first glance, it seems that \lfpl is only suited for performing $kn$ iterations given $n$ diamonds and some constant $k$. This can be achieved for $k = 1$ by iterating down a list and building it back up during the iteration process, and then it is easy to repeat this for any constant $k$ number of times. This is useful but does not help to perform, say, $n^2$ iterations.
 
@@ -27,26 +26,22 @@ The second challenge is to simulate the Turing machine for $P(n)$ steps. At firs
 \subsection{The Bounded Stack Data Structure}
 \label{sec:completeness-bounded-stack-definition}
 
-We first address the challenge of simulating the tape of the Turing machine. A common approach to this is to use a data structure consisting of a head element and two stacks, each representing one side of the tape relative to the head element~\cite{Okasaki99}. If we use the type $A$ for tape symbols, then the type of our tape data structure could be $\tptens{\tplist{A}}{\tptens{A}{\tplist{A}}}$. % The first element represents the section of the tape to the left of the head, the second element represents the symbol at the head of the tape, and the third element represents the right section of the tape. 
-% Treating elements of $L(A)$ like stacks, we can shift the head to the left by popping a symbol from the left list and pushing the current head symbol to the right list.
-%
-However, in \lfpl, we cannot actually use the above data structure; given $n$ diamonds, it can only hold $n + 1$ values. Instead, we construct a type $S(A)$ that depends on the bounding polynomial $P$ and supports a stack-like interface, as long as it doesn't have to hold more than $P(n)$ elements. Then, we use a value of type $\tptens{S(A)}{\tptens{A}{S(A)}}$ to encode the tape.
+We first address the challenge of simulating the tape of the Turing machine. A common approach to this is to use a data structure consisting of a head element and two stacks, each representing one side of the tape relative to the head element~\cite{Okasaki99}. If we use the type $A$ for tape symbols, then the type of our tape data structure could be $\tptens{\tplist{A}}{\tptens{A}{\tplist{A}}}$. However, in \lfpl, we cannot actually use the above data structure; given $n$ diamonds, it can only hold $n + 1$ values. Instead, we construct a type $S(A)$ that depends on the bounding polynomial $P$ and supports a stack-like interface, as long as it doesn't have to hold more than $P(n)$ elements. Then, we use a value of type $\tptens{S(A)}{\tptens{A}{S(A)}}$ to encode the tape.
 
-We have in fact already seen the first key insight into how to construct $S(A)$ in \pref{example:susp}. It shows that we don't need any diamonds to store data, we just need them to interact with it. Using this idea, we can design our data structure so that it does not store diamonds while the push and pop functions temporarily borrow diamonds to interface with the suspended data.
+We have in fact already seen the first key insight into how to construct $S(A)$ in \pref{example:susp}. It shows that we don't need any diamonds to store data, we just need them to interact with it. Using this idea, we can design our data structure so that it does not store diamonds and the push/pop functions temporarily borrow diamonds to interface with the suspended data.
 
 The second key insight is that we do not need to un-suspend the entire data structure to interface with it.
 %
-% If the stack held $P(n)$ values, we would still need $P(n)$ diamonds to un-suspend the whole thing during the push and pop operations. 
 Since both push and pop work at the front of the stack, we just need to be able to un-suspend enough of our data structure to expose the front.
 %
-The amount of diamonds we need for these operations depends on $P$ and $n$. % With these two insights in mind, we lay out our desired interface.
+The amount of diamonds we need for these operations depends on $P$ and $n$.
 
 \begin{definition}[Bounded Stack Interface]
 Given $k \in \mathbb N$ and an element type $A$, a $k$-stack implementation is a type $S$ together with the following closed terms:
 \begin{itemize}
   \item $\code{empty} : S$
-  \item $\code{push} : \tparr{(\tplist{\tpunit})^k}{\tparr{\tptens{A}{S}}{\tptens{(\tplist{\tpunit})^k}{\tptens{S}{(\tpsum{A}{\tpunit})}}}}$
-  \item $\code{pop} : \tparr{(\tplist{\tpunit})^k}{\tparr{S}{\tptens{(\tplist{\tpunit})^k}{\tptens{S}{(\tpsum{\tpunit}{A})}}}}$
+  \item $\code{push} : \tparr{(\tplist{\tpunit})^k}{\tparr{\tptens{A}{S}}{\tptens{(\tplist{\tpunit})^k}{(\tptens{S}{(\tpsum{A}{\tpunit})})}}}$
+  \item $\code{pop} : \tparr{(\tplist{\tpunit})^k}{\tparr{S}{\tptens{(\tplist{\tpunit})^k}{(\tptens{S}{(\tpsum{\tpunit}{A})})}}}$
 \end{itemize}
 \end{definition}
 
@@ -67,7 +62,7 @@ To formalize our intuition of how $\code{push}$ and $\code{pop}$ should behave, 
 Let $k \in \mathbb N$. Suppose $(S, \code{empty}, \code{push}, \code{pop})$ is a $k$-stack implementation with element type $A$. Given a function $B : \mathbb N \to \mathbb N$, we say this implementation is correct and bounded by $B$ if the following holds for all $n \in \mathbb N$:
 \begin{itemize}
   \item There exists a relation $V_n \subseteq \tpsem{S}$ of valid data structure states.
-  \item There exists a function $I_n : \tpsem{S} \to \tpsem{A}^*$ which returns the list of items contained in the stack.
+  \item There exists a function $I_n : \tpsem{S} \to \tpsem{A}^*$ which returns the list of items in the stack.
   \item Let $s = \tmsem{\code{empty}}{\ctxnil}$. Then, $V_n(s)$ holds and $I_n(s) = []$.
   \item Let $f = \tmsem{\code{push}}{\ctxnil}$. Then, for all $x \in \tpsem{A}$ and $s \in \tpsem{S}$ such that $V_n(s)$ holds, we have:
   \begin{itemize}
@@ -139,14 +134,14 @@ The implementation of $\code{pop}'$ is similar, but instead we start from $s_1$.
 
 % Hofmann's original proof~\cite{hofmannStrengthNonsizeIncreasing2002} contains an analogue to \pref{lem:stack-inductive} for his array data structure, but the implementation is significantly more difficult due to the presence of indices. The construction is similar to ours; he chooses $S' = \tparr{\tplist{\tpunit}}{\tplist{S}}$, where $S$ is now assumed to be the implementation type of a correct array data structure, so $S'$ is the type of suspended lists of sub-arrays. Given an index between $0$ and $n B(n)$, the read and write operations need to figure out which sub-array corresponds to that index, and furthermore which index to use for the operations on that sub-array. This involves implementing the binary divmod operation in LFPL, greatly complicating the implementation and proof of its correctness.
 
-Now that we've established the main result of this subsection, all it takes is a straightforward induction to combine the above two lemmas to produce stack implementations with monomial bounds.
+Now that we've established the main result of this subsection, a straightforward induction combines the above two lemmas, producing stack implementations with monomial bounds.
 
 \begin{lemma}[Monomial Stack Construction]
 \label{lem:stack-monomial}
 Given $c,k \in \mathbb N$, there exists a $k$-stack implementation with element type $A$ that is correct and bounded by $B(n) = cn^k$.
 \end{lemma}
 
-Since every polynomial $P : \mathbb N \to \mathbb N$ is eventually bounded by some monomial $B(n) = cn^k$, it is technically enough to stop here, which is what Hofmann's original proof does~\cite{hofmannStrengthNonsizeIncreasing2002}. However, this introduces an annoying edge case when $n = 0$ because $P(0)$ could be nonzero but $B(0) = 0$ for any choice of $c$ and $k$. We suspect the complexity of the array data structure makes it not worth the trouble to avoid this problem. Due to the simplicity of our stack data structure, this annoyance can be sidestepped and we can combine monomially-bounded stacks to get polynomially-bounded stacks with a few more relatively straightforward implementations.
+Since every polynomial $P : \mathbb N \to \mathbb N$ is eventually bounded by some monomial $B(n) = cn^k$, it is technically enough to stop here, which is what Hofmann's original proof does~\cite{hofmannStrengthNonsizeIncreasing2002}. However, this introduces an annoying edge case when $n = 0$ because $P(0)$ could be nonzero but $B(0) = 0$ for any choice of $c$ and $k$. We suspect the complexity of the array data structure makes it not worth the trouble to avoid this problem. Due to the simplicity of our stack data structure, we sidestep this annoyance and combine monomially-bounded stacks to get polynomially-bounded stacks with a few more relatively straightforward implementations.
 
 \begin{lemma}[Weakened Stack Construction]
 \label{lem:stack-weakened}
@@ -172,7 +167,7 @@ We take the implementation type to be $S = \tptens{S_1}{S_2}$. A stack $(s_1, s_
 Given a polynomial $P : \mathbb N \to \mathbb N$ with degree $k$, there exists a $k$-stack implementation with element type $A$ that is correct and bounded by $P$.
 \end{lemma}
 \begin{proof}
-Write $P(n)$ as $\sum_{i=0}^k c_i n^i$. For each $0 \le i \le k$, we can use \pref{lem:stack-monomial} to obtain an $i$-stack with bound $B_i(n) = c_i n^i$. Then, we can repeatedly use \pref{lem:stack-weakened} to weaken all of them into $k$-stacks with the same bounds. Finally, we can repeatedly use \pref{lem:stack-additive} to obtain the desired $k$-stack whose bound is the sum of the bounds of the weakened monomial stacks.
+Write $P(n)$ as $\sum_{i=0}^k c_i n^i$. For each $0 \le i \le k$, we can use \pref{lem:stack-monomial} to obtain an $i$-stack with bound $B_i(n) = c_i n^i$. Then, we repeatedly use \pref{lem:stack-weakened} to weaken all of them into $k$-stacks with the same bounds. Finally, we repeatedly use \pref{lem:stack-additive} to obtain the desired $k$-stack whose bound is the sum of the bounds of the weakened monomial stacks.
 \end{proof}
 
 
@@ -192,8 +187,7 @@ Consider the following pseudocode:
 g : L(1) -o A * L(1) -o A * L(1)
 g = lam m . rec m
 | nil => lam s . s
-| cons (d, u, r) => lam s .
-    letp (x, n) = s in f (r (x, cons (d, u, n)))
+| cons (d, u, r) => lam (x, n) . f (r (x, cons (d, u, n)))
 \end{lstlisting}
 We can then define $f^{\sharp} = \tmlam{s}{\tmletp{s}{x}{n}{\tmapp{\tmapp{g}{n}}{\tmpair{x}{\tmnil}}}}$.
 \end{proof}
@@ -204,20 +198,19 @@ Let $f : \tparr{\tptens{A}{\tplist{\tpunit}}}{\tptens{A}{\tplist{\tpunit}}}$ be 
 $$\tmsem{f^{\sharp P}}{\envnil} (x, n) = (\tmsem{f}{\envnil})^{P(|n|)}(x, n)$$
 \end{lemma}
 \begin{proof}
-To get monomials, we can use the $\sharp$ operation from \pref{lem:linear-iterator} multiple times, e.g. $\tmsem{(f^{\sharp})^{\sharp}}{\envnil} (x, n) = (\tmsem{f}{\envnil})^{|n|^2}(x, n)$. To add these monomials together to obtain any polynomial, we can just use function composition, since $g^m \circ g^k = g^{m + k}$ for any $g : X \to X$ and $m,k \in \mathbb N$.
+To get monomials, we can repeat the $\sharp$ operation from \pref{lem:linear-iterator}, e.g. $\tmsem{(f^{\sharp})^{\sharp}}{\envnil} (x, n) = (\tmsem{f}{\envnil})^{|n|^2}(x, n)$. To add these monomials together to obtain any polynomial, we can just use function composition, since $g^m \circ g^k = g^{m + k}$ for any $g : X \to X$ and $m,k \in \mathbb N$.
 \end{proof}
 
 % Atkey~\cite{atkeyPolynomialTimeDependent2024} shows an alternative approach to \pref{lem:polynomial-iterator} that does not rely on \pref{lem:linear-iterator}, instead utilizing the fact that $\binom{n}{k}$ taken over all $k \in \mathbb N$ forms a basis for polynomials in $n$. For a fixed $k$, they construct an elegant iterator for $f$ which runs $\binom{n}{k}$ times on an input $(x, n)$.
 
 We now address the task of encoding the transition function of the Turing machine.
 %
-Suppose we are dealing with a tape alphabet that includes one blank symbol $a_0$ and the rest of the symbols are drawn from the set $\tpsem{A}$, where $\dfree{A}$. Additionally, suppose the set of internal states of the Turing machine includes one halting state $q_0$ and the rest of the states are drawn from the set $\tpsem{Q}$, where again $\dfree{Q}$. Then, the transition function $f$ of the Turing machine has the following signature:
-$$\tpsem{Q} \times (\{ a_0 \} \sqcup \tpsem{A}) \to (\{ q_0 \} \sqcup \tpsem{Q}) \times (\{ a_0 \} \sqcup \tpsem{A}) \times \{ \Leftarrow, \Rightarrow \}$$
+Suppose we are dealing with a tape alphabet that includes one blank symbol $a_0$ and the rest of the symbols are drawn from the set $\tpsem{A}$, where $\dfree{A}$. Additionally, suppose the set of internal states of the Turing machine includes one halting state $q_0$ and the rest of the states are drawn from the set $\tpsem{Q}$, where again $\dfree{Q}$. Then, the transition function $g$ of the Turing machine has the following signature:
+$$g : \tpsem{Q} \times (\{ a_0 \} \sqcup \tpsem{A}) \to (\{ q_0 \} \sqcup \tpsem{Q}) \times (\{ a_0 \} \sqcup \tpsem{A}) \times \{ \Leftarrow, \Rightarrow \}$$
 
-If $(q', a', d) = f(q, a)$, the intent is that $q$ is the current state of the Turing machine, $a$ is the symbol under the tape head, $q'$ is the new state after taking a step, $a'$ is the symbol to overwrite $a$ with, and $d$ is the direction (left or right) to shift the head. So, the type of the \lfpl term encoding $f$ should be:
+If $(q', a', d) = g(q, a)$, the intent is that $q$ is the current state of the Turing machine, $a$ is the symbol under the tape head, $q'$ is the new state after taking a step, $a'$ is the symbol to overwrite $a$ with, and $d$ is the direction (left or right) to shift the head. So, the type of the \lfpl term encoding $g$ should be:
 $$\tparr{\tptens{Q}{(\tpsum{\tpunit{}}{A})}}{\tptens{(\tpsum{\tpunit{}}{Q})}{\tptens{(\tpsum{\tpunit{}}{A})}{(\tpsum{\tpunit}{\tpunit})}}}$$
-
-The input and output sets of $f$ are both denotations of heap-free types. The following two lemmas show \lfpl is complete with respect to computations only involving types $A$ such that $\dfree{A}$, and thus that $f$ can be implemented.
+The input and output sets of $g$ are both denotations of heap-free types. The following two lemmas show \lfpl is complete with respect to computations only involving types $A$ such that $\dfree{A}$, and thus that $g$ can be implemented.
 
 \begin{lemma}
 Suppose $\dfree{A}$. Then, for every $a \in \tpsem{A}$, there exists a closed term $M_a : A$ such that $\tmsem{M_a}{\envnil} = a$.
@@ -226,15 +219,14 @@ Suppose $\dfree{A}$. Then, for every $a \in \tpsem{A}$, there exists a closed te
 \begin{lemma}
 Suppose $A$ and $B$ are types such that $\dfree{A}$ and, for every $b \in \tpsem{B}$, that there exists a closed term $M_b : B$ such that $\tmsem{M_b}{\envnil} = b$. Then, for every $f : \tpsem{A} \to \tpsem{B}$, there exists a closed term $M_f : \tparr{A}{B}$ such that $\tmsem{M_f}{\envnil} = f$.
 \end{lemma}
-
-Both of these are straightforward to prove by rule induction on $\dfree{A}$. By combining the two, we can obtain a closed term $M_f$ encoding the transition function $f$ of the Turing machine.
+Both of these are straightforward to prove by rule induction on $\dfree{A}$. By combining the two, we obtain a closed term $M_g$ encoding the transition function $g$ of the Turing machine.
 
 
 
 \subsection{Simulating the Turing Machine}
 \label{sec:completeness-general-thm}
 
-It only remains to put everything together. For this subsection, assume we are dealing with function $f : \tpsem{A}^* \to \tpsem{A}^*$ computable by a Turing machine on a tape with alphabet $\{a_\text{blank}\} \sqcup \tpsem{A}$, with internal state set $\{q_\text{final}\} \sqcup \tpsem{Q}$ and transition function $g$. The Turing machine always halts in $P(n)$ steps on an input of length $n$, where $P : \mathbb N \to \mathbb N$ is a polynomial of degree $k$.
+It only remains to put everything together. For this subsection, assume we have function $f : \tpsem{A}^* \to \tpsem{A}^*$ computable by a Turing machine on a tape with alphabet $\{a_0\} \sqcup \tpsem{A}$, with internal state set $\{q_0\} \sqcup \tpsem{Q}$ and transition function $g$. Further assume the machine always halts in $P(n)$ steps on an input of length $n$, where $P : \mathbb N \to \mathbb N$ is a $k$-degree polynomial.
 
 Our goal is to construct a closed term $M : \tplist{A} \to \tplist{A}$ such that $\tmsem{M}{\envnil} = f$. Assuming an input of $\ell \in \tpsem{A}^*$ with length $n = |\ell|$, the body of the function for $M$ will only have access to $n$ diamonds. We are going to need a tape data structure that can hold the input list and any additional memory used by the Turing machine, so up to $n + P(n)$ values, while only requiring $n$ diamonds to use. % , since the input is written on the tape and (in the worst case) the Turing machine could just write a new value outside of the input section of the tape at every step.
 
@@ -242,16 +234,16 @@ Since the Turing machine receives its input as a single list, giving us a pool o
 %
 This is nontrivial but ultimately follows how one would implement $\code{divmod}_k : \mathbb N \to \mathbb N \times \mathbb N$ in a standard functional programming language, where $\code{divmod}_k(n)$ returns the quotient and remainder of $n$ by $k + 1$.
 
-Consider the polynomial $Q(m) = (k + 1)(m + 1) + P((k + 1)(m + 1))$, which has degree at most $k + 1$. Let $(m, r) = \code{divmod}_k(n)$ so that $0 \le r \le k$ and $n = m(k + 1) + r$. Then, $(k + 1)(m + 1) = m(k + 1) + (k + 1) > m(k + 1) + r = n$, implying $Q(m) \ge P(n) + n$. Therefore, we can apply \pref{lem:stack-polynomial} to $Q$ to obtain a stack implementation for element type $\tpsum{\tpunit{}}{A}$, say with underlying type $S$. These stacks hold up to $Q(m)$ values assuming we have $m(k + 1)$ diamonds available  and therefore at least $P(n)$ values. So we can model the tape with a data structure of type $\tptens{S}{\tptens{(\tpsum{\tpunit{}}{A})}{S}}$, as discussed earlier.
+Consider the polynomial $Q(m) = (k + 1)(m + 1) + P((k + 1)(m + 1))$, which has degree at most $\max(1, k)$, which we further bound with $k + 1$ to avoid a degree-zero edge case. Let $(m, r) = \code{divmod}_k(n)$ so that $0 \le r \le k$ and $n = m(k + 1) + r$. Then, $(k + 1)(m + 1) = m(k + 1) + (k + 1) > m(k + 1) + r = n$, implying $Q(m) \ge P(n) + n$. Therefore, we can apply \pref{lem:stack-polynomial} to $Q$ to obtain a stack implementation for element type $\tpsum{\tpunit{}}{A}$, say with underlying type $S$. These stacks hold up to $Q(m)$ values assuming we have $m(k + 1)$ diamonds available  and therefore at least $P(n)$ values. So we can model the tape with a data structure of type $\tptens{S}{\tptens{(\tpsum{\tpunit{}}{A})}{S}}$, as discussed earlier.
 
 This is another place where our stack data structure simplifies the argument from Hofmann's array-based tape implementation~\cite{hofmannStrengthNonsizeIncreasing2002}. The array-based tape requires an index representing what element of the array is currently beneath the head of the tape. This index needs additional diamonds to store, creating the additional complexity of properly sharing the total $n$ diamonds between the index and the tape operations.
 
-We obtain the following more general completeness theorem, which
+We obtain the following more general completeness theorem alluded to earlier, which
 drops the size restriction of \pref{thm:completeness-concrete}.
 %
 \begin{theorem}[Polynomial-Time Completeness]
 \label{thm:completeness-general}
-Let $A$ be a type such that $\dfree{A}$ and let $P : \mathbb N \to \mathbb N$ be a polynomial with degree $k$. For every $P$-time computable function $f : \tpsem{A}^* \to \tpsem{\tpsum{\tpunit{}}{A}}^*$, there exists a correct $k$-stack implementation with element type $\tpsum{\tpunit{}}{A}$, say with underlying type $S$ and item functions $I_n : \tpsem{S} \to \tpsem{\tpsum{\tpunit{}}{A}}^*$, and a closed term $M : \tparr{\tplist{A}}{S}$ such that for every $x \in \tpsem{A}^*$:
+Let $A$ be a type such that $\dfree{A}$ and let $P : \mathbb N \to \mathbb N$ be a polynomial with degree $k$. For every $P$-time computable function $f : \tpsem{A}^* \to \tpsem{\tpsum{\tpunit{}}{A}}^*$, there exists a correct $(k+1)$-stack implementation with element type $\tpsum{\tpunit{}}{A}$, say with underlying type $S$ and item functions $I_n : \tpsem{S} \to \tpsem{\tpsum{\tpunit{}}{A}}^*$, and a closed term $M : \tparr{\tplist{A}}{S}$ such that for every $x \in \tpsem{A}^*$:
 $$f(x) = I_{|x|}\left(\tmsem{M}{\envnil}(x)\right)$$
 In other words, $M$ outputs a stack with items equal to $f(x)$.
 \end{theorem}

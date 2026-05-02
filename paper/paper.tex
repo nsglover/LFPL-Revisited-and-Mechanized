@@ -1,27 +1,7 @@
-% The nonacm option disables the copyright footnote on the first page.
-\documentclass[sigconf, review, anonymous, nonacm]{acmart}
+\documentclass[a4paper,USenglish,cleveref, autoref, thm-restate]{lipics-v2021}
 
-% Disables the ACM Reference Format after the abstract.
-\settopmatter{printacmref=false}
+\bibliographystyle{plainurl}
 
-% \setcopyright{acmlicensed}
-% \copyrightyear{2018}
-% \acmYear{2018}
-% \acmDOI{XXXXXXX.XXXXXXX}
-%% These commands are for a PROCEEDINGS abstract or paper.
-\acmConference[LICS '26]{}{July 20--23, 2026}{Lisbon, Portugal}
-%%
-%%  Uncomment \acmBooktitle if the title of the proceedings is different
-%%  from ``Proceedings of ...''!
-%%
-\acmBooktitle{41st ACM/IEEE Symposium on Logic in Computer Science, July 20--23, 2026, Lisbon, Portugal}
-% \acmISBN{978-1-4503-XXXX-X/2018/06}/
-%%
-%% Submission ID.
-%% Use this when submitting an article to a sponsored event. You'll
-%% receive a unique submission ID from the organizers
-%% of the event, and this ID should be used as the parameter to this command.
-%%\acmSubmissionID{123-A56-BU3}
 
 \usepackage{packages}
 
@@ -32,18 +12,32 @@
 
 
 
+% Comment this line and add a citation named "fullversion" to references.bib
+% to remove the appendices and generate the conference version of the paper.
+\newcommand{\FULLVERSION}{}
+
+
+
+\input{metadata/authors}
+\input{metadata/concepts}
+
+
+
 \begin{document}
+
+\ifdefined\FULLVERSION
+
+\else
+  \relatedversiondetails[cite={fullversion}]{Full Version}{TODO: ARXIV LINK HERE}
+\fi
+
+\supplementdetails[subcategory={Mechanization}]{Software}{TODO: ZENODO LINK HERE}
 
 \title{LFPL: Revisited and Mechanized}
 
-\input{title/authors}
-\input{title/abstract}
-% \input{title/concepts}
-
 \maketitle
 
-
-
+\input{sections/abstract}
 \input{sections/introduction}
 \input{sections/lfpl}
 \input{sections/completeness}
@@ -52,21 +46,15 @@
 \input{sections/related-work}
 \input{sections/conclusion}
 
-
-
 \newpage
-\appendix
 
-% \input{appendices/divmod.tex}
+\appendix
 \input{appendices/evaluation}
 \input{appendices/soundness}
 \include{figures/app-jmt-eval}
 
 
 
-\bibliographystyle{ACM-Reference-Format}
-\balance{}
 \bibliography{references}
-\urlstyle{same}
 
-\end{document}
+\end{document}                     
