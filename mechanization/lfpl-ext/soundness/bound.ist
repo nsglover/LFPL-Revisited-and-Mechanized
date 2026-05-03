@@ -62,7 +62,7 @@ define /term_bound {G A} CM/
   forall (G : ctx) (A : tp) . cost_model -> term G A -> polynomial
 /;
 withTypecheck (unfold /term_bound/). qed ();
-setOpacity (parseConstant /term_bound/) Constant.SOFT;
+setOpacity /term_bound/ Constant.SOFT;
 
 
 defineInd /CM/
@@ -99,7 +99,7 @@ define /value_bound {A} CM/
   forall (A : tp) . cost_model -> value A -> polynomial
 /;
 withTypecheck (unfold /value_bound/). qed ();
-setOpacity (parseConstant /value_bound/) Constant.SOFT;
+setOpacity /value_bound/ Constant.SOFT;
 
 
 define /env_bound {G} CM/
@@ -109,7 +109,7 @@ define /env_bound {G} CM/
   forall (G : ctx) . cost_model -> env G -> polynomial
 /;
 withTypecheck (unfold /env_bound/). qed ();
-setOpacity (parseConstant /value_bound/) Constant.SOFT;
+setOpacity /value_bound/ Constant.SOFT;
 
 
 lemma "split_bound"

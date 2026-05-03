@@ -31,7 +31,7 @@ define /ctx_trans G/
   ctx -> Ext.ctx
 /;
 withTypecheck (unfold /ctx_trans/). qed ();
-setOpacity (parseConstant /ctx_trans/) Constant.SOFT;
+setOpacity /ctx_trans/ Constant.SOFT;
 
 
 defineInd //

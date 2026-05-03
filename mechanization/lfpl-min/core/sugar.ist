@@ -19,7 +19,7 @@ define /llet {G GA GB A B} T M N/
   forall (G GA GB : ctx) (A B : tp) . split G GA GB -> term GA A -> term (A :: GB) B -> term G B
 /;
 withTypecheck (unfold /llet/). qed ();
-setOpacity (parseConstant /llet/) Constant.SOFT;
+setOpacity /llet/ Constant.SOFT;
 
 
 lemma "llet_correct"

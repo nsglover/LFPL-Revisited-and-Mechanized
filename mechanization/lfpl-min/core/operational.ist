@@ -68,7 +68,7 @@ define /env_single {A} V/
   forall (A : tp) . value A -> env (A :: nil)
 /;
 withTypecheck (unfold /env_single/). qed ();
-setOpacity (parseConstant /env_single/) Constant.SOFT;
+setOpacity /env_single/ Constant.SOFT;
 
 
 define /env_pop {A G} S/

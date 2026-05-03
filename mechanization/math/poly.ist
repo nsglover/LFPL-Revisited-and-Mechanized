@@ -43,7 +43,7 @@ define /p_shift P/
   polynomial -> polynomial
 /;
 withTypecheck (unfold /p_shift/). qed ();
-setOpacity (parseConstant /p_shift/) Constant.SOFT;
+setOpacity /p_shift/ Constant.SOFT;
 
 
 define /p_linear c d/
@@ -53,7 +53,7 @@ define /p_linear c d/
   nat -> nat -> polynomial
 /;
 withTypecheck (unfold /p_linear/). qed ();
-setOpacity (parseConstant /p_linear/) Constant.SOFT;
+setOpacity /p_linear/ Constant.SOFT;
 
 
 
