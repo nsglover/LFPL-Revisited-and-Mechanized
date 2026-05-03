@@ -26,7 +26,7 @@ The second challenge is to simulate the Turing machine for $P(n)$ steps. At firs
 \subsection{The Bounded Stack Data Structure}
 \label{sec:completeness-bounded-stack-definition}
 
-We first address the challenge of simulating the tape of the Turing machine. A common approach to this is to use a data structure consisting of a head element and two stacks, each representing one side of the tape relative to the head element~\cite{Okasaki99}. If we use the type $A$ for tape symbols, then the type of our tape data structure could be $\tptens{\tplist{A}}{\tptens{A}{\tplist{A}}}$. However, in \lfpl, we cannot actually use the above data structure; given $n$ diamonds, it can only hold $n + 1$ values. Instead, we construct a type $S(A)$ that depends on the bounding polynomial $P$ and supports a stack-like interface, as long as it doesn't have to hold more than $P(n)$ elements. Then, we use a value of type $\tptens{S(A)}{\tptens{A}{S(A)}}$ to encode the tape.
+We first address the challenge of simulating the tape of the Turing machine. A common approach to this is to use a data structure consisting of a head element and two stacks, each representing one side of the tape relative to the head element~\cite{Okasaki99}. If we use the type $A$ for tape symbols, then the type of our tape data structure could be $\tptens{\tplist{A}}{\tptens{A}{\tplist{A}}}$. However, in \lfpl, we cannot actually use the above data structure; given $n$ diamonds, it can only hold $n + 1$ values. Instead, we construct a type $S(A)$ that depends on the bounding polynomial $P$ and supports a stack-like interface, as long as it does not have to hold more than $P(n)$ elements. Then, we use a value of type $\tptens{S(A)}{\tptens{A}{S(A)}}$ to encode the tape.
 
 We have in fact already seen the first key insight into how to construct $S(A)$ in \pref{example:susp}. It shows that we don't need any diamonds to store data, we just need them to interact with it. Using this idea, we can design our data structure so that it does not store diamonds and the push/pop functions temporarily borrow diamonds to interface with the suspended data.
 
@@ -113,7 +113,7 @@ To find the head of the stack, find the first $i$ such that $x_i = (2, a)$ for s
 \end{proof}
 
 % The proof of \pref{lem:stack-constant} already contains the intuition for constructing stacks with non-constant bounds. 
-In the proof of \pref{lem:stack-inductive}, instead of storing data in a fixed-size tuple, we store it in a list. That list can be ``suspended'' as seen in \pref{example:susp}, so that it doesn't require any diamonds to store.
+In the proof of \pref{lem:stack-inductive}, instead of storing data in a fixed-size tuple, we store it in a list. That list can be ``suspended'' as seen in \pref{example:susp}, so that it does not require any diamonds to store.
 
 \begin{lemma}[Inductive Stack Construction]
 \label{lem:stack-inductive}
