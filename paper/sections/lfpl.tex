@@ -54,40 +54,6 @@ Another important subtlety is in \pref{rule:ty-ListE}, where $N_2$ is typed unde
 
 
 
-\subsection{Contraction}
-
-The defining trait of an affine type system is that contraction, the use of a variable more than once, is not permitted. The importance of disallowing contraction in \lfpl is immediately evident; if we could use a variable of diamond type more than once, then we could easily create lists of arbitrary length and break the non-size-increasing property.
-
-Despite this restriction, there are types which still enjoy contraction. We define the judgement $\hspace{-0.25em}\dfree{}$ on types as follows:
-\begin{mathpar}
-\ARule{\dfree{\tpunit}}{}
-\and
-\ARule{\dfree{\tpsum{A}{B}}}{\dfree{A} \\ \dfree{B}}
-\and
-\ARule{\dfree{\tptens{A}{B}}}{\dfree{A} \\ \dfree{B}}
-\end{mathpar}
-Going by rule induction on the judgement $\dfree{A}$ for a given type $A$, it is straightforward to define a closed term $\code{dup}_A : \tparr{A}{\tptens{A}{A}}$ that returns two copies of its input, effectively implementing contraction at $A$.
-
-A common approach to safely reintroducing contraction into affine type systems is the exponential modality $!$. The syntax and typing rules for it might look something like:
-\begin{mathpar}
-\ARule{\types{!\ctx}{\code{wrap}(M)}{\; !A}}{\types{!\ctx}{M}{A}}\hspace{-1.3em}
-\and
-\ARule{\types{\ctx}{\code{unwrap}(M)}{A}}{\types{\ctx}{M}{\; !A}}\hspace{-1.3em}
-\and
-\ARule{\types{\ctxcons{\ctx}{x}{\; !A}}{[x/y]M}{B}}{\types{\ctxcons{\ctxcons{\ctx}{x}{\; !A}}{y}{\; !A}}{M}{B}}\hspace{-1.3em}
-\end{mathpar}
-
-By $!\ctx$ we mean the context obtained by replacing $x : A$ with $x : \; !A$ for every $x$ in $\ctx$. Commonly this modality would also contain a rule for weakening, but LFPL is affine and thus already supports weakening at every type. It is tempting to add this modality to \lfpl; if we say that all values of type $!A$ have size $0$, then these operations are non-size-increasing. Unfortunately, that is not enough to guarantee polynomial-time soundness. Consider the following pseudocode for \lfpl (extended with the !-modality):
-\begin{lstlisting}
-expCalls : L(1) -o !(L(1) -o L(1)) -o !(L(1) -o L(1))
-expCalls nil f = f
-expCalls (cons (_, _, n)) = let r = expCalls n f in
-  wrap (lam x . unwrap(r) (unwrap(r) x))
-\end{lstlisting}
-Evaluating $\tmapp{\tmapp{\code{expCalls}}{n}}{f}$ yields a function which calls $f$ on itself $2^{|n|}$ times. If $f$ incurs any cost, then the resulting function will definitely not run in polynomial time.
-
-
-
 \subsection{Denotational Semantics}
 \label{sec:denotational-semantics}
 
@@ -159,3 +125,37 @@ susp = lam x . rec x .
 \end{lstlisting}
 This example is important for the completeness proof, so it is worth stating its semantics: If $x \in \tpsem{A}^*$, then $\tmsem{susp}{\envnil}(x) = (f, m)$, where $f(m) = x$. Note that $m$ is the unique element of $\tpsem{\tpunit}^*$ with length $|x|$, so we recover $x$ as long as we give $f$ enough diamonds.
 \end{example}
+
+
+
+\begin{remark}[Contraction]
+
+The defining trait of an affine type system is that contraction, the use of a variable more than once, is not permitted. The importance of disallowing contraction in \lfpl is immediately evident; if we could use a variable of diamond type more than once, then we could easily create lists of arbitrary length and break the non-size-increasing property. Despite this restriction, there are types which still enjoy contraction. We define the judgement $\hspace{-0.25em}\dfree{}$ on types as follows:
+\begin{mathpar}
+\ARule{\dfree{\tpunit}}{}
+\and
+\ARule{\dfree{\tpsum{A}{B}}}{\dfree{A} \\ \dfree{B}}
+\and
+\ARule{\dfree{\tptens{A}{B}}}{\dfree{A} \\ \dfree{B}}
+\end{mathpar}
+Going by rule induction on the judgement $\dfree{A}$ for a given type $A$, it is straightforward to define a closed term $\code{dup}_A : \tparr{A}{\tptens{A}{A}}$ that returns two copies of its input, effectively implementing contraction at $A$.
+
+A common approach to safely reintroducing contraction into affine type systems is the exponential modality $!$. The syntax and typing rules for it might look something like:
+\begin{mathpar}
+\ARule{\types{!\ctx}{\code{wrap}(M)}{\; !A}}{\types{!\ctx}{M}{A}}\hspace{-1.3em}
+\and
+\ARule{\types{\ctx}{\code{unwrap}(M)}{A}}{\types{\ctx}{M}{\; !A}}\hspace{-1.3em}
+\and
+\ARule{\types{\ctxcons{\ctx}{x}{\; !A}}{[x/y]M}{B}}{\types{\ctxcons{\ctxcons{\ctx}{x}{\; !A}}{y}{\; !A}}{M}{B}}\hspace{-1.3em}
+\end{mathpar}
+
+By $!\ctx$ we mean the context obtained by replacing $x : A$ with $x : \; !A$ for every $x$ in $\ctx$. Commonly this modality would also contain a rule for weakening, but LFPL is affine and thus already supports weakening at every type. It is tempting to add this modality to \lfpl; if we say that all values of type $!A$ have size $0$, then these operations are non-size-increasing. Unfortunately, that is not enough to guarantee polynomial-time soundness. Consider the following pseudocode for \lfpl (extended with the !-modality):
+\begin{lstlisting}
+expCalls : L(1) -o !(L(1) -o L(1)) -o !(L(1) -o L(1))
+expCalls nil f = f
+expCalls (cons (_, _, n)) = let r = expCalls n f in
+  wrap (lam x . unwrap(r) (unwrap(r) x))
+\end{lstlisting}
+Evaluating $\tmapp{\tmapp{\code{expCalls}}{n}}{f}$ yields a function which calls $f$ on itself $2^{|n|}$ times. If $f$ incurs any cost, then the resulting function will definitely not run in polynomial time.
+
+\end{remark}
