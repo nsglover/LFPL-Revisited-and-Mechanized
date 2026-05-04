@@ -1,0 +1,54 @@
+openModule /List/;
+
+File.import "../math/load.iml";
+
+File.import "../lfpl-ext/core/load-all.iml";
+aliasModule /Ext/ /ExtLanguage/;
+aliasModule /ExtSem/ /ExtOperational/;
+
+File.import "../lfpl-min/core/load-lang.iml";
+
+File.loadWithoutDependencies "translation.isto";
+openModule /Translation/;
+
+beginModule "Operational";
+
+
+
+(* VALUES AND ENVIRONMENTS *)
+
+define /value A/
+/
+  ExtSem.value (tp_trans A)
+//
+  tp -> U 0
+/;
+withTypecheck (unfold /value/). qed ();
+setOpacity /value/ Constant.FIRM;
+
+
+define /env G/
+/
+  ExtSem.env (ctx_trans G)
+//
+  ctx -> U 0
+/;
+withTypecheck (unfold /env/). qed ();
+setOpacity /env/ Constant.FIRM;
+
+
+
+(* EVALUATION *)
+
+define /evals {G A} M S V/
+/
+  ExtSem.evals (term_trans M) S V
+//
+  forall (G : ctx) (A : tp) . term G A -> env G -> value A -> U 0
+/;
+withTypecheck (unfold /evals/). qed ();
+setOpacity /env/ Constant.FIRM;
+
+
+
+endModule ();

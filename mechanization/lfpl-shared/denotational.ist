@@ -1,0 +1,201 @@
+openModule /List/;
+
+File.import "../math/load.iml";
+
+File.import "../lfpl-ext/core/load-all.iml";
+aliasModule /Ext/ /ExtLanguage/;
+aliasModule /ExtSem/ /ExtDenotational/;
+
+File.import "../lfpl-min/core/load-denotational.iml";
+
+File.loadWithoutDependencies "translation.isto";
+openModule /Translation/;
+
+beginModule "DenotationalCorrectness";
+
+
+
+(* ENVIRONMENT TRANSLATION *)
+
+defineInd //
+/
+  env_trans : Forall [tp tp_sem] G -> ExtSem.env (ctx_trans G) of
+  | Forall_nil . ExtSem.env_nil
+  | Forall_cons A G V S . `ExtSem.env_cons (tp_trans A) (ctx_trans G) V (env_trans S)
+//
+  forall (G : ctx) . env G -> ExtSem.env (ctx_trans G)
+/;
+{
+  unfold /env/.reflexivity.
+}
+{
+  reintro /A _ _ _ _/.
+  induction /A/ >> auto.
+}
+qed ();
+Database.setImplicits (parseConstant /env_trans/) 1;
+reductions
+/
+  env_trans _ (env_nil) --> ExtSem.env_nil ;
+  env_trans _ (env_cons A G V S) --> ExtSem.env_cons (tp_trans A) (ctx_trans G) V (env_trans G S) ;
+  unfolding env_trans env_nil env_cons
+/;
+
+
+
+(* TRANSLATION CORRECTNESS *)
+
+lemma "tp_trans_correct"
+/
+  forall (A : tp) . ExtSem.tp_sem (tp_trans A) = tp_sem A : U 0
+/;
+intro /A/ >> induction /A/ >> auto.
+qed ();
+
+lemma "tp_trans_correct'"
+/
+  forall (A : tp) . tp_sem A = ExtSem.tp_sem (tp_trans A) : U 0
+/;
+intro /A/ >> symmetry >> apply /tp_trans_correct/.
+qed ();
+
+
+(* Hack the typechecker to get it to make use of the above lemma *)
+val () =
+  Constant2Table.insert TypecheckTables.equnivTactics
+  (resolveGlobal /ExtSem.tp_sem/, resolveGlobal /tp_sem/)
+  (Backchain.applyRaw /tp_trans_correct/);
+val () =
+  Constant2Table.insert TypecheckTables.equnivTactics
+  (resolveGlobal /tp_sem/, resolveGlobal /ExtSem.tp_sem/)
+  (Backchain.applyRaw /tp_trans_correct'/);
+
+
+lemma "env_trans_split"
+/
+  forall (G G1 G2 : ctx) (T : split G G1 G2) (S : env G) .
+  env_trans (env_split T S #1) = ExtSem.env_split (split_trans T) (env_trans S) #1 : _ &
+  env_trans (env_split T S #2) = ExtSem.env_split (split_trans T) (env_trans S) #2 : _
+/;
+inference.
+intro /G G1 G2 T/.
+(induction /T/ >>> [auto, idtac, idtac]) >>
+(
+  intro /G G1 G2 A T ih S/ >>
+  destruct /S/ /{h | A' G' V S h}/ >> injection /h/ >>
+  reduce // >>
+  clear /h/ >>
+  unfold /env at all/ >>
+  fold /env_cons V S at all/ >>
+  reduce // >>
+  subst /A'/ >>
+  inference >>
+  fold /env G' in S/ >>
+  subst /G'/ >> attempt (compat >> assumption) >>
+  rewrite /-> ih S #1/ >> attempt (compat >> reflexivity) >>
+  rewrite /-> ih S #2/ >> attempt (compat >> reflexivity) >>
+  split >> reflexivity
+).
+qed ();
+
+
+lemma "term_trans_correct"
+/
+  forall (G : ctx) (A : tp) (M : term G A) (S : env G) .
+  term_sem M S = ExtSem.term_sem (term_trans M) (env_trans S) : tp_sem A
+/;
+intro /G A M/.
+induction /M/.
+{
+  unfold /env at all/.
+  intro /G A S/.
+  destruct /S/ /{h | A' G' V S h}/ >> injection /h/.
+  unfold /env_pop/.
+  reflexivity.
+}
+{
+  intros >> reflexivity.
+}
+{
+  intro /G A B M ihM S/.
+  compat.
+  exact /ihM S/.
+}
+{
+  intro /G A B M ihM S/.
+  compat.
+  exact /ihM S/.
+}
+{
+  intro /G GAB GC A B C T M ihM N1 ihN1 N2 ihN2 S/.
+  rewrite /-> ihM/.
+  rewrite /<- env_trans_split _# 3 T S #1/.
+  reduce //.
+  generalize /ExtSem.term_sem (term_trans M) (env_trans (env_split T S #1))/ /_/ /vM/.
+  (destruct /vM/ /v | v/ >> reduce //) >>>
+  [rewrite /-> ihN1 (env_cons v (env_split T S #2))/, rewrite /-> ihN2 (env_cons v (env_split T S #2))/] >>
+  reduce // >> repeatn 2 compat >> apply /env_trans_split/.
+}
+{
+  intro /G GA GB A B T M1 ihM1 M2 ihM2 S/.
+  rewrite /<- env_trans_split _# 3 T S #1/.
+  rewrite /<- env_trans_split _# 3 T S #2/.
+  rewrite /-> ihM1, -> ihM2/.
+  reflexivity.
+}
+{
+  intro /G GAB GC A B C T M ihM N ihN S/.
+  rewrite /-> ihM/.
+  rewrite /<- env_trans_split _# 3 T S #1/.
+  reduce //.
+  generalize /ExtSem.term_sem (term_trans M) (env_trans (env_split T S #1))/ /_/ /v/.
+  destruct /v/ /v1 v2/.
+  reduce //.
+  rewrite /-> ihN/.
+  rewrite /<- env_trans_split _# 3 T S #2/.
+  reflexivity.
+}
+{
+  intro /G A B M ihM S/.
+  extensionality.
+  reintro /v/.
+  reduce //.
+  rewrite /-> ihM/.
+  reflexivity.
+}
+{
+  intro /G GAB GA A B T M ihM N ihN S/.
+  rewrite /<- env_trans_split _# 3 T S #1/.
+  rewrite /<- env_trans_split _# 3 T S #2/.
+  rewrite /-> ihM, -> ihN/.
+  reflexivity.
+}
+{
+  intros >> reflexivity.
+}
+{
+  intro /G Gd Ght Gh Gt A T1 T2 Md ihMd Mh ihMh Mt ihMt S/.
+  rewrite /<- env_trans_split _# 3 T1 S #2 at all/.
+  rewrite /<- env_trans_split _# 3 T2 _ #1 at all/.
+  rewrite /<- env_trans_split _# 3 T2 _ #2 at all/.
+  rewrite /-> ihMh, -> ihMt/.
+  reflexivity.
+}
+{
+  intro /G Gl Gn A B T M ihM N1 ihN1 N2 ihN2 S/.
+  rewrite /<- env_trans_split _# 3 T S #1/.
+  rewrite /<- env_trans_split _# 3 T S #2/.
+  rewrite /-> ihM, -> ihN1/.
+  clear /ihM ihN1/.
+  compat >> attempt (symmetry >> apply /tp_trans_correct/).
+  repeatn 2 extensionality.
+  reintro /v acc/.
+  reduce //.
+  rewrite /-> ihN2/.
+  reflexivity.
+}
+qed ();
+
+
+
+endModule (); 

@@ -3,12 +3,16 @@ openModule /List/;
 File.import "../math/load.iml";
 
 File.import "../lfpl-ext/core/load-all.iml";
-File.import "../lfpl-min/core/load-all.iml";
 aliasModule /Ext/ /ExtLanguage/;
+aliasModule /ExtSem/ /ExtDenotational/;
+
+File.import "../lfpl-min/core/load-denotational.iml";
 
 beginModule "Translation";
 
 
+
+(* TYPE TRANSLATION *)
 
 defineInd //
 /
@@ -24,6 +28,21 @@ defineInd //
 /;
 
 
+defineInd //
+/
+  hf_trans : heap_free A -> Ext.heap_free (tp_trans A) of
+  | hf_one . Ext.hf_one
+  | hf_plus A B HA HB . Ext.hf_plus (hf_trans HA) (hf_trans HB)
+  | hf_tensor A B HA HB . Ext.hf_tensor (hf_trans HA) (hf_trans HB)
+//
+  forall (A : tp) . heap_free A -> Ext.heap_free (tp_trans A)
+/;
+Database.setImplicits (parseConstant /hf_trans/) 1;
+
+
+
+(* CONTEXT TRANSLATION *)
+
 define /ctx_trans G/
 /
   map tp_trans G
@@ -32,6 +51,12 @@ define /ctx_trans G/
 /;
 withTypecheck (unfold /ctx_trans/). qed ();
 setOpacity /ctx_trans/ Constant.SOFT;
+reductions
+/
+  ctx_trans (nil) --> nil ;
+  ctx_trans (cons A G) --> cons (tp_trans A) (ctx_trans G) ;
+  unfolding ctx_trans
+/;
 
 
 defineInd //
@@ -43,7 +68,31 @@ defineInd //
 //
   forall (G G1 G2 : ctx) . split G G1 G2 -> Ext.split (ctx_trans G) (ctx_trans G1) (ctx_trans G2)
 /;
+Database.setImplicits (parseConstant /split_trans/) 3;
 
+
+(* TERM TRANSLATION *)
+
+defineInd //
+/
+  term_trans : term G A -> Ext.term (ctx_trans G) (tp_trans A) of
+  | var G A . Ext.var
+  | triv G . Ext.triv
+  | inj1 G A B M . Ext.inj1 (term_trans M)
+  | inj2 G A B M . Ext.inj2 (term_trans M)
+  | match G GAB GC A B C T M N1 N2 . Ext.match (split_trans T) (term_trans M) (term_trans N1) (term_trans N2)
+  | pair G GA GB A B T M1 M2 . Ext.pair (split_trans T) (term_trans M1) (term_trans M2)
+  | letp G GAB GC A B C T M N . Ext.letp (split_trans T) (term_trans M) (term_trans N)
+  | lam G A B M . Ext.lam (term_trans M)
+  | app G GAB GA A B T M N . Ext.app (split_trans T) (term_trans M) (term_trans N)
+  | lnil G A . Ext.lnil
+  | lcons G Gd Ght Gh Gt A T1 T2 Md Mh Mt .
+    Ext.lcons (split_trans T1) (split_trans T2) (term_trans Md) (term_trans Mh) (term_trans Mt)
+  | lrec G Gl Gn A B T M N1 N2 . Ext.lrec (split_trans T) (term_trans M) (term_trans N1) (term_trans N2)
+//
+  forall (G : ctx) (A : tp) . term G A -> Ext.term (ctx_trans G) (tp_trans A)
+/;
+Database.setImplicits (parseConstant /term_trans/) 2;
 
 
 

@@ -43,4 +43,23 @@ defineInd /{a}/
 
 
 
+(* FORALL PREDICATE *)
+
+typedef
+/
+  datatype
+    intersect (i : level) .
+    forall (a : U i) (P : a -> U i) .
+    U i
+  of
+    TForall : tree a -> type =
+    | TForall_leaf : TForall leaf
+    | TForall_node : forall x l r . P x -> TForall l -> TForall r -> TForall (node x l r)
+/;
+
+Database.setImplicits (parseConstant /TForall/) 1;
+Database.setImplicits (parseConstant /TForall_leaf/) 1;
+Database.setImplicits (parseConstant /TForall_node/) 1;
+
+
 endModule ();

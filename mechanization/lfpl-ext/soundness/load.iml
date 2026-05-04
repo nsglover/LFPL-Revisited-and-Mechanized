@@ -3,8 +3,10 @@ File.import "../core/load-operational.iml";
 
 File.loadWithoutDependencies "size.isto";
 File.loadWithoutDependencies "bound.isto";
+File.loadWithoutDependencies "relation.isto";
 File.loadWithoutDependencies "theorems.isto";
 
 openModule /Size/;
-openModule /PolynomialCostBound/;
-openModule /PolynomialTimeCompleteness/;
+openModule /Bound/;
+openModule /LogicalRelation/;
+openModule /PolynomialTimeSoundness/;

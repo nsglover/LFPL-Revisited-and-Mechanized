@@ -10,7 +10,10 @@ File.loadWithoutDependencies "size.isto";
 openModule /Size/;
 
 File.loadWithoutDependencies "bound.isto";
-openModule /PolynomialCostBound/;
+openModule /Bound/;
+
+File.loadWithoutDependencies "relation.isto";
+openModule /LogicalRelation/;
 
 beginModule "PolynomialTimeSoundness";
 
@@ -122,6 +125,51 @@ reflexivity.
 qed ();
 
 
+lemma "heap_free_relation"
+/
+  forall (CM : cost_model) (A : tp) (HA : heap_free A) (V : value A) . Rval CM A V
+/;
+intro /CM A HA/.
+induction /HA/.
+{
+  intro /V/.
+  rewrite /-> one_canonical_form V/.
+  reflexivity.
+}
+{
+  intro /A B HA A_ih CB B_ih V/.
+  so /plus_canonical_form A B V/ /VA V_eq | VB V_eq/ >> subst /V/.
+  {
+    left.
+    exists /VA/.
+    split >>> [reflexivity, exact /A_ih VA/].
+  }
+  {
+    right.
+    exists /VB/.
+    split >>> [reflexivity, exact /B_ih VB/].
+  }
+}
+{
+  intro /A B HA A_ih CB B_ih V/.
+  so /tensor_canonical_form A B V/ /VA VB V_eq/.
+  subst /V/.
+  existses [/VA/, /VB/].
+  splitn 2 >>> [reflexivity, exact /A_ih VA/, exact /B_ih VB/].
+}
+{
+  intro /A HA A_ih V/.
+  so /stack_canonical_form A V/ /VS V_eq/.
+  subst /V/.
+  induction /VS/ >>> [exists /nil/ >> split >>> [reflexivity, apply /Forall_nil/], idtac].
+  intro /V VS (VS' hVS' hVS)/.
+  exists /V :: VS'/.
+  rewrite /-> hVS'/.
+  split >>> [reflexivity, apply /Forall_cons/ >>> [exact /A_ih V/, exact /hVS/]].
+}
+qed ();
+
+
 
 (* CONCRETE POLYNOMIAL-TIME SOUNDNESS *)
 
@@ -134,13 +182,21 @@ lemma "polynomial_time_soundness"
 intro /CM A B HA M L/.
 so
 /
-  evals_terminates_with_polynomial_cost CM _# 2 M (env_cons (vlist L) env_nil) (length L) __
+  Renv_implies_Rterm CM _# 2 M (env_cons (vlist L) env_nil) __ (length L) __
 //
-  V h_evals c_bound
+  V h_evals hV c_bound
 /.
 {
+  split >>> [idtac, split].
+  exists /L/.
+  split >>> [reflexivity, clear /B M/].
+  induction /L/ >>> [apply /Forall_nil/, idtac].
+  intro /V VL ih/.
+  apply /Forall_cons/ >>> [exact /heap_free_relation CM A HA V/, exact /ih/].
+}
+{
   reduce //.
-  rewrite /-> heap_free_list_size_eq_length A HA L/.
+  rewrite /-> heap_free_list_size_eq_length A HA/.
   omega.
 }
 existses [/V/, /h_evals/].

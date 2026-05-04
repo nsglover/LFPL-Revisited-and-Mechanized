@@ -1,7 +1,5 @@
 File.load "language.isto";
 File.load "denotational.isto";
-File.load "sugar.isto";
 
 openModule /ExtLanguage/;
 openModule /ExtDenotational/;
-openModule /ExtSugar/;

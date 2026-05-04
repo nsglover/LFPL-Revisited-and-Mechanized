@@ -1,7 +1,0 @@
-File.load "language.isto";
-File.load "operational.isto";
-File.load "cost.isto";
-
-openModule /Language/;
-openModule /Operational/;
-openModule /Cost/;
