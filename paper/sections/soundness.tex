@@ -168,23 +168,35 @@ To prove \pref{thm:soundness-general-weak}, we take a standard logical relations
 \begin{definition}
 We first define the shorthand $\Rterm{A}{\env}{M}$ to mean:
 \begin{align*}
-&\text{For all $n \ge \envsize{\env}$, there exists $v : A$ such that $\Rval{A}{v}$ and $\evals{\env}{M}{c}{v}$} \\
-&\text{where $c + P_v(n) \le P_M(n) + P_\env(n)$}
+&\text{For all $n \ge \envsize{\env}$, there exists $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$,} \\
+&\text{$\Rval{A}{v}$ holds, and $c + P_v(n) \le P_M(n) + P_\env(n)$}
 \end{align*}
 \end{definition}
+By working with a general $n \ge \envsize{\env}$ rather than just $\envsize{\env}$ as the input to the polynomials, we can deal with the case where $\env$ arises as part of a larger environment during the proof. This is reminiscent of ``future worlds'' from Kripke-style logical relations. % TODO: Citation?
 
-Another necessary strengthening of \pref{thm:soundness-general-weak} is to break the dependency of the polynomials' input on the environment $\env$. Instead, we prove that the theorem holds for all inputs $n$ which are big enough to account for all diamonds, i.e. $n \ge \envsize{\env}$. The final form of our soundness theorem is as follows:
+\begin{definition}
+We define $\Rval{A}{v}$ by induction on the type $A$:
+\begin{align*}
+\Rval{\tpunit}{v} &\quad \text{iff} \quad v = \vnull \\
+\Rval{\tptens{A_1}{A_2}}{v} &\quad \text{iff} \quad v = \vpair{v_1}{v_2}, \; \Rval{A_2}{v_1}, \text{ and } \Rval{A_2}{v_2} \\
+\Rval{\tptens{A_1}{A_2}}{v} &\quad \text{iff} \quad v = \vpair{v_1}{v_2}, \; \Rval{A_2}{v_1}, \text{ and } \Rval{A_2}{v_2} \\
+\Rval{\tparr{A}{B}}{v} &\quad \text{iff} \quad v = \vlam{\env}{x}{M}, \text{ and } \Rval{A}{v} \text{ implies } \Rterm{B}{\envcons{\env}{x}{v}}{M} \\
+\Rval{\tplist{A}}{v} &\quad \text{iff} \quad \text{$v$ is a list $\ell$ such that } \Rval{A}{-} \text{ holds for each element of $\ell$ }
+\end{align*}
+The remaining cases are provided in the mechanization.
+\end{definition}
 
-\begin{theorem}[General Polynomial-Time Soundness]
-For all $k \in \mathbb N$, suppose that $\types{\ctx}{M}{A}$ and $\env : \ctx$. If $n \ge \envsize{\env}$ and $k \ge P_M(n) + P_{\env}(n)$, then there is a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and:
-$$c + P_v(n) \le P_M(n) + P_{\env}(n)$$
+\begin{definition}
+We define $\Renv{\Gamma}{\env}$ by induction on $\Gamma$. $\Renv{\ctxnil}{\envnil}$ always holds. $\Renv{\ctxcons{\Gamma}{x}{A}}{\envcons{\env}{x}{v}}$ holds whenever $\Rval{A}{v}$ and $\Renv{\Gamma}{\env}$ hold.
+\end{definition}
+
+Now, \pref{thm:soundness-general-weak} is clearly implied by the fundamental theorem for our relation $\mathcal R$:
+
+\begin{theorem}[Fundamental Theorem]
+Suppose $\types{\Gamma}{M}{A}$ and $\envtypes{\env}{\Gamma}$. Then, if $\Renv{\Gamma}{\env}$ holds, so does $\Rterm{A}{\env}{M}$.
 \end{theorem}
 \begin{proof}
-While $k$ may seem to have no real involvement in the theorem statement, it is the crucial means by which we reason about the soundness of terms that arise dynamically from function and lazy pair closures in the environment. We begin with a strong induction on $k$, so we know the theorem holds for all $k' < k$.
-
-Next, we go by rule induction on $\types{\ctx}{M}{A}$. At the cases for $\tmapp{M}{N}$ and $\tmproj{i}{M}$, where we have designed the polynomial for these terms to be strictly larger than the polynomials for its subterms, we are able invoke our outer induction hypothesis about $k$ to reason about, for example, the term $M'$ where $\evals{\env}{M}{c}{\vlam{\env'}{x}{M'}}$.
-
-\pref{thm:non-size-increasing} comes up in nearly every case, since we need to satisfy the premise $n \ge \envsize{\env}$ of any inductive hypotheses. Importantly, we actually make use of this premise in the list and tree recursor cases, where we can say for example that the length of any list value $v$ is at most $\envsize{\env}$ and therefore at most $n$. Most cases are verbose but straightforward, and a couple of the less straightforward cases can be found in{
+We go by rule induction on $\types{\ctx}{M}{A}$. \pref{thm:non-size-increasing} comes up in nearly every case, since we need to satisfy the premise $n \ge \envsize{\env}$ of $\Rterm{A}{\env}{M}$ to use any inductive hypotheses. Importantly, we actually make use of this premise in the list and tree recursor cases, where we can say for example that the length of any list value $v$ is at most $\envsize{\env}$ and therefore at most $n$. Most cases are verbose but straightforward, and a couple of the less straightforward cases can be found in{
   \ifdefined\FULLVERSION
     \pref{app:soundness}
   \else

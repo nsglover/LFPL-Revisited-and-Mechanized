@@ -1,15 +1,14 @@
 \section{Soundness Proof Cases}
 \label{app:soundness}
 
-Here, we provide two interesting cases of the soundness proof. The other cases are similar to these but generally more straightforward and can all be found in the mechanization~\cite{mechanization}. First, we go through the function application case in moderate detail to demonstrate the method by which we are able to simultaneously prove termination and a polynomial cost bound. Second, we give a sketch of the list recursor case, which as a driver of variable-time computation is one of the most critical points for polynomial-time soundness.
-\begin{thm}[General Polynomial-Time Soundness]
-For every $k \in \mathbb N$, suppose that $\types{\ctx}{M}{A}$ and $\env : \ctx$. If $n \ge \envsize{\env}$ and $k \ge P_M(n) + P_{\env}(n)$, then there is a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and:
-$$c + P_v(n) \le P_M(n) + P_{\env}(n)$$
-\end{thm}
+Here, we provide two cases of the soundness proof. The other cases are similar to these, though often more straightforward, and can all be found in the mechanization~\cite{mechanization}. First, we go through the function application case in moderate detail to demonstrate the need for a logical relation. Second, we sketch the list recursor case, which as a driver of variable-time computation is one of the most critical things to consider for polynomial-time soundness.
+\begin{theorem}[Fundamental Theorem]
+Suppose $\types{\Gamma}{M}{A}$ and $\envtypes{\env}{\Gamma}$. Then, if $\Renv{\Gamma}{\env}$ holds, so does $\Rterm{A}{\env}{M}$.
+\end{theorem}
 \begin{proof}
-By strong induction, we may assume the theorem holds for all $k' < k$. Now we go by rule induction on $\types{\ctx}{M}{A}$.
+We go by rule induction on $\types{\Gamma}{M}{A}$.
 
-\paragraph{Application Case} $\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmapp{M}{N}}{B}$ because $\types{\ctx_1}{M}{\tparr{A}{B}}$ and $\types{\ctx_2}{N}{A}$. Let $\envappend{\env_1}{\env_2}$ be the bipartition of $\env$ corresponding to $\ctxappend{\ctx_1}{\ctx_2}$. Firstly, by the inner induction hypotheses for $M$ and $N$:
+\paragraph{Application Case} $\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmapp{M}{N}}{B}$ because $\types{\ctx_1}{M}{\tparr{A}{B}}$ and $\types{\ctx_2}{N}{A}$. Let $\envappend{\env_1}{\env_2}$ be the bipartition of $\env$ corresponding to $\ctxappend{\ctx_1}{\ctx_2}$. By the induction hypotheses for $M$ and $N$:
 \begin{itemize}
   \item There is a value $v_M = \vlam{\env'}{x}{M'}$ and a cost $c_M$ such that $\evals{\env_1}{M}{c_M}{v_M}$ and:
   $$ c_M + P_{\env'}(n) + P_{M'}(n) \le P_M(n) + P_{\env_1}(n) $$
