@@ -95,7 +95,7 @@ The relevance of this result to soundness might already be clear. An immediate c
 
 \subsection{Polynomial Cost Bound}
 
-Our goal in this subsection is to prove the following:
+Our goal for the rest of this section is to prove the following:
 
 \begin{theorem}[Concrete Polynomial-Time Soundness of \lfplplus]
 \label{thm:soundness-concrete}
@@ -116,7 +116,7 @@ However, this statement is false. The problem is that the environment may contai
 To resolve this issue, we must consider the potential cost of running functions (or lazy pairs) stored in the environment $\env$ and result value $v$. Suppose for a moment we have defined three families of polynomials: $P_M$ on all terms $M$, $P_v$ on all values $v$, and $P_\env$ on all environments $\env$. Our new goal is to prove the following theorem.
 
 \begin{theorem}[General Soundness - Second Attempt]
-\label{thm:soundness-general-weak}
+\label{thm:soundness-general}
 Suppose $\types{\ctx}{M}{A}$. Then, for any $\env : \Gamma$, there exists a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and:
 $$c + P_v(\envsize{\env}) \le P_M(\envsize{\env}) + P_{\env}(\envsize{\env})$$
 \end{theorem}
@@ -156,14 +156,14 @@ P_{\envnil} &= 0 \quad\text{and}\quad P_{\envcons{\env}{x}{v}} = P_\env + P_v
 \end{align*}
 The definition of $P_v$ for other values $v$ is given in the mechanization.
 \end{definition}
-The idea of  $P_v$ and $P_\env$ is to bound the future cost of evaluating all of the closures (functions and lazy pairs) stored inside $v$ and $\env$ respectively. With these choices of polynomials, \pref{thm:soundness-general-weak} implies \pref{thm:soundness-concrete}, because when $v : \tplist{A}$ and $\dfree{A}$, $P_v = 0$ and $\valsize{v} = n$, where $n$ is the length of the list represented by $v$.
+The idea of  $P_v$ and $P_\env$ is to bound the future cost of evaluating all of the closures (functions and lazy pairs) stored inside $v$ and $\env$ respectively. With these choices of polynomials, \pref{thm:soundness-general} implies \pref{thm:soundness-concrete}, because when $v : \tplist{A}$ and $\dfree{A}$, $P_v = 0$ and $\valsize{v} = n$, where $n$ is the length of the list represented by $v$.
 
 
 
 \subsection{Proving the Soundness Theorem}
 \label{sec:proving-general-soundness}
 
-To prove \pref{thm:soundness-general-weak}, we take a standard logical relations approach.
+To prove \pref{thm:soundness-general}, we take a standard logical relations approach. We define a unary logical relation $\mathcal R$ for terms, values, and environments with the aim that the fundamental theorem for $\mathcal R$ implies \pref{thm:soundness-general}.
 
 \begin{definition}
 We first define the shorthand $\Rterm{A}{\env}{M}$ to mean:
@@ -190,7 +190,7 @@ The remaining cases are provided in the mechanization.
 We define $\Renv{\Gamma}{\env}$ by induction on $\Gamma$. $\Renv{\ctxnil}{\envnil}$ always holds. $\Renv{\ctxcons{\Gamma}{x}{A}}{\envcons{\env}{x}{v}}$ holds whenever $\Rval{A}{v}$ and $\Renv{\Gamma}{\env}$ hold.
 \end{definition}
 
-Now, \pref{thm:soundness-general-weak} is clearly implied by the fundamental theorem for our relation $\mathcal R$:
+Now, \pref{thm:soundness-general} is clearly implied by the fundamental theorem for our relation $\mathcal R$:
 
 \begin{theorem}[Fundamental Theorem]
 Suppose $\types{\Gamma}{M}{A}$ and $\envtypes{\env}{\Gamma}$. Then, if $\Renv{\Gamma}{\env}$ holds, so does $\Rterm{A}{\env}{M}$.
