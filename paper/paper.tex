@@ -21,14 +21,14 @@
 
 \input{metadata/authors}
 \input{metadata/concepts}
-
+\ifdefined\FULLVERSION
+  \DOIPrefix{}
+\fi
 
 
 \begin{document}
 
-\ifdefined\FULLVERSION
-
-\else
+\ifdefined\FULLVERSION\else
   \relatedversiondetails[cite={fullversion}]{Full Version}{TODO: ARXIV LINK HERE}
 \fi
 
@@ -49,10 +49,12 @@
 
 \newpage
 
-\appendix
-\input{appendices/evaluation}
-\input{appendices/soundness}
-\include{figures/app-jmt-eval}
+\ifdefined\FULLVERSION
+  \appendix
+  \input{appendices/evaluation}
+  \input{appendices/soundness}
+  \include{figures/app-jmt-eval}
+\fi
 
 
 
