@@ -57,7 +57,9 @@ Another important subtlety is in \pref{rule:ty-ListE}, where $N_2$ is typed unde
 \subsection{Denotational Semantics}
 \label{sec:denotational-semantics}
 
-To reason about the behavior of \lfpl programs, we give them a simple set-theoretic denotational semantics. To each type $A$ we assign a set $\tpsem{A}$, and to each well-typed term $\types{\Gamma}{M}{A}$ we assign an element $\tmsem{M}{\env}$ of $\tpsem{A}$, where $\env$ is an environment such that $\env \in \tpsem{\Gamma}$ (meaning that $\env(x) \in \tpsem{A}$ is defined for every $x : A \in \Gamma$).
+To reason about the behavior of \lfpl programs, we need to reason about evaluating functions which may take lists as input. For instance, we will see in \pref{sec:lfpl-examples} a closed \lfpl term $\code{reverse} : \tparr{\tplist{A}}{\tplist{A}}$, but we can never actually ``run'' $\code{reverse}$ on a nonempty input list, since that would require a closed term of type $\tpdiam$ and the whole point of \lfpl's type system is to make that impossible. Thus, it is difficult to study \lfpl by itself; we instead need to reason about terms in a domain where $\tpdiam$ is inhabited.
+
+We now give a simple set-theoretic denotational semantics. To each type $A$ we assign a set $\tpsem{A}$, and to each well-typed term $\types{\Gamma}{M}{A}$ we assign an element $\tmsem{M}{\env}$ of $\tpsem{A}$, where $\env$ is an environment such that $\env \in \tpsem{\Gamma}$ (meaning that $\env(x) \in \tpsem{A}$ is defined for every $x : A \in \Gamma$). Per the above discussion, we ensure $\tpsem{\tpdiam}$ is a nonempty set.
 
 To define the semantics of the \lfpl list type, we make use of the Kleene star operator. Given a set $S$, the set $S^*$ is the set of finite strings of elements of $S$. We write $[]$ for the empty string, and given $x \in S$ and $\ell \in S^*$, we write $x :: \ell$ for the element of $S^*$ obtained by putting $x$ before the sequence of elements in $\ell$. Given $\ell \in S^*$, let $|\ell| \in \mathbb N$ denote the length of the string $\ell$. Lastly, for every set $T$, we inductively define the iteration operator on $S^*$:
 \begin{align*}
@@ -75,6 +77,7 @@ The notion of size and the non-size-increasing property were originally formulat
 
 
 \subsection{Example Functions}
+\label{sec:lfpl-examples}
 
 To build intuition about the expressivity of \lfpl, we implement some examples of functions that demonstrate how to program in the language. Firstly, given any element type $A$, we implement efficient list reversal. For readability in example programs, we use concrete syntax
 $$\text{\lstinline{rec M | nil => N1 | cons (xd, xh, xt) => N2}}$$
@@ -123,12 +126,12 @@ susp = lam x . rec x .
     | inj2 (d', _, n') => cons (d', x, f n')
   , cons (d, <>, m))
 \end{lstlisting}
-This example is important for the completeness proof, so it is worth stating its semantics: If $x \in \tpsem{A}^*$, then $\tmsem{susp}{\envnil}(x) = (f, m)$, where $f(m) = x$. Note that $m$ is the unique element of $\tpsem{\tpunit}^*$ with length $|x|$, so we recover $x$ as long as we give $f$ enough diamonds.
+This example is important for the completeness proof, so it is worth stating its semantics: If $x \in \tpsem{A}^*$, then $\tmsem{\texttt{susp}}{\envnil}(x) = (f, m)$, where $f(m) = x$. Note that $m$ is the unique element of $\tpsem{\tpunit}^*$ with length $|x|$, so we recover $x$ as long as we give $f$ enough diamonds.
 \end{example}
 
 
 
-\begin{remark}[Contraction]
+\subsection{Contraction}
 
 The defining trait of an affine type system is that contraction, the use of a variable more than once, is not permitted. The importance of disallowing contraction in \lfpl is immediately evident; if we could use a variable of diamond type more than once, then we could easily create lists of arbitrary length and break the non-size-increasing property. Despite this restriction, there are types which still enjoy contraction. We define the judgement $\hspace{-0.25em}\dfree{}$ on types as follows:
 \begin{mathpar}
@@ -157,5 +160,3 @@ expCalls (cons (_, _, n)) = let r = expCalls n f in
   wrap (lam x . unwrap(r) (unwrap(r) x))
 \end{lstlisting}
 Evaluating $\tmapp{\tmapp{\code{expCalls}}{n}}{f}$ yields a function which calls $f$ on itself $2^{|n|}$ times. If $f$ incurs any cost, then the resulting function will definitely not run in polynomial time.
-
-\end{remark}
