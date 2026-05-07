@@ -255,10 +255,10 @@ By allowing $M$ to output a stack rather than insisting it be a list, we can imp
 
 
 
-\subsection{Errors in the Oiriginal Proof}
+\subsection{Errors in the Original Proof}
 \label{sec:completeness-errors}
 
-We originally intended to mechanize Hofmann’s original completeness proof~\cite{hofmannStrengthNonsizeIncreasing2002}, but thinking through what would be required for this, we noticed several subtle errors and wanted to avoid the difficulties that come with resolving them. Thus, the mechanization effort led us to invent a simpler data structure for representing the tape of a Turing machine.
+We originally intended to mechanize Hofmann’s completeness proof~\cite{hofmannStrengthNonsizeIncreasing2002}, but thinking through what would be required for this, we noticed several subtle errors and wanted to avoid the difficulties that come with resolving them. Thus, the mechanization effort led us to invent a simpler stack-like data structure for representing the tape of a Turing machine.
 
 A main difficulty in the completeness proof is to represent the tape of a polynomial-time Turing machine in LFPL, say with polynomial $P$ and degree $k$. Hofmann constructs a data structure (called a “storage device”) that can hold only $cn^k$ elements for a fixed $c$, as opposed to $P(n)$ elements, given temporary access to $n$ diamonds. In Hofmann’s encoding of the Turing machine, given an input list of length n, the first step is to construct a storage device capable of holding $P(2km)$ elements when given access to $km$ temporary diamonds. This amounts to finding a monomial $cm^k \ge P(2km)$. Hofmann chooses $m$ to be $n/(2k)$, but the largest possible value for $m$ is $\left\lfloor n/(2k) \right\rfloor$; any larger and we could potentially have $km > n/2$. This makes the storage device unsuitable for the proof since it would mandate the availability more than our $n/2$ diamonds. See below for why we have only $n/2$ rather than $n$ diamonds. So, due to this upper bound on $m$, to have $cm^k \ge P(n)$ we actually need $cm^k$ to bound $P(2k(m + 1))$, which is one small error in the proof.
 

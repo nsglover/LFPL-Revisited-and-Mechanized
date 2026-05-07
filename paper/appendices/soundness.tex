@@ -1,7 +1,7 @@
 \section{Soundness Proof Cases}
 \label{app:soundness}
 
-Here, we provide two cases of the soundness proof. The other cases are similar to these, though often more straightforward, and can all be found in the mechanization~\cite{mechanization}. First, we go through the function application case in moderate detail to demonstrate the need for a logical relation. Second, we sketch the list recursor case, which as a driver of variable-time computation is one of the most critical things to consider for polynomial-time soundness.
+Here, we provide two cases of the soundness proof. The other cases are similar to these, though often more straightforward, and can all be found in the mechanization~\cite{mechanization}. First, we go through the function application case in moderate detail to demonstrate the need for a logical relation. Second, we sketch the list recursor case, which as a driver of variable-time computation is one of the most critical points to consider for polynomial-time soundness.
 \begin{theorem}[Fundamental Theorem]
 Suppose $\types{\Gamma}{M}{A}$ and $\envtypes{\env}{\Gamma}$. Then, if $\Renv{\Gamma}{\env}$ holds, so does $\Rterm{A}{\env}{M}$.
 \end{theorem}
@@ -22,7 +22,7 @@ Since $\Renv{\Gamma}{\env}$, we have $\Renv{\Gamma_1}{\env_1}$ and $\Renv{\Gamma
   $$ c_N + P_{v_N}(n) \le P_N(n) + P_{\env_2}(n) $$
 \end{itemize}
 
-By definition of $\Rval{\tparr{A}{B}}{v}$, we know that $v = \vlam{\env'}{x}{M'}$ and $\Rterm{B}{\envcons{\env'}{x}{v_N}}{M'}$. In particular, by definition of $P_{\vlam{\env'}{x}{M'}}$, we obtain the following inequality:
+By definition of $\Rval{\tparr{A}{B}}{v}$, we know that $v_M = \vlam{\env'}{x}{M'}$ and $\Rterm{B}{\envcons{\env'}{x}{v_N}}{M'}$. In particular, by definition of $P_{\vlam{\env'}{x}{M'}}$, we obtain the following inequality:
 $$ c_M + P_{\env'}(n) + P_{M'}(n) \le P_M(n) + P_{\env_1}(n) $$
 Also, by \pref{thm:non-size-increasing}, we know:
 \begin{align*}
@@ -46,9 +46,9 @@ Assume $\Renv{\Gamma_1}{\env_1}$ and $\Renv{\Gamma_2}{\env_2}$, where $\envappen
 $$c_M + P_{v_M}(n) \le P_M(n) + P_{\env_1}(n)$$
 By definition of $\Rval{\tplist{A}}{v_M}$, we know that $v_M$ is a list $\ell$ of values of type $A$ for which $\Rval{A}{-}$ holds. Now, recall the definition of $P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n)$:
 $$ P_M(n) + (\Crec + P_{N_1}(n)) + n (\Cvar + \Crec + P_{N_2}(n)) $$
-Instead of directly dealing with this inequality, we use a stronger one:
+Instead of directly dealing with this bound on the cost, we use a stronger one:
 $$ P_M(n) + (\Crec + P_{N_1}(n)) + \mathsf{length}(\ell) (\Cvar + \Crec + P_{N_2}(n)) $$
-This bound makes intuitive sense; the whole point of multiplying by $n$ there was because it was suppose to bound the maximum number of times an iteration could run. But we now know we will iterate exactly $\mathsf{length}(\ell)$ times. This inequality does indeed imply our goal; by \pref{thm:non-size-increasing}, we know $\mathsf{length}(\ell) \le \envsize{\env_1} \le n$.
+This bound makes intuitive sense; the whole point of multiplying by $n$ there was because it was suppose to bound the maximum number of times an iteration could run. Now that we are in the midst of the proof with access to dynamic information, we know we will iterate exactly $\mathsf{length}(\ell)$ times. This bound is indeed stronger; by \pref{thm:non-size-increasing}, we know $\mathsf{length}(\ell) \le \envsize{\env_1} \le n$.
 
 From here, the strategy is to proceed by induction on the structure of $\ell$ and prove termination alongside this tighter bound. The cases of this induction are relatively straightforward and do not require anything more complicated than what is seen in the application case above. The base case makes use of the induction hypothesis for $N_1$, and the inductive case makes use of the induction hypothesis for $N_2$.
 \end{proof}

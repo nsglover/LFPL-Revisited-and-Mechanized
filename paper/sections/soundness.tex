@@ -115,13 +115,13 @@ However, this statement is false. The problem is that the environment may contai
 
 To resolve this issue, we must consider the potential cost of running functions (or lazy pairs) stored in the environment $\env$ and result value $v$. Suppose for a moment we have defined three families of polynomials: $P_M$ on all terms $M$, $P_v$ on all values $v$, and $P_\env$ on all environments $\env$. Our new goal is to prove the following theorem.
 
-\begin{theorem}[General Soundness - Second Attempt]
+\begin{theorem}[General Soundness]
 \label{thm:soundness-general}
 Suppose $\types{\ctx}{M}{A}$. Then, for any $\env : \Gamma$, there exists a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and:
 $$c + P_v(\envsize{\env}) \le P_M(\envsize{\env}) + P_{\env}(\envsize{\env})$$
 \end{theorem}
 
-This theorem is true, though as stated it is not strong enough to be proven by rule induction on $\types{\ctx}{M}{A}$. Before discussing this further, we define the polynomials used in this theorem. By $\max(P,Q) : \mathbb N \to \mathbb N$ we mean the polynomial with coefficients equal to the pairwise maximums of the coefficients of polynomials $P,Q : \mathbb N \to \mathbb N$. This way, $\max(P(n), Q(n)) \le \max(P,Q)(n)$.
+This theorem is true (for some definitions of $P_v$, $P_M$, and $P_\env$), though as stated it is not strong enough to be proven by rule induction on $\types{\ctx}{M}{A}$. Before discussing this further, we define the polynomials used in this theorem. By $\max(P,Q) : \mathbb N \to \mathbb N$ we mean the polynomial with coefficients equal to the pairwise maximums of the coefficients of polynomials $P,Q : \mathbb N \to \mathbb N$. This way, $\max(P(n), Q(n)) \le \max(P,Q)(n)$.
 
 \begin{definition}[Term Polynomial]
 Let $M$ be a \lfplplus term. We inductively define the polynomial $P_M : \mathbb N \to \mathbb N$ as follows.
@@ -156,14 +156,14 @@ P_{\envnil} &= 0 \quad\text{and}\quad P_{\envcons{\env}{x}{v}} = P_\env + P_v
 \end{align*}
 The definition of $P_v$ for other values $v$ is given in the mechanization.
 \end{definition}
-The idea of  $P_v$ and $P_\env$ is to bound the future cost of evaluating all of the closures (functions and lazy pairs) stored inside $v$ and $\env$ respectively. With these choices of polynomials, \pref{thm:soundness-general} implies \pref{thm:soundness-concrete}, because when $v : \tplist{A}$ and $\dfree{A}$, $P_v = 0$ and $\valsize{v} = n$, where $n$ is the length of the list represented by $v$.
+The idea of  $P_v$ and $P_\env$ is to bound the future cost of evaluating all of the closures (functions and lazy pairs) stored inside $v$ and $\env$ respectively. With these choices of polynomials, \pref{thm:soundness-general} implies \pref{thm:soundness-concrete}, because when $v : \tplist{A}$ and $\dfree{A}$, it is clear that $P_v = 0$ and $\valsize{v} = n$, where $n$ is the length of the list represented by $v$.
 
 
 
 \subsection{Proving the Soundness Theorem}
 \label{sec:proving-general-soundness}
 
-To prove \pref{thm:soundness-general}, we take a standard logical relations approach. We define a unary logical relation $\mathcal R$ for terms, values, and environments with the aim that the fundamental theorem for $\mathcal R$ implies \pref{thm:soundness-general}.
+To prove \pref{thm:soundness-general}, we take a standard logical relations approach. We define a unary logical relation $\mathcal R$ for terms, values, and environments with the goal that the fundamental theorem for $\mathcal R$ should imply \pref{thm:soundness-general}.
 
 \begin{definition}
 We first define the shorthand $\Rterm{A}{\env}{M}$ to mean:
