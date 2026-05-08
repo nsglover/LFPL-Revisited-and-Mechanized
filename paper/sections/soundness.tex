@@ -87,7 +87,7 @@ Suppose that $\types{\ctx}{M}{A}$. Then, for all environments $\env$, values $v$
 By rule induction on $\evals{\env}{M}{c}{v}$.
 \end{proof}
 
-The relevance of this result to soundness might already be clear. An immediate corollary of the theorem is that there are no closed terms of type $\tpdiam$, one of the main properties \lfpl's type system was designed to ensure. The reason is that $\vdiam$ has size $1$ but the empty environment has size $0$.
+The relevance of this result to soundness might already be clear. An immediate corollary is that there are no closed terms of type $\tpdiam$, because $\vdiam$ has size $1$ but the empty environment has size $0$. This is one of the main properties \lfpl's type system was designed to ensure.
 
 
 
@@ -143,8 +143,7 @@ The remaining cases are similar and provided in the mechanization.
 The aim of $P_M$ is to bound the cost of evaluating $M$, and the future cost of using any closures it evaluates to, by $P_M(n)$ in an environment containing $n$ diamonds. The intuition behind $P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n)$ is that $M$ and $N_1$ are evaluated once, and $N_2$ could be evaluated up to $n$ times, where $n = \envsize{\env}$ is the number of diamonds available the environment. Similarly, for $P_{\tmtrec{M}{N_1}{x}{y}{z}{w}{N_2}}$, the base case $N_1$ could be evaluated $n + 1$ times (a tree with $n$ internal nodes has $n + 1$ leaf nodes) and $N_2$ could be evaluated $n$ times.
 
 \begin{definition}[Value and Environment Polynomials]
-  We define polynomials $P_\env : \mathbb N \to \mathbb N$ and
-  $P_v : \mathbb N \to \mathbb N$ via mutual induction as follows
+We define polynomials $P_\env : \mathbb N \to \mathbb N$ and $P_v : \mathbb N \to \mathbb N$ via mutual induction as follows:
 \begin{align*}
 P_{\vdiam} &= P_{\vnull} = P_{\vempty} = P_{\vnil} = P_{\vleaf} = 0 \\
 P_{\vrecord{\env}{M_1}{M_2}} &= P_{\env} + \max(P_{M_1}, P_{M_2}) \\
@@ -155,6 +154,11 @@ P_{\envnil} &= 0 \quad\text{and}\quad P_{\envcons{\env}{x}{v}} = P_\env + P_v
 The definition of $P_v$ for other values $v$ is given in the mechanization.
 \end{definition}
 The idea of  $P_v$ and $P_\env$ is to bound the future cost of evaluating all of the closures (functions and lazy pairs) stored inside $v$ and $\env$ respectively. With these choices of polynomials, \pref{thm:soundness-general} implies \pref{thm:soundness-concrete}, because when $v : \tplist{A}$ and $\dfree{A}$, it is clear that $P_v = 0$ and $\valsize{v} = n$, where $n$ is the length of the list represented by $v$.
+
+\begin{example}
+Consider \code{reverse} and \code{revAppend} from \pref{example:reverse}. For simplicity, assume our cost model has $\Crec = \Capp = 1$ and all other constants are zero. We have:
+$$P_\code{reverse}(n) = P_\code{revAppend}(n) = \Crec + n(\Crec + \Capp) = 2n + 1$$
+\end{example}
 
 
 
@@ -170,7 +174,7 @@ We first define the shorthand $\Rterm{A}{\env}{M}$ to mean:
 &\text{$\Rval{A}{v}$ holds, and $c + P_v(n) \le P_M(n) + P_\env(n)$}
 \end{align*}
 \end{definition}
-By working with a general $n \ge \envsize{\env}$ rather than just $\envsize{\env}$ as the input to the polynomials, we can deal with the case where $\env$ arises as part of a larger environment during the proof. This is reminiscent of ``future worlds'' from Kripke-style logical relations. % TODO: Citation?
+By working with a general $n \ge \envsize{\env}$ rather than just $\envsize{\env}$ as the input to the polynomials, we can deal with the case where $\env$ arises as part of a larger environment during the proof. This is reminiscent of ``future worlds'' from Kripke-style logical relations. \comment{Jan}{Should there be a citation here?}
 
 \begin{definition}
 We define $\Rval{A}{v}$ by induction on the type $A$:
