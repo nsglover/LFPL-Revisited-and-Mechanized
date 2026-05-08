@@ -74,7 +74,7 @@ I've gone through the "comments for authors" list that each reviewer gave us and
 
 - line 1020: I would at least state formally each and every property you are mentioning in this last paragraph.
 
-  - Done. See Theorems 18 and 19.
+  - Done. See Theorems 18, 19, and 20.
 
 - line 1097: you should mention that this theorem is about LFPL+.
 
@@ -123,6 +123,7 @@ I've gone through the "comments for authors" list that each reviewer gave us and
 - 952: Could you clarify whether the LFPL+ completeness proof has been implemented or is this stated informally? I was not able to find it in the code artifact.
 
   - **IGNORED**. We addressed this in the rebuttal, but I did not say anything about it in the paper. Should I? Search for "admits a much simpler completeness proof" to see the relevant part of the paper.
+  - I did explain in the mechanization's `README.md` that we did the translation from LFPL to LFPL+ and soundness/completeness proofs for both languages.
 
 - 956-961: I think this paragraph makes an important point. It might be worthwhile to bring it up earlier in your presentation, in Section 2.
 
