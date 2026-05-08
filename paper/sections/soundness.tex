@@ -84,7 +84,7 @@ We then show that the size of the value resulting from the evaluation of an \lfp
 Suppose that $\types{\ctx}{M}{A}$. Then, for all environments $\env$, values $v$, and costs $c$ such that $\evals{\env}{M}{c}{v}$, we have $\valsize{v} \le \envsize{\env}$.
 \end{theorem}
 \begin{proof}
-By rule induction on $\evals{\env}{M}{c}{v}$.
+By rule induction on $\evals{\env}{M}{c}{v}$. All cases are provided in the mechanization.
 \end{proof}
 
 The relevance of this result to soundness might already be clear. An immediate corollary is that there are no closed terms of type $\tpdiam$, because $\vdiam$ has size $1$ but the empty environment has size $0$. This is one of the main properties \lfpl's type system was designed to ensure.
