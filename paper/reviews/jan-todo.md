@@ -8,10 +8,6 @@
 
 - Search for any instances of `\comment{Jan}{...}`.
 
-- Standardize the reference format; you mentioned a while back that we have some inconsistencies in the bibliography.
-
-- Cite the POPL version of one of Hofmann's papers. I think it's the one with the completeness proof, "The Strength of Non-Size-Increasing Computation".
-
 - Compress figures to minimize the space they occupy in this new single-column format.
 
 - The figure in Appendix A (`app-jmt-eval.tex`) is larger than a page can support. Maybe we split it into two figures, one for the basic syntactic constructs of LFPL and another for the additional LFPL+ features?
@@ -27,3 +23,9 @@
 - Submit the paper to arXiv and add it as a citation named "fullversion". I think it looks pretty good right now. I've removed the DOI prefix from the abstract because it was just a dummy placeholder, presumably for editors to fill in later, but hopefully we can add it back to the full version once they give us a DOI?
 
 - Time permitting, I could use some help figuring out how to structure the paper around this `reverse`/`revAppend` running example, which should at least show up for the typing rules. I also said (foolishly) in the rebuttal that we would do it for the denotational/operational semantics. Must we? You don't need to write anything, but think about some ideas and I can implement them when I get back. See `changelist-progress.md` for some more details.
+
+# Done
+
+- Standardize the reference format; you mentioned a while back that we have some inconsistencies in the bibliography.
+
+- Cite the POPL version of one of Hofmann's papers. I think it's the one with the completeness proof, "The Strength of Non-Size-Increasing Computation".
