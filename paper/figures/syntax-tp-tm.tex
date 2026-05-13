@@ -1,4 +1,6 @@
 \begin{figure}[t!]
+\hspace{-1.8em}
+\begin{minipage}[t]{0.33\linewidth}
 \begin{syntax}{Type}{A,B}
 \sitem{\tpdiam}{diamond}
 \sitem{\tpunit}{unit}
@@ -6,8 +8,13 @@
 \sitem{\tptens{A}{B}}{tensor}
 \sitem{\tparr{A}{B}}{arrow}
 \sitem{\tplist{A}}{list}
-\\
-\newsort{Term}{M,N}
+\end{syntax}
+\end{minipage}
+%
+\hspace{1.5em}
+%
+\begin{minipage}[t]{0.6\linewidth}
+\begin{syntax}{Term}{M,N}
 \sitem{x}{variable}
 \sitem{\tmnull}{unit intro}
 \sitem{\tminj{i}{M}}{sum intro ($i \in \{1,2\}$)}
@@ -20,6 +27,12 @@
 \sitem{\tmcons{M_d}{M_h}{M_t}}{list intro}
 \sitem{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}{list elim}
 \end{syntax}
+\end{minipage}
 \caption{\lfpl's type and term syntax}
 \label{fig:syntax-tp-tm}
 \end{figure}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: "../paper"
+%%% End:

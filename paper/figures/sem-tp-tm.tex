@@ -1,14 +1,13 @@
 \begin{figure}[t!]
 \[
-\begin{array}{r@{\;}c@{\;}lr@{\;}c@{\;}l}
-\tpsem{\tpdiam} &=& \{ \blacklozenge \} &
-\tpsem{\tpunit} &=& \{ \ast \} \\
-
-\tpsem{\tptens{A}{B}} &=& \tpsem{A} \times \tpsem{B} &
-\tpsem{\tplist{A}} &=& \tpsem{A}^* \\
-
-\tpsem{\tpsum{A}{B}} &=& \tpsem{A} \sqcup \tpsem{B} &
-\tpsem{\tparr{A}{B}} &=& \tpsem{A} \to \tpsem{B}
+\begin{array}{@{\hspace{3.3em}}r@{\;=\;}l@{\hspace{3.3em}}r@{\;=\;}l@{\hspace{3.3em}}r@{\;=\;}l}
+\tpsem{\tpdiam} & \{ \blacklozenge \} &
+\tpsem{\tptens{A}{B}} & \tpsem{A} \times \tpsem{B} &
+\tpsem{\tplist{A}} & \tpsem{A}^* \\
+%
+\tpsem{\tpunit} & \{ \ast \} &
+\tpsem{\tpsum{A}{B}} & \tpsem{A} \sqcup \tpsem{B} &
+\tpsem{\tparr{A}{B}} & \tpsem{A} \to \tpsem{B}
 \end{array}
 \]
 % \begin{array}[rrrrr]
@@ -17,22 +16,30 @@
 % \tpsem{\tptens{A}{B}} &= \tpsem{A} \times \tpsem{B} &\tpsem{\tparr{A}{B}} &= &\tpsem{A} \to \tpsem{B}
 % \end{array}
 
-\begin{align*}
-\tmsem{x}{\env} &= \env(x) \\
-\tmsem{\tmnull}{\env} &= \ast \\
-\tmsem{\tminj{i}{M}}{\env} &= (i, \tmsem{M}{\env}) \\
-\tmsem{\tmcase{M}{x_1}{N_1}{x_2}{N_2}}{\env} &= \tmsem{N_i}{\envcons{\env}{x_i}{v}} \\
-&\quad \text{where} \quad \tmsem{M}{\env} = (i, v) \\
-\tmsem{\tmpair{M_1}{M_2}}{\env} &= (\tmsem{M_1}{\env}, \tmsem{M_2}{\env}) \\
-\tmsem{\tmletp{M}{x_1}{x_2}{N}}{\env} &= \tmsem{N}{\env[x_1 \mapsto v_1, x_2 \mapsto v_2]} \\
-&\quad \text{where} \quad \tmsem{M}{\env} = (v_1, v_2) \\
-\tmsem{\tmlam{x}{M}}{\env} &= \lambda \, v . \; \tmsem{M}{\envcons{\env}{x}{v}} \; \\
-\tmsem{\tmapp{M}{N}}{\env} &= \tmsem{M}{\env} \left( \tmsem{N}{\env} \right) \\
-\tmsem{\tmnil}{\env} &= [] \\
-\tmsem{\tmcons{M_0}{M_1}{M_2}}{\env} &= \tmsem{M_1}{\env} :: \tmsem{M_2}{\env} \\
-\tmsem{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}{\env} &= \text{iter}(\tmsem{M}{\env}, \tmsem{N_1}{\env}, f)
-\end{align*}
-$$\text{where} \quad f(v, w) = \tmsem{N_2}{\envnil[x_d \mapsto \blacklozenge, x_h \mapsto v, x_t \mapsto w]}$$
+\[
+\begin{array}{rcll}
+\tmsem{x}{\env} &=& \env(x) \\
+\tmsem{\tmnull}{\env} &=& \ast \\
+\tmsem{\tminj{i}{M}}{\env} &=& (i, \tmsem{M}{\env}) \\
+\tmsem{\tmcase{M}{x_1}{N_1}{x_2}{N_2}}{\env} &=& \tmsem{N_i}{\envcons{\env}{x_i}{v}} 
+&\!\!\! \text{where }  \tmsem{M}{\env} = (i, v) \\
+\tmsem{\tmpair{M_1}{M_2}}{\env} &=& (\tmsem{M_1}{\env}, \tmsem{M_2}{\env}) \\
+\tmsem{\tmletp{M}{x_1}{x_2}{N}}{\env} &=& \tmsem{N}{\env[x_1 \mapsto v, x_2 \mapsto u]}
+&\!\!\! \text{where }  \tmsem{M}{\env} = (v, u) \\
+\tmsem{\tmlam{x}{M}}{\env} &=& \lambda \, v . \; \tmsem{M}{\envcons{\env}{x}{v}} \; \\
+\tmsem{\tmapp{M}{N}}{\env} &=& \tmsem{M}{\env} \left( \tmsem{N}{\env} \right) \\
+\tmsem{\tmnil}{\env} &=& [] \\
+\tmsem{\tmcons{M_0}{M_1}{M_2}}{\env} &=& \tmsem{M_1}{\env} :: \tmsem{M_2}{\env} \\
+  \tmsem{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}{\env} &=& \text{iter}(\tmsem{M}{\env}, \tmsem{N_1}{\env}, f)\\
+&& \multicolumn{2}{r}{\text{where } f(v, w) = \tmsem{N_2}{\envnil[x_d \mapsto \blacklozenge, x_h \mapsto v, x_t \mapsto w]}}
+\end{array}
+\]
+
 \caption{\lfpl's denotational semantics}
 \label{fig:sem-tp-tm}
 \end{figure}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: "../paper"
+%%% End:

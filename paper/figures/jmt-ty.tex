@@ -5,6 +5,10 @@
 \and
 \RuleTy{UnitI}{\types{\ctx}{\tmnull}{\tpunit}}{}
 \and
+\RuleTy{ArrowI}{\types{\ctx}{\tmlam{x}{M}}{\tparr{A}{B}}}{\types{\ctxcons{\ctx}{x}{A}}{M}{B}}
+\and
+\RuleTy{ArrowE}{\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmapp{M}{N}}{B}}{\types{\ctx_1}{M}{\tparr{A}{B}} \\ \types{\ctx_2}{N}{A}}
+\and
 \RuleTy{SumI$_i$}{\types{\ctx}{\tminj{i}{M}}{\tpsum{A_1}{A_2}}}{\types{\ctx}{M}{A_i}}
 \and
 \RuleTy{SumE}{\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmcase{M}{x_1}{N_1}{x_2}{N_2}}{B}}{\types{\ctx_1}{M}{\tpsum{A_1}{A_2}} \\ \types{\ctxcons{\ctx_2}{x_1}{A_1}}{N_1}{B} \\ \types{\ctxcons{\ctx_2}{x_2}{A_2}}{N_2}{B}}
@@ -12,10 +16,6 @@
 \RuleTy{TensorI}{\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmpair{M_1}{M_2}}{\tptens{A_1}{A_2}}}{\types{\ctx_1}{M_1}{A_1} \\ \types{\ctx_2}{M_2}{A_2}}
 \and
 \RuleTy{TensorE}{\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmletp{M}{x_1}{x_2}{N}}{B}}{\types{\ctx_1}{M}{\tptens{A_1}{A_2}} \\ \types{\ctxcons{\ctxcons{\ctx_2}{x_1}{A_1}}{x_2}{A_2}}{N}{B}}
-\and
-\RuleTy{ArrowI}{\types{\ctx}{\tmlam{x}{M}}{\tparr{A}{B}}}{\types{\ctxcons{\ctx}{x}{A}}{M}{B}}
-\and
-\RuleTy{ArrowE}{\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmapp{M}{N}}{B}}{\types{\ctx_1}{M}{\tparr{A}{B}} \\ \types{\ctx_2}{N}{A}}
 \and
 \RuleTy{ListI$_1$}{\types{\ctx}{\tmnil}{\tplist{A}}}{}
 \and
@@ -26,3 +26,8 @@
 \caption{\lfpl's affine typing rules}
 \label{fig:jmt-ty}
 \end{figure}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: "../paper"
+%%% End:
