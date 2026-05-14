@@ -13,9 +13,9 @@ exp zero = succ zero
 exp (succ n) = double (exp n)
 \end{lstlisting}
 
-The main idea of \lfpl is to enforce non-size-increasing computation. In the above example, the exponential behavior relies on the fact that \lstinline{double} increases the size of its input. \lfpl forbids such size-increasing computations. The non-size-increasing property is enforced with an affine type system, which treats input size as a limited resource which cannot be duplicated. Formally, size is represented by a type $\tpdiam$, so that an element of type $\tpdiam$ corresponds to one unit of size. The natural number $n$ requires $n$ elements of type $\tpdiam$ to construct. These resources, which we shall henceforth call diamonds, are returned when the number is consumed. The program \code{double} is no longer possible to write; in the \code{succ} case, one diamond is made available to us, yet we need two diamonds due to the two calls to \code{succ}.
+The main idea of \lfpl is to enforce non-size-increasing computation. In the above example, the exponential behavior relies on the fact that \lstinline{double} increases the size of its input. \lfpl forbids such size-increasing computations. The non-size-increasing property is enforced with an affine type system, which treats input size as a limited resource which cannot be duplicated. Formally, size is represented by a type $\tpdiam$, so that an element of type $\tpdiam$ corresponds to one unit of size. The natural number $n$ requires $n$ elements of type $\tpdiam$ to construct. These resources, which we shall henceforth call diamonds, are returned when $n$ is consumed. The program \code{double} is no longer possible to write; in the \code{succ} case, one diamond is made available to us, yet we need two diamonds due to the two calls to \code{succ}.
 
-In contrast to other polynomial-time systems that might restrict iteration such that nested iterations are impossible, \lfpl enables a fairly natural programming style. While many polynomial-time languages are complete with respect to polynomial-time \textit{computations}, they are often unable to express many natural \textit{algorithms}. Consider this pseudocode for a slow identity function on lists:
+In contrast to other polynomial-time systems that might restrict iteration such that nested iterations are impossible, \lfpl enables a fairly natural programming style. While many polynomial-time languages are complete with respect to polynomial-time \textit{computations}, they are often unable to express many natural \textit{algorithms}. Consider this pseudocode for an inefficient identity function on lists:
 \begin{lstlisting}
 append : nat list -> nat list -> nat list
 append nil l2 = l2
@@ -33,7 +33,7 @@ In a system which disallows nested iterations, expressing a program like this ca
 
 The defining property of \lfpl is that computation is non-size-increasing. Consider a list resulting from the evaluation of an  \lfpl program with some lists as inputs. The non-size-increasing theorem intuitively states that the length of this output list is (roughly) no greater than the sum of the lengths of the input lists. We present this in detail in \pref{sec:soundness-size}, but for now the main takeaway is that \lfpl does not support problematic size-increasing functions like \lstinline{double}. As expected of the defining property of the language, the non-size-increasing theorem is a main tool in showing that \lfpl is polynomial-time sound.
 
-The most complete version of the polynomial-time soundness theorem states that any function on the natural numbers expressible in \lfpl is also computable by a polynomial-time Turing machine. We only prove one step in the path from \lfpl to Turing machines: In a high-level cost semantics, given an \lfpl program and some inputs with size $n$, there exists a polynomial $P : \mathbb N \to \mathbb N$ such that evaluating the program costs at most $P(n)$. Our theorem is actually the only step in this path which contains reasoning specific to \lfpl: Given this theorem, it is a well-known and standard procedure to justify the polynomial bound for our high-level cost semantics in terms of a low-level model such as a Turing machine~\cite{Accattoli2019,blellochProvableTimeSpace1996}.
+The most complete version of the polynomial-time soundness theorem states that any function on the natural numbers expressible in \lfpl is also computable by a polynomial-time Turing machine. We only prove one step in the path from \lfpl to Turing machines: In a high-level cost semantics, given an \lfpl program and some inputs with size $n$, there exists a polynomial $P : \mathbb N \to \mathbb N$ such that evaluating the program costs at most $P(n)$. Our theorem is the only step in this path which contains reasoning specific to \lfpl: Given this theorem, it is a well-known and standard procedure to justify the polynomial bound for our high-level cost semantics in terms of a low-level model such as a Turing machine~\cite{Accattoli2019,blellochProvableTimeSpace1996}.
 
 The polynomial-time completeness theorem states the logical inverse of soundness: Any function on the natural numbers that is computable by a polynomial-time Turing machine is expressible in \lfpl. As stated, this is not quite true for \lfpl; $\code{double}$ is computable in linear-time yet is not expressible in \lfpl. We can fix this by instead proving completeness for all polynomial-time computable functions which do not increase the size of their input. Perhaps surprisingly, we see in \pref{thm:completeness-general} that the more general statement of completeness is only \textit{barely} false: There is a very reasonable perspective in which \lfpl is able to express all polynomial-time computations, even the size-increasing ones.
 
@@ -41,11 +41,11 @@ The polynomial-time completeness theorem states the logical inverse of soundness
 \subsection{Syntax and Typing Rules}
 \label{sec:lfpl-definition}
 
-The syntax of \lfpl is given in \pref{fig:syntax-tp-tm}. Other than the type $\tpdiam$ and the additional argument and variable appearing in the list introduction and elimination forms respectively, the syntax looks like System T with lists. The first argument $M_d$ in the second list introduction form $\tmcons{M_d}{M_h}{M_t}$ is intended to have type $\tpdiam$; to add an element to a list, we are forced to pay a diamond. Likewise, the first variable $x_d$ in the list elimination $\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}$ is intended to have type $\tpdiam$; when eliminating a list, we earn back the diamonds we paid to construct it, allowing us to construct new lists during recursion. In this way, we use elements of type $\tpdiam$ to control the lengths of lists, ensuring that the number of diamonds available to us bounds the maximum length of a list that we can construct at any point.
+The syntax of \lfpl is given in \pref{fig:syntax-tp-tm}. Other than the type $\tpdiam$, and the additional argument and variable appearing in the list introduction and elimination forms respectively, the syntax looks like System T with lists. The first argument $M_d$ in the second list introduction form $\tmcons{M_d}{M_h}{M_t}$ is intended to have type $\tpdiam$; to add an element to a list, we are forced to pay a diamond. Likewise, the first variable $x_d$ in the list elimination $\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}$ is intended to have type $\tpdiam$; when eliminating a list, we earn back the diamonds we paid to construct it, allowing us to construct new lists during recursion. In this way, we use elements of type $\tpdiam$ to control the lengths of lists, ensuring that the number of diamonds available to us bounds the maximum length of a list that we can construct at any point.
 
 \input{figures/syntax-tp-tm}
 
-The typing judgement, written $\types{\ctx}{M}{A}$ and read as ``$M$ has type $A$ under context $\ctx$'', is also entirely standard aside from the presence of $\tpdiam$. It is important that \lfpl has an \textit{affine} type system, so contraction is not allowed and we must partition the context when we type an expression containing sequential subexpressions. The typing rules are given in \pref{fig:jmt-ty}. Notice that for $\tmcons{M_d}{M_h}{M_t}$ to be typed under $\ctx$, we must have $\types{\ctx}{M_d}{\tpdiam}$. Likewise, notice that for $\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}$ to be typed under $\ctx$, we must type $N_2$ under a context with $x_d : \tpdiam$.
+The typing judgement is written as $\types{\ctx}{M}{A}$ and read as ``$M$ has type $A$ under context $\ctx$''. Importantly, \lfpl has an \textit{affine} type system, so contraction is not allowed and we must partition the context when we type an expression containing sequential subexpressions. The typing rules are given in \pref{fig:jmt-ty}. Notice that for $\tmcons{M_d}{M_h}{M_t}$ to be typed under $\ctxappend{\ctx_d}{\ctxappend{\ctx_h}{\ctx_t}}$, we must have $\types{\ctx_d}{M_d}{\tpdiam}$. Likewise, notice that for $\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}$ to be typed, we must type $N_2$ under a context with $x_d : \tpdiam$.
 
 Another important subtlety is in \pref{rule:ty-ListE}, where $N_2$ is typed under a context containing \textit{only} the variables $x_d$, $x_h$, and $x_t$. It is not allowed to use additional variables from the surrounding environment. This is because $N_2$ represents the body of the structural recursor and therefore, despite appearing once statically, may be run many times during the execution of a program. Therefore, even if $N_2$ would statically appear to use a variable once, at runtime that variable would be used many times and thus violate the main principle of affine type theory. For example, $N_2$ could take just one diamond from the context and use it to create a list of length $10$, which would break \lfpl's non-size-increasing property.
 
@@ -58,11 +58,11 @@ Another important subtlety is in \pref{rule:ty-ListE}, where $N_2$ is typed unde
 
 To reason about the behavior of \lfpl programs, we need to reason about evaluating functions which may take lists as input. For instance, we will see in \pref{sec:lfpl-examples} a closed \lfpl term $\code{reverse} : \tparr{\tplist{A}}{\tplist{A}}$, but we can never actually ``run'' $\code{reverse}$ on a nonempty input list, since that would require a closed term of type $\tpdiam$ and the whole point of \lfpl's type system is to make that impossible. Thus, it is difficult to study \lfpl by itself; we instead need to reason about terms in a domain where $\tpdiam$ is inhabited.
 
-We now give a simple set-theoretic denotational semantics. To each type $A$ we assign a set $\tpsem{A}$, and to each well-typed term $\types{\Gamma}{M}{A}$ we assign an element $\tmsem{M}{\env}$ of $\tpsem{A}$, where $\env$ is an environment such $\env(x) \in \tpsem{A}$ is defined for every $x : A \in \Gamma$,
+We now give a simple set-theoretic denotational semantics. To each type $A$ we assign a set $\tpsem{A}$, and to each well-typed term $\types{\Gamma}{M}{A}$ we assign an element $\tmsem{M}{\env}$ of $\tpsem{A}$, where $\env$ is an environment such $\env(x) \in \tpsem{A}$ for every $x : A \in \Gamma$,
 %
 written as $\env \in \tpsem{\Gamma}$.
 %
-Per the above discussion, we ensure $\tpsem{\tpdiam} = \{ \blacklozenge \}$ is a nonempty set.
+Per the above discussion, we define $\tpsem{\tpdiam}$ as a nonempty set to ensure $\tpdiam$ is semantically inhabited.
 
 To define the semantics of the \lfpl list type, we make use of the Kleene star operator. Given a set $S$, the set $S^*$ is the set of finite strings of elements of $S$. We write $[]$ for the empty string, and given $x \in S$ and $\ell \in S^*$, we write $x :: \ell$ for the element of $S^*$ obtained by putting $x$ before the sequence of elements in $\ell$. Given $\ell \in S^*$, let $|\ell| \in \mathbb N$ denote the length of the string $\ell$. Lastly, for every set $T$, we inductively define the iteration operator on $S^*$:
 \begin{align*}
@@ -71,9 +71,9 @@ To define the semantics of the \lfpl list type, we make use of the Kleene star o
 &\text{iter}(x :: \ell, b, f) = f(x, \text{iter}(\ell, b, f))
 \end{align*}
 
-For the semantics of the sum type, we make use of the disjoint union operator $S \sqcup T := (\{ 1 \} \times S) \cup (\{ 2 \} \times T)$. The definitions of $\tpsem{A}$ and $\tmsem{M}{\env}$ are given in \pref{fig:sem-tp-tm}, inspired by Hofmann's set-theoretic interpretation~\cite{hofmannStrengthNonsizeIncreasing2002}. Notice the argument of type $\tpdiam$ to $\code{cons}$ is ignored; the presence of $\tpdiam$ in lists is purely a means of statically enforcing polynomial-time computation, so $\blacklozenge$ does not need to be mentioned in the dynamic semantics for $\code{cons}$.
+For the semantics of the sum type, we make use of the disjoint union (or coproduct) operator $S \sqcup T := (\{ 1 \} \times S) \cup (\{ 2 \} \times T)$. The definitions of $\tpsem{A}$ and $\tmsem{M}{\env}$ are given in \pref{fig:sem-tp-tm}, inspired by Hofmann's set-theoretic interpretation~\cite{hofmannStrengthNonsizeIncreasing2002}. Notice the argument of type $\tpdiam$ to $\code{cons}$ is ignored; the presence of $\tpdiam$ in lists is purely a means of statically enforcing polynomial-time computation, so the dynamic semantics for $\code{cons}$ need not involve $\blacklozenge$.
 
-The notion of size and the non-size-increasing property were originally formulated for the denotational semantics~\cite{hofmannLinearTypesNonsizeincreasing1999}. The basic idea is to define a partial function $\mathsf{size}_A : \tpsem{A} \to \mathbb N$ by induction on $A$, intuitively counting the number of diamonds within the input. For example, $\mathsf{size}_{\tpdiam}(\blacklozenge) = 1$. The reason for partiality is that $\mathsf{size}_{\tparr{A}{B}}(f)$ is defined as the maximum difference (which might not exist) between $\mathsf{size}_B(f(x))$ and $\mathsf{size}_A(x)$, where $x$ ranges over all $x \in \tpsem{A}$ such that $\mathsf{size}_A(x)$ and $\mathsf{size}_B(f(x))$ are defined. The non-size-increasing theorem then proves simultaneously that $\mathsf{size}_A(\tmsem{M}{\env})$ is defined whenever the sizes of all values in $\env$ are defined and that the size of $\tmsem{M}{\env}$ is bounded by the sum of the sizes of the values in $\env$. In this paper, we provide an equivalent definition using an operational semantics in \pref{sec:soundness-size}. It is simpler and sufficient for proving soundness.
+The notion of size and the non-size-increasing property were originally formulated for the denotational semantics~\cite{hofmannLinearTypesNonsizeincreasing1999}. The basic idea is to define a partial function $\mathsf{size}_A : \tpsem{A} \to \mathbb N$ by induction on $A$, intuitively counting the number of diamonds within the input. For example, $\mathsf{size}_{\tpdiam}(\blacklozenge) = 1$. The reason for partiality is that $\mathsf{size}_{\tparr{A}{B}}(f)$ is defined as the maximum difference (which might not exist) between $\mathsf{size}_B(f(x))$ and $\mathsf{size}_A(x)$, where $x$ ranges over all $x \in \tpsem{A}$ such that $\mathsf{size}_A(x)$ and $\mathsf{size}_B(f(x))$ are defined. The non-size-increasing theorem then proves simultaneously that $\mathsf{size}_A(\tmsem{M}{\env})$ is defined whenever the sizes of all values in $\env$ are defined and that the size of $\tmsem{M}{\env}$ is bounded by the sum of the sizes of the values in $\env$. In this paper, we provide an equivalent definition using an operational semantics in \pref{sec:soundness-size}. It is simpler because the definition is total, avoiding the complexities of dealing with partial functions while remaining sufficient for proving soundness.
 
 \input{figures/sem-tp-tm}
 
@@ -88,7 +88,7 @@ for $\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}$ in the examples; and a similar syntax f
 
 \begin{example}[Linear-Time Reverse]
 \label{example:reverse}
-We can implement the standard linear-time reverse seen in introductory functional programming.
+We can implement the standard linear-time list reversal, often seen in introductory material on functional programming.
 \begin{lstlisting}
 revAppend : L(A) -o L(A) -o L(A)
 revAppend = lam l1 . rec l1
@@ -102,7 +102,7 @@ reverse = lam l1 . revAppend l1 nil
 
 \begin{example}[List Case Analysis]
 \label{example:list-case}
-Importantly, both for the convenience of the programmer and for use in \pref{example:susp}, we can inspect whether a list is empty, which is often presented as pattern matching in standard functional programming languages. For brevity in the concrete syntax, we allow for pattern matching on tuple variables at their binding sites.
+Importantly, both for convenience and for use in \pref{example:susp}, we can inspect whether a list is empty, which is often presented as pattern matching in standard functional programming languages. For brevity in the concrete syntax, we allow for pattern matching on tuple variables at their binding sites in place of the more verbose \code{letp}.
 \begin{lstlisting}
 lfold : 1 + diam * A * L(A) -o L(A)
 lfold = lam x . case x .
@@ -120,7 +120,7 @@ lunfold = lam x . rec x .
 \label{example:susp}
 Given a list, we can temporarily suspend its values and obtain the diamonds within the list for use elsewhere. We of course need those diamonds to un-suspend the list.
 \begin{lstlisting}
-susp : L(A) -o (L(1) -o L(A)) * L(1)
+susp : L(A) -o ((L(1) -o L(A)) * L(1))
 susp = lam x . rec x .
 | nil => (lam _ . nil, nil)
 | cons (d, x, r) => letp (f, m) = r in
@@ -128,7 +128,7 @@ susp = lam x . rec x .
      | inj1 _ => nil
      | inj2 (d', _, n') => cons (d', x, f n')), cons (d, <>, m))
 \end{lstlisting}
-This example is important for the completeness proof, so it is worth stating its semantics: If $x \in \tpsem{A}^*$, then $\tmsem{\texttt{susp}}{\envnil}(x) = (f, m)$, where $f(m) = x$. Note that $m$ is the unique element of $\tpsem{\tpunit}^*$ with length $|x|$, so we recover $x$ as long as we give $f$ enough diamonds.
+This example is important for the completeness proof, so it is worth stating its semantics: If $x \in \tpsem{A}^*$, then $\tmsem{\code{susp}}{\envnil}(x) = (f, m)$, where $f(m) = x$. Note that $m$ is the unique element of $\tpsem{\tpunit}^*$ with length $|x|$, so we recover $x$ as long as we give $f$ enough diamonds.
 \end{example}
 
 
@@ -154,15 +154,14 @@ A common approach to safely reintroducing contraction into affine type systems i
 \ARule{\types{\ctxcons{\ctx}{x}{\; !A}}{[x/y]M}{B}}{\types{\ctxcons{\ctxcons{\ctx}{x}{\; !A}}{y}{\; !A}}{M}{B}}\hspace{-1.3em}
 \end{mathpar}
 
-By $!\ctx$ we mean the context obtained by replacing $x : A$ with $x : \; !A$ for every $x$ in $\ctx$. Commonly this modality would also contain a rule for weakening, but LFPL is affine and thus already supports weakening at every type. It is tempting to add this modality to \lfpl; if we say that all values of type $!A$ have size $0$, then these operations are non-size-increasing. Unfortunately, that is not enough to guarantee polynomial-time soundness. Consider the following pseudocode for \lfpl (extended with the !-modality):
+By $!\ctx$ we mean the context obtained by replacing $x : A$ with $x : \; !A$ for every $x$ in $\ctx$. Commonly this modality would also contain a rule for weakening, but LFPL is affine and thus already supports weakening at every type. It is tempting to add this modality to \lfpl; if we say that all values of type $!A$ have size $0$, then these operations are non-size-increasing. Unfortunately, that is not enough to guarantee polynomial-time soundness. Consider the following pseudocode for \lfpl (extended with the !-modality, where $\tpsem{!A} = \tpsem{A}$):
 \begin{lstlisting}
-expCalls : L(1) -o !(L(1) -o L(1)) -o !(L(1) -o L(1))
-expCalls nil f = f
-expCalls (cons (_, _, n)) = let r = expCalls n f in
-  wrap (lam x . unwrap(r) (unwrap(r) x))
+fnExp : L(1) -o !(L(1) -o L(1)) -o !(L(1) -o L(1))
+fnExp = lam l1 . lam f . rec l1
+| nil => f
+| cons (_, _, r) => wrap (lam x . unwrap(r) (unwrap(r) x))
 \end{lstlisting}
-Evaluating $\tmapp{\tmapp{\code{expCalls}}{n}}{f}$ yields a function which calls $f$ on itself $2^{|n|}$.
-As a result, we can use \code{expCalls} to implement functions that are not polynomial-time computable.
+Then, $\tmsem{\code{fnExp}}{\envnil}(n)(f)$ is the function $f^{2^{|n|}}$ which calls $f$ on its input $2^{|n|}$ times. Thus, we can use \code{fnExp} to implement functions that are not polynomial-time computable.
 
 %%% Local Variables:
 %%% mode: LaTeX
