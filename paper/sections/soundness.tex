@@ -11,22 +11,22 @@ To strengthen the soundness result and illustrate how to add features to \lfpl w
 
 The typing rules for stacks of type $\tpstack{A}$ correspond to those for lists in a standard non-affine functional programming language, where the elimination form is case analysis rather than structural recursion and the introduction form does not require diamonds.
 %
-These stacks do not violate \lfpl's core principle of controlling recursion by diamonds because they do not support recursion.
+These stacks do not violate \lfpl's core principle of controlling recursion by diamonds because they have no recursor.
 
 The typing rules for the tree type $\tptree{A}$, an inductive type which does support recursion, are similar to those of lists $\tplist{A}$. The primary difference is that, in \pref{rule:ty-TreeE}, the base case $N_1$ is typed under an empty context. Like the list recursor, the tree recursor has two cases: the inductive and base case. The difference is that for the list recursor, the base case $N_1$ is only run once, so it may have access to part of the context (though this is not necessary for completeness). In the tree recursor, $N_1$ may be run many times, as a tree can have many leaves. So, to respect linearity, it cannot use anything from the context.
 
 The denotational semantics for these new constructs are relatively straightforward. We set $\tpsem{\tpprod{A}{B}} = \tpsem{A} \times \tpsem{B}$ and $\tpsem{\tpstack{A}} = \tpsem{A}^*$. Giving a semantics for $\tptree{A}$ and its related terms boils down to giving a mathematical account of binary trees (in the same manner we have used the Kleene star to give a simple mathematical account of lists).
 %
-The semantics for terms involving these types can be found in the mechanization (see \pref{sec:mechanization}).
+The semantics for terms involving these types can be found in the mechanization.
 
-The stack type $\tpstack{A}$ is a particularly powerful addition to \lfpl. The vast majority of the difficulty in proving polynomial-time completeness of \lfpl, and by far the most complex aspect of our entire mechanization, was the definition and implementation of the bounded stack data structure discussed in \pref{sec:completeness-bounded-stack-definition} and \pref{sec:completeness-bounded-stack-implementation}. So, the addition of unbounded, $\tpdiam$-free stacks to \lfpl means \lfplplus admits a much simpler completeness proof. In essence, \lfplplus internalizes the bounded stack data structure from \pref{sec:completeness-bounded-stack-definition} and removes the boundedness restriction. No diamonds are required to interface with the stacks of \lfplplus, and there is no upper bound on the number of stack elements. The addition of a feature like this to \lfpl would eliminate the need for the hardest part of our completeness proof. \lfplplus also contains some other generally useful features to showcase our method of proving soundness, such as lazy products and binary trees.
+The stack type $\tpstack{A}$ is a particularly powerful addition to \lfpl. The vast majority of the difficulty in proving polynomial-time completeness of \lfpl, and by far the most complex aspect of our entire mechanization, was the definition and implementation of the bounded stack data structure discussed in \pref{sec:completeness-bounded-stack-definition} and \pref{sec:completeness-bounded-stack-implementation}. So, the addition of unbounded, $\tpdiam$-free stacks to \lfpl means \lfplplus admits a much simpler completeness proof. In essence, \lfplplus internalizes the bounded stack data structure from \pref{sec:completeness-bounded-stack-definition} and removes the boundedness restriction. No diamonds are required to interface with the stacks of \lfplplus, and there is no upper bound on the number of stack elements. The addition of these unbounded stacks to \lfpl would eliminate the need for the hardest part of our completeness proof, so it is worthwhile to show that they are sound despite their power.
 
 
 
 \subsection{Big-Step Operational Cost Semantics}
 \label{sec:operational-semantics}
 
-As discussed in \pref{sec:denotational-semantics}, any semantics for \lfplplus needs to have some way to inhabit the $\tpdiam$ type. To give \lfplplus an operational semantics, we introduce a separate language for \lfplplus values (see \pref{fig:syntax-val}). Note the definitions of value and environment are mutually recursive. This means we usually have to define functions on values via mutual recursion with a corresponding function on environments. Like in the denotational semantics, diamonds in lists and trees are not explicit.
+As discussed in \pref{sec:denotational-semantics}, any semantics for \lfplplus needs to have some way to inhabit the $\tpdiam$ type. To give \lfplplus an operational semantics, we introduce a separate language for \lfplplus values in \pref{fig:syntax-val}. Note the definitions of value and environment are mutually recursive. This means we usually have to define functions on values via mutual recursion with a corresponding function on environments. Like in the denotational semantics, diamonds in lists and trees are not explicit.
 %
 By separating values from terms, we ensure \lfplplus terms remain polynomial-time sound while obtaining a means of providing concrete inputs to observe their evaluation. We also define a typing judgement $v : A$ for values, so that $\vdiam : \tpdiam$, $\vcons{v_h}{v_t} : \tplist{A}$ whenever $v_h : A$ and $v_t : \tplist{A}$, and so on.
 
@@ -55,7 +55,7 @@ We can also give a denotational semantics for values and environments, and prove
 If $\types{\Gamma}{M}{A}$, $\envtypes{\env}{\Gamma}$, and $\evals{\env}{M}{c}{v}$, then $\tpsem{v} = \tmsem{M}{\tpsem{\env}}$.
 \end{theorem}
 
-Polynomial-time soundness is meant to be a statement about the computational complexity (of functions encoded by \lfpl) with respect to some machine model like a Turing machine. The big-step cost semantics is somewhat removed from a Turing machine's cost model.
+Polynomial-time soundness is meant to be a statement about the computational complexity of functions encoded by \lfpl with respect to some machine model like a Turing machine. The big-step cost semantics is somewhat removed from a Turing machine's cost model.
 %
 However, it is well understood how to justify a cost semantics for a functional language like \lfplplus in terms of a low-level model such as a Turing machine \cite{blellochProvableTimeSpace1996,Accattoli2019}.
 %
