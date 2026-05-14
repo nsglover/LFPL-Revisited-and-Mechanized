@@ -1,3 +1,14 @@
+@misc{fullversion,
+      title={LFPL: Revisited and Mechanized}, 
+      author={Nathaniel Glover and Jan Hoffmann},
+      year={2026},
+      month=may,
+      eprint={2605.12893},
+      archivePrefix={arXiv},
+      primaryClass={cs.PL},
+      url={https://arxiv.org/abs/2605.12893}, 
+}
+
 @misc{mechanization,
 title         = {{LFPL Revisited and Mechanized - Source Code of the Mechanization}},
 author        = {Glover, Nathaniel and Hoffmann, Jan},
@@ -414,4 +425,62 @@ month = jul,
 articleno = {92},
 numpages = {29},
 keywords = {Coq, Homotopy Type Theory, Parametricity, Type Equivalence}
+}
+
+@article{Mitchell1991,
+title = {Kripke-style models for typed lambda calculus},
+journal = {Annals of Pure and Applied Logic},
+volume = {51},
+number = {1},
+pages = {99-124},
+year = {1991},
+month = mar,
+issn = {0168-0072},
+doi = {https://doi.org/10.1016/0168-0072(91)90067-V},
+author = {John C. Mitchell and Eugenio Moggi},
+abstract = {Mitchell, J.C. and E. Moggi, Kripke-style models for typed lambda calculus, Annals of Pure and Applied Logic 51 (1991) 99–124. The semantics of typed lambda calculus is usually described using Henkin models, consisting of functions over some collection of sets, or concrete cartesian closed categories, which are essentially equivalent. We describe a more general class of Kripke-style models. In categorical terms, our Kripke lambda models are cartesian closed subcategories of the presheaves over a poset. To those familiar with Kripke models of modal or intuitionistic logics, Kripke lambda models are likely to seem adequately ‘semantic’. However, when viewed as cartesian closed categories, they do not have the property variously referred to as concreteness, well- pointedness or having enough points. While the traditional lambda calculus proof system is not complete for Henkin models that may have empty types, we prove strong completeness for Kripke models. In fact, every set of equations that is closed under implication is the theory of a single Kripke model. We also develop some properties of logical relations over Kripke structures, showing that every theory is the theory of a model determined by a Kripke equivalence relation over a Henkin model. We discuss cartesian closed categories but present the main definitions and results without the use of category theory.}
+}
+
+@article{Jones2001,
+title={The expressive power of higher-order types or, life without CONS},
+volume={11},
+DOI={10.1017/S0956796800003889},
+number={1},
+journal={Journal of Functional Programming},
+ author={Jones, Neil D.},
+ year={2001},
+ month=mar,
+ pages={55–94}
+ }
+
+@inproceedings{Feree2018,
+author = {F\'{e}r\'{e}e, Hugo and Hym, Samuel and Mayero, Micaela and Moyen, Jean-Yves and Nowak, David},
+title = {Formal proof of polynomial-time complexity with quasi-interpretations},
+year = {2018},
+month = jan,
+isbn = {9781450355865},
+publisher = {Association for Computing Machinery},
+url = {https://doi.org/10.1145/3167097},
+doi = {10.1145/3167097},
+abstract = {We present a Coq library that allows for readily proving that a function is computable in polynomial time. It is based on quasi-interpretations that, in combination with termination ordering, provide a characterisation of the class fp of functions computable in polynomial time. At the heart of this formalisation is a proof of soundness and extensional completeness. Compared to the original paper proof, we had to fill a lot of not so trivial details that were left to the reader and fix a few glitches. To demonstrate the usability of our library, we apply it to the modular exponentiation.},
+booktitle = {Proceedings of the 7th ACM SIGPLAN International Conference on Certified Programs and Proofs},
+pages = {146–157},
+numpages = {12},
+keywords = {Coq formal proof, implicit complexity, polynomial time},
+series = {CPP '18}
+}
+
+@inproceedings{Sylvain2011,
+author = {Heraud, Sylvain and Nowak, David},
+title = {A formalization of polytime functions},
+year = {2011},
+month = aug,
+isbn = {9783642228629},
+publisher = {Springer-Verlag},
+abstract = {We present a deep embedding of Bellantoni and Cook's syntactic characterization of polytime functions. We prove formally that it is correct and complete with respect to the original characterization by Cobham that required a bound to be proved manually. Compared to the paper proof by Bellantoni and Cook, we have been careful in making our proof fully contructive so that we obtain more precise bounding polynomials and more efficient translations between the two characterizations. Another difference is that we consider functions on bitstrings instead of functions on positive integers. This latter change is motivated by the application of our formalization in the context of formal security proofs in cryptography. Based on our core formalization, we have started developing a library of polytime functions that can be reused to build more complex ones.},
+booktitle = {Proceedings of the Second International Conference on Interactive Theorem Proving},
+pages = {119–134},
+numpages = {16},
+keywords = {cryptography, implicit computational complexity},
+series = {ITP '11}
 }

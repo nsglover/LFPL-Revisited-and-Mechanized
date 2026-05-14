@@ -175,7 +175,7 @@ We first define the shorthand $\Rterm{A}{\env}{M}$ to mean:
 &\text{$\Rval{A}{v}$ holds, and $c + P_v(n) \le P_M(n) + P_\env(n)$}
 \end{align*}
 \end{definition}
-By working with a general $n \ge \envsize{\env}$ rather than just $\envsize{\env}$ as the input to the polynomials, we can deal with the case where $\env$ arises as part of a larger environment during the proof. This is reminiscent of ``future worlds'' from Kripke-style logical relations. \comment{Jan}{Should there be a citation here?}
+By working with a general $n \ge \envsize{\env}$ rather than just $\envsize{\env}$ as the input to the polynomials, we can deal with the case where $\env$ arises as part of a larger environment during the proof. This is reminiscent of \emph{future worlds} from Kripke-style logical relations~\cite{Mitchell1991}.
 
 \begin{definition}
 We define $\Rval{A}{v}$ by induction on the type $A$:
@@ -207,3 +207,8 @@ We go by rule induction on $\types{\ctx}{M}{A}$. \pref{thm:non-size-increasing} 
   \fi
 }.
 \end{proof}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: "../paper"
+%%% End:
