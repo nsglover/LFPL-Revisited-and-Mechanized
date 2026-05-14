@@ -1,13 +1,13 @@
 \NewDocumentCommand{\RuleEval}{m m m}{\Rule{\text{Eval}:#1}{#2}{#3}\label{rule:eval-#1}}
 \begin{figure}[t!]
 \begin{mathpar}
-\RuleEval{SumE$_i$}{\evals{\envappend{\env}{\env'}}{\tmcase{M}{x}{N_1}{x}{N_2}}{c + c' + \Ccase}{v'}}{\evals{\env}{M}{c}{\vinj{i}{v}} \\ \evals{\envcons{\env'}{x}{v}}{N_i}{c'}{v'}}
-\and
 \RuleEval{Var}{\evals{\envcons{\env}{x}{v}}{x}{\Cvar}{v}}{}
 \and
 \RuleEval{ArrowI}{\evals{\env}{\tmlam{x}{M}}{\Clam}{\vlam{\env}{x}{M}}}{}
 \and
-\RuleEval{ArrowE}{\evals{\envappend{\env_1}{\env_2}}{\tmapp{M}{N}}{c_1 + c_2 + c' + \Capp}{v'}}{\evals{\env_1}{M}{c_1}{\vlam{\env'}{x}{M'}} \\ \evals{\env_2}{N}{c_2}{v} \\ \evals{\envcons{\env'}{x}{v}}{M'}{c'}{v'}}
+\RuleEval{SumE$_i$}{\evals{\envappend{\env}{\env'}}{\tmcase{M}{x}{N_1}{x}{N_2}}{c + c' + \Ccase}{v'}}{\evals{\env}{M}{c}{\vinj{i}{v}} \\ \evals{\envcons{\env'}{x}{v}}{N_i}{c'}{v'}}
+\and
+\RuleEval{ArrowE}{\evals{\envappend{\env_1}{\env_2}}{\tmapp{M}{N}}{c_1 + c_2 + c' + \Capp}{v'}}{\evals{\env_1}{M}{c_1}{\vlam{\env'}{x}{M'}} \\\\ \evals{\env_2}{N}{c_2}{v} \\ \evals{\envcons{\env'}{x}{v}}{M'}{c'}{v'}}
 \and
 \RuleEval{ListI$_2$}{\evals{\envappend{\env_d}{\envappend{\env_h}{\env_t}}}{\tmcons{M_d}{M_h}{M_t}}{c_d + c_h + c_t + \Ccons}{\vcons{v_h}{v_t}}}{\evals{\env_d}{M_d}{c_d}{\vdiam} \\ \evals{\env_h}{M_h}{c_h}{v_h} \\ \evals{\env_t}{M_t}{c_t}{v_t}}
 \and
@@ -16,3 +16,8 @@
 \caption{Selected rules for \lfplplus's evaluation judgement}
 \label{fig:jmt-eval}
 \end{figure}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: "../paper"
+%%% End:

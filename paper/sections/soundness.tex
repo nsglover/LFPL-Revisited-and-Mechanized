@@ -131,10 +131,10 @@ P_{\tmproj{i}{M}}(n) &= \Cproj{i} + P_M(n) \\
 P_{\tmlam{x}{M}}(n) &= \Clam + P_M(n) \\
 P_{\tmapp{M}{N}}(n) &= \Capp + P_M(n) + P_N(n) \\
 P_{\tmcase{M}{x_1}{N_1}{x_2}{N_2}}(n) &= \Ccase + P_M(n) + \max(P_{N_1}, P_{N_2})(n) \\
-P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n) &= P_M(n) + (\Crec + P_{N_1}(n)) \\
-&\quad\quad + n (\Cvar + \Crec + P_{N_2}(n)) \\
-P_{\tmtrec{M}{N_1}{x}{y}{z}{w}{N_2}}(n) &= P_M(n) + (n + 1) (\Ctrec + P_{N_1}(n)) \\
-&\quad\quad + n (2\Cvar + \Ctrec + P_{N_2}(n))
+P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n) &= P_M(n) + (\Crec + P_{N_1}(n)) 
+ + n (\Cvar + \Crec + P_{N_2}(n)) \\
+P_{\tmtrec{M}{N_1}{x}{y}{z}{w}{N_2}}(n) &= P_M(n) {+} (n {+} 1) (\Ctrec {+} P_{N_1}(n)) 
+ {+} n (2\Cvar {+} \Ctrec {+} P_{N_2}(n))
 \end{align*}
 }
 The remaining cases are similar and provided in the mechanization.
@@ -143,14 +143,17 @@ The remaining cases are similar and provided in the mechanization.
 The aim of $P_M$ is to bound the cost of evaluating $M$, and the future cost of using any closures it evaluates to, by $P_M(n)$ in an environment containing $n$ diamonds. The intuition behind $P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n)$ is that $M$ and $N_1$ are evaluated once, and $N_2$ could be evaluated up to $n$ times, where $n = \envsize{\env}$ is the number of diamonds available the environment. Similarly, for $P_{\tmtrec{M}{N_1}{x}{y}{z}{w}{N_2}}$, the base case $N_1$ could be evaluated $n + 1$ times (a tree with $n$ internal nodes has $n + 1$ leaf nodes) and $N_2$ could be evaluated $n$ times.
 
 \begin{definition}[Value and Environment Polynomials]
-We define polynomials $P_\env : \mathbb N \to \mathbb N$ and $P_v : \mathbb N \to \mathbb N$ via mutual induction as follows:
-\begin{align*}
-P_{\vdiam} &= P_{\vnull} = P_{\vempty} = P_{\vnil} = P_{\vleaf} = 0 \\
-P_{\vrecord{\env}{M_1}{M_2}} &= P_{\env} + \max(P_{M_1}, P_{M_2}) \\
-P_{\vlam{\env}{x}{M}} &= P_{\env} + P_M \\
-P_{\vpair{v_1}{v_2}} &= P_{v_1} + P_{v_2} \\
-P_{\envnil} &= 0 \quad\text{and}\quad P_{\envcons{\env}{x}{v}} = P_\env + P_v
-\end{align*}
+  We define polynomials $P_\env : \mathbb N \to \mathbb N$ and $P_v : \mathbb N \to \mathbb N$ via mutual induction as follows:
+\[
+\begin{array}{r@{\;=\;}l@{\hspace{4.5em}}r@{\;=\;}l}
+  P_{\vdiam} = P_{\vnull} & P_{\vempty} = P_{\vnil} = P_{\vleaf} = 0 &
+  P_{\envnil} & 0 \\
+ P_{\vrecord{\env}{M_1}{M_2}} & P_{\env} + \max(P_{M_1}, P_{M_2}) &
+  P_{\envcons{\env}{x}{v}} & P_\env + P_v \\
+P_{\vlam{\env}{x}{M}} & P_{\env} + P_M \\
+P_{\vpair{v_1}{v_2}} & P_{v_1} + P_{v_2} 
+\end{array}
+\]
 The definition of $P_v$ for other values $v$ is given in the mechanization.
 \end{definition}
 The idea of  $P_v$ and $P_\env$ is to bound the future cost of evaluating all of the closures (functions and lazy pairs) stored inside $v$ and $\env$ respectively. With these choices of polynomials, \pref{thm:soundness-general} implies \pref{thm:soundness-concrete}, because when $v : \tplist{A}$ and $\dfree{A}$, it is clear that $P_v = 0$ and $\valsize{v} = n$, where $n$ is the length of the list represented by $v$.

@@ -1,4 +1,6 @@
 \begin{figure}[t!]
+
+\begin{minipage}[t]{0.45\linewidth}
 \begin{syntax}{Val}{v}
 \sitem{\vdiam}{diamond value}
 \sitem{\vnull}{unit value}
@@ -12,10 +14,22 @@
 \sitem{\vcons{v_h}{v_t}}{nonempty list}
 \sitem{\vleaf}{empty tree}
 \sitem{\vnode{v}{v_l}{v_r}}{nonempty tree}
-\newsort{Env}{\env}
-\sitem{\envnil}{empty environment}
-\sitem{\envcons{\env}{x}{v}}{nonempty environment}
 \end{syntax}
+\end{minipage}
+%
+\hspace{3.5em}
+%
+\begin{minipage}[t]{0.45\linewidth}
+\begin{syntax}{Env}{\env}
+\sitem{\envnil}{empty envnmt.}
+\sitem{\envcons{\env}{x}{v}}{nonempty envnmt.}
+\end{syntax}
+\end{minipage}
 \caption{\lfplplus's value and environment syntax}
 \label{fig:syntax-val}
 \end{figure}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: "../paper"
+%%% End:

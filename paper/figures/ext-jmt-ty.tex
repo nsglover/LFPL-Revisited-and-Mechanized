@@ -8,14 +8,19 @@
 \and
 \RuleTy{StackI$_2$}{\types{\ctxappend{\ctx_h}{\ctx_t}}{\tmpush{M_h}{M_t}}{\tpstack{A}}}{\types{\ctx_h}{M_h}{A} \\ \types{\ctx_t}{M_t}{\tpstack{A}}}
 \and
-\RuleTy{StackE}{\types{\ctxappend{\ctx}{\ctx'}}{\tmpop{M}{N_1}{x_h}{x_t}{N_2}}{B}}{\types{\ctx}{M}{\tpstack{A}} \\ \types{\ctx'}{N_1}{B} \\ \types{\ctxcons{\ctxcons{\ctx'}{x_h}{A}}{x_t}{\tpstack{A}}}{N_2}{B}}
+\RuleTy{StackE}{\types{\ctxappend{\ctx}{\ctx'}}{\tmpop{M}{N_1}{x_h}{x_t}{N_2}}{B}}{\types{\ctx}{M}{\tpstack{A}} \\ \types{\ctx'}{N_1}{B} \\\\ \types{\ctxcons{\ctxcons{\ctx'}{x_h}{A}}{x_t}{\tpstack{A}}}{N_2}{B}}
 \and
-\RuleTy{TreeI$_1$}{\types{\ctx}{\tmleaf}{\tptree{A}}}{}\hspace{-1em}
+\RuleTy{TreeI$_1$}{\types{\ctx}{\tmleaf}{\tptree{A}}}{}
 \and
 \RuleTy{TreeI$_2$}{\types{\ctxappend{\ctx_d}{\ctxappend{\ctx_x}{\ctxappend{\ctx_l}{\ctx_r}}}}{\tmnode{M_d}{M_x}{M_l}{M_r}}{\tptree{A}}}{\types{\ctx_d}{M_d}{\tpdiam} \\ \types{\ctx_x}{M_x}{A} \\\\ \types{\ctx_l}{M_l}{\tptree{A}} \\ \types{\ctx_r}{M_r}{\tptree{A}}}
 \and
-\RuleTy{TreeE}{\types{\ctx}{\tmtrec{M}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{B}}{\types{\ctx}{M}{\tptree{A}}\hspace{-0.5em} \\ \types{\ctxnil}{N_1}{B}\hspace{-0.5em} \\ \types{\ctxcons{\ctxcons{\ctxcons{\ctxcons{\ctxnil}{x_d}{\tpdiam}}{x}{A}}{x_l}{B}}{x_r}{B}}{N_2}{B}}
+\RuleTy{TreeE}{\types{\ctx}{\tmtrec{M}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{B}}{\types{\ctx}{M}{\tptree{A}} \\ \types{\ctxnil}{N_1}{B} \\\\ \types{\ctxcons{\ctxcons{\ctxcons{\ctxcons{\ctxnil}{x_d}{\tpdiam}}{x}{A}}{x_l}{B}}{x_r}{B}}{N_2}{B}}
 \end{mathpar}
 \caption{\lfplplus's typing rules}
 \label{fig:ext-jmt-ty}
 \end{figure}
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: "../paper"
+%%% End:
