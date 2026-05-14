@@ -1,6 +1,14 @@
 \section{Related Work}
 
-The most closely related work to ours is that of Atkey~\cite{atkeyPolynomialTimeDependent2024}. He develops a powerful extension of \lfpl with full dependent types and a ``Cons-free'' iterator much like the stack types we introduced in \pref{sec:soundness} and in previous work by Jones~\cite{Jones2001}.
+The most closely related work to ours is that of Atkey~\cite{atkeyPolynomialTimeDependent2024}.
+%
+He develops a powerful extension of \lfpl with full dependent types
+that includes lists that do not enjoy iteration, much
+like the stack types we introduced in \pref{sec:soundness}.
+%
+This separation of (unrestricted) construction of data-structures and iteration has
+been previously used by Jones~\cite{Jones2001} in his
+``Cons-free'' system for characterizing the class P.
 %
 Atkey also provides a semantic polynomial-time soundness proof using the realizability method of Dal Lago and Hofmann \cite{dallagoRealizabilityModelsImplicit2011}. These developments are mechanized in Agda. Our method for proving soundness differs from his in that it is syntactic rather than semantic and constructs an explicit polynomial bound on the cost of evaluation for each term. Furthermore, we devote great attention to mechanizing polynomial-time completeness, ensuring the strongest result by working with a minimal version of \lfpl.
 
