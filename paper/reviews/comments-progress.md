@@ -18,7 +18,7 @@ I've gone through the "comments for authors" list that each reviewer gave us and
 
 - line 264: “have an affine” -> “has an affine”?
 
-  - **IGNORED**. I think the original grammar better conveys the meaning I was going for, but I'm having trouble explaining the difference.
+  - Done. Changed to "Importantly, LFPL has an affine type system".
 
 - line 327: this paragraph is unclear.
 
