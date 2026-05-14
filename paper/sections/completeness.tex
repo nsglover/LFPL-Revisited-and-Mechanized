@@ -40,9 +40,11 @@ lists without both, size restrictions and iteration.
 \subsection{The Bounded Stack Data Structure}
 \label{sec:completeness-bounded-stack-definition}
 
-We first address the challenge of simulating the tape of the Turing machine. A common approach to this is to use a data structure consisting of a head element and two stacks, each representing one side of the tape relative to the head element~\cite{Okasaki99}. If we use the type $A$ for tape symbols, then the type of our tape data structure could be $\tptens{\tplist{A}}{\tptens{A}{\tplist{A}}}$. However, in \lfpl, we cannot actually use the above data structure; given $n$ diamonds, it can only hold $n + 1$ values. Instead, we construct a type $S(A)$ that depends on the bounding polynomial $P$ and supports a stack-like interface, as long as it does not have to hold more than $P(n)$ elements. Then, we use a value of type $\tptens{S(A)}{\tptens{A}{S(A)}}$ to encode the tape.
+We first address the challenge of simulating the tape of the Turing machine. A common approach to representing the tape of the Turing machine in a functional language is to use a data structure consisting of a head element and two stacks, each representing one side of the tape relative to the head element~\cite{Okasaki99}. If we use the type $A$ for tape symbols, then the type of our tape data structure could be $\tptens{\tplist{A}}{\tptens{A}{\tplist{A}}}$. However, in \lfpl, we cannot actually use the above data structure.
+%
+Given $n$ diamonds, available in an input list of length $n$, it can only hold $n + 1$ values. Instead, we construct a type $S(A)$ that depends on the bounding polynomial $P$ and supports a stack-like interface, as long as it does not have to hold more than $P(n)$ elements. Then, we use a value of type $\tptens{S(A)}{\tptens{A}{S(A)}}$ to encode the tape.
 
-We have in fact already seen the first key insight into how to construct $S(A)$ in \pref{example:susp}. It shows that we don't need any diamonds to store data, we just need them to interact with it. Using this idea, we can design our data structure so that it does not store diamonds and the push/pop functions temporarily borrow diamonds to interface with the suspended data.
+We have in fact already seen the first key insight into how to construct $S(A)$ in \pref{example:susp}. It shows that we do not need any diamonds to store data, we just need them to interact with it. Using this idea, we can design our data structure so that it does not store diamonds and the push/pop functions temporarily borrow diamonds to interface with the suspended data.
 
 The second key insight is that we do not need to un-suspend the entire data structure to interface with it.
 %
@@ -65,7 +67,7 @@ Both $\code{push}$ and $\code{pop}$ also return a stack and a sum. The left bran
 %
 For $\code{push}$, which takes in an element and a stack, failure means that the input stack is full, and so the input element is returned to us. For $\code{pop}$, failure means the input stack is empty. % If the input stack has at least one element, it is returned to us via the right injection.
 
-This interface is inspired by the array-like data structure used in Hofmann's original completeness proof~\cite{hofmannStrengthNonsizeIncreasing2002}. The key difference is that his array data structure has read and write operations requiring an index, given as a binary \lfpl number (i.e. $\tplist{\tpsum{\tpunit}{\tpunit}}$). The extra work of dealing with this index significantly complicates both the implementation and usage of the data structure.
+This interface is inspired by the array-like data structure used in Hofmann's original completeness proof~\cite{hofmannStrengthNonsizeIncreasing2002}. The key difference is that his array data structure has read and write operations requiring an index, given as a binary \lfpl number (i.e. $\tplist{\tpsum{\tpunit}{\tpunit}}$). The extra work of dealing with this index significantly complicates both the implementation and use of the data structure.
 %
 Arrays are more general but our stack is easier to implement and sufficient for representing a Turing machine's tape, so we believe it is the better choice of data structure for the completeness theorem.
 
@@ -76,17 +78,17 @@ To formalize our intuition of how $\code{push}$ and $\code{pop}$ should behave, 
 Let $k \in \mathbb N$. Suppose $(S, \code{empty}, \code{push}, \code{pop})$ is a $k$-stack implementation with element type $A$. Given a function $B : \mathbb N \to \mathbb N$, we say this implementation is correct and bounded by $B$ if the following holds for all $n \in \mathbb N$:
 \begin{itemize}
   \item There exists a relation $V_n \subseteq \tpsem{S}$ of valid data structure states.
-  \item There exists a function $I_n : \tpsem{S} \to \tpsem{A}^*$ which returns the list of items in the stack.
+  \item There exists a function $I_n : \tpsem{S} \to \tpsem{A}^*$ that returns the list of items in the stack.
   \item Let $s = \tmsem{\code{empty}}{\ctxnil}$. Then, $V_n(s)$ holds and $I_n(s) = []$.
   \item Let $f = \tmsem{\code{push}}{\ctxnil}$. Then, for all $x \in \tpsem{A}$ and $s \in \tpsem{S}$ such that $V_n(s)$ holds, we have:
   \begin{itemize}
-    \item If $|I_n(s)| = B(n)$, then $f(m_{n,k})(x, s) = (m_{n,k}, s, (1, x))$.
-    \item If $|I_n(s)| < B(n)$, then $f(m_{n,k})(x, s) = (m_{n,k}, s', (2, \ast))$, where $V_n(s')$ holds and $I_n(s') = x :: I_n(s)$.
+    \item If $|I_n(s)| = B(n)$ then $f(m_{n,k})(x, s) = (m_{n,k}, s, (1, x))$.
+    \item If $|I_n(s)| < B(n)$ then $f(m_{n,k})(x, s) = (m_{n,k}, s', (2, \ast))$, where $V_n(s')$ holds and $I_n(s') = x :: I_n(s)$.
   \end{itemize}
   \item Let $f = \tmsem{\code{pop}}{\ctxnil}$. Then, for all $s \in \tpsem{S}$ such that $V_n(s)$ holds:
   \begin{itemize}
-    \item If $I_n(s) = []$, then $f(m_{n,k})(s) = (m_{n,k}, s, (1, \ast))$.
-    \item If $I_n(s) = x :: \ell$, then $f(m_{n,k})(s) = (m_{n,k}, s', (2, x))$, where $V_n(s')$ holds and $I_n(s') = \ell$.
+    \item If $I_n(s) = []$ then $f(m_{n,k})(s) = (m_{n,k}, s, (1, \ast))$.
+    \item If $I_n(s) = x :: \ell$ then $f(m_{n,k})(s) = (m_{n,k}, s', (2, x))$, where $V_n(s')$ holds and $I_n(s') = \ell$.
   \end{itemize}
 \end{itemize}
 \end{definition}
@@ -114,7 +116,7 @@ tape of a polynomial-time Turing machine.
 %
 While most of the proofs in this section focus on the high-level
 intuition and avoid writing or reasoning about concrete \lfpl
-programs, everything is formalized in the mechanization~\cite{mechanization}.
+programs, these programs and other details are formalized in the mechanization~\cite{mechanization}.
 
 \begin{lemma}[Constant Stack Construction]
 \label{lem:stack-constant}
@@ -242,11 +244,11 @@ Both of these are straightforward to prove by rule induction on $\dfree{A}$. By 
 
 It only remains to put everything together. For this subsection, assume we have function $f : \tpsem{A}^* \to \tpsem{A}^*$ computable by a Turing machine on a tape with alphabet $\{a_0\} \sqcup \tpsem{A}$, with internal state set $\{q_0\} \sqcup \tpsem{Q}$ and transition function $g$. Further assume the machine always halts in $P(n)$ steps on an input of length $n$, where $P : \mathbb N \to \mathbb N$ is a $k$-degree polynomial.
 
-Our goal is to construct a closed term $M : \tplist{A} \to \tplist{A}$ such that $\tmsem{M}{\envnil} = f$. Assuming an input of $\ell \in \tpsem{A}^*$ with length $n = |\ell|$, the body of the function for $M$ will only have access to $n$ diamonds. We are going to need a tape data structure that can hold the input list and any additional memory used by the Turing machine, so up to $n + P(n)$ values, while only requiring $n$ diamonds to use. % , since the input is written on the tape and (in the worst case) the Turing machine could just write a new value outside of the input section of the tape at every step.
+Our goal is to construct a closed term $M : \tplist{A} \to \tplist{A}$ such that $\tmsem{M}{\envnil} = f$. Assuming an input of $\ell \in \tpsem{A}^*$ with length $n = |\ell|$, the body of the function for $M$ only has access to $n$ diamonds. We are going to need a tape data structure that can hold the input list and any additional memory used by the Turing machine, so up to $n + P(n)$ values, while only requiring $n$ diamonds. % , since the input is written on the tape and (in the worst case) the Turing machine could just write a new value outside of the input section of the tape at every step.
 
 Since the Turing machine receives its input as a single list, giving us a pool of diamonds in the form $\tplist{\tpunit}$, yet stack operations require diamonds in the form $(\tplist{\tpunit})^{k + 1}$, we need a way to losslessly convert between diamonds collected into a list of type $\tplist{\tpunit}$ and diamonds in a divided form $\tptens{(\tplist{\tpunit})^{k + 1}}{\tplist{\tpunit}}$. The reverse direction is straightforward; just append all the lists together into one. The forward direction amounts to implementing unary division by the constant $k + 1$ in \lfpl.
 %
-This is nontrivial but ultimately follows how one would implement $\code{divmod}_k : \mathbb N \to \mathbb N \times \mathbb N$ in a standard functional programming language, where $\code{divmod}_k(n)$ returns the quotient and remainder of $n$ by $k + 1$.
+This is nontrivial but not too different from an implementation of $\code{divmod}_k : \mathbb N \to \mathbb N \times \mathbb N$ in a standard functional programming language, where $\code{divmod}_k(n)$ returns the quotient and remainder of $n$ by $k + 1$.
 
 Consider the polynomial $Q(m) = (k + 1)(m + 1) + P((k + 1)(m + 1))$, which has degree at most $\max(1, k)$, which we further bound with $k + 1$ to avoid a degree-zero edge case. Let $(m, r) = \code{divmod}_k(n)$ so that $0 \le r \le k$ and $n = m(k + 1) + r$. Then, $(k + 1)(m + 1) = m(k + 1) + (k + 1) > m(k + 1) + r = n$, implying $Q(m) \ge P(n) + n$. Therefore, we can apply \pref{lem:stack-polynomial} to $Q$ to obtain a stack implementation for element type $\tpsum{\tpunit{}}{A}$, say with underlying type $S$. These stacks hold up to $Q(m)$ values assuming we have $m(k + 1)$ diamonds available  and therefore at least $P(n)$ values. So we can model the tape with a data structure of type $\tptens{S}{\tptens{(\tpsum{\tpunit{}}{A})}{S}}$, as discussed earlier.
 
@@ -272,13 +274,13 @@ By allowing $M$ to output a stack rather than insisting it be a list, we can imp
 \subsection{Errors in the Original Proof}
 \label{sec:completeness-errors}
 
-We originally intended to mechanize Hofmann’s completeness proof~\cite{hofmannStrengthNonsizeIncreasing2002}, but thinking through what would be required for this, we noticed several subtle errors and wanted to avoid the difficulties that come with resolving them. Thus, the mechanization effort led us to invent a simpler stack-like data structure for representing the tape of a Turing machine.
+We originally intended to mechanize Hofmann’s completeness proof~\cite{hofmannStrengthNonsizeIncreasing2002}, but thinking carefully about some of the details, we noticed several subtle errors and wanted to avoid the difficulties that come with resolving them. Thus, the mechanization effort led us to invent a simpler stack-like data structure for representing the tape of a Turing machine.
 
 A main difficulty in the completeness proof is to represent the tape of a polynomial-time Turing machine in LFPL, say with polynomial $P$ and degree $k$. Hofmann constructs a data structure (called a “storage device”) that can hold only $cn^k$ elements for a fixed $c$, as opposed to $P(n)$ elements, given temporary access to $n$ diamonds. In Hofmann’s encoding of the Turing machine, given an input list of length n, the first step is to construct a storage device capable of holding $P(2km)$ elements when given access to $km$ temporary diamonds. This amounts to finding a monomial $cm^k \ge P(2km)$. Hofmann chooses $m$ to be $n/(2k)$, but the largest possible value for $m$ is $\left\lfloor n/(2k) \right\rfloor$; any larger and we could potentially have $km > n/2$. This makes the storage device unsuitable for the proof since it would mandate the availability more than our $n/2$ diamonds. See below for why we have only $n/2$ rather than $n$ diamonds. So, due to this upper bound on $m$, to have $cm^k \ge P(n)$ we actually need $cm^k$ to bound $P(2k(m + 1))$, which is one small error in the proof.
 
 More importantly, there’s the issue that $m = \left\lfloor n/(2k) \right\rfloor = 0$ when $n < 2k$, and thus $cm^k = 0$ while it may be that $P(0) > 0$, so Hofmann’s construction fails for input lists of length less than $2k$ (as well as any inputs of length $0$). This can be fixed by hard-coding each of these finitely-many inputs. Nonetheless, neither this problem nor any potential solutions are discussed in the original proof. Our proof sidesteps this issue since our stack construction works for general polynomial bounds.
 
-The second source of errors is that storage devices have an array-like interface, where the client can access any element by providing its index as a binary natural number. In \lfpl, such an index requires some diamonds to store, whereas with our stack-like interface there is no index to worry about. In Hofmann’s encoding of the Turing machine, the input list (say with length $n$) is immediately split into two lists of length $n/2$. One half is reserved for the storage device as discussed in the previous paragraphs. The purpose of the other half is not discussed in the proof, but it is necessary to store a storage device index representing the position of the tape head. The issue is the tape could hold up to $P(n)$ elements, but the remaining diamonds can only represent up to $2^{n/2}$ binary indices, which is not necessarily greater than $P(n)$. This could be fixed by using a $d$-ary number to store the index for sufficiently large $d$, but this worsens the already large burden of arithmetic \lfpl helper functions required in Hofmann’s proof. None of this is discussed in Hofmann’s proof, and fortunately we are once again able to sidestep all of it with our stack data structure.
+The second source of errors is that storage devices have an array-like interface, where the client can access any element by providing its index as a binary natural number. In \lfpl, such an index requires some diamonds to store, whereas our stack-like interface does not have indices to worry about. In Hofmann’s encoding of the Turing machine, the input list (say with length $n$) is immediately split into two lists of length $n/2$. One half is reserved for the storage device as discussed in the previous paragraphs. The purpose of the other half is not discussed in the proof, but it is necessary to store a storage device index representing the position of the tape head. The issue is that the tape could hold up to $P(n)$ elements, but the remaining diamonds can only represent up to $2^{n/2}$ binary indices, which is not necessarily greater than $P(n)$. This could be fixed by using a $d$-ary number to store the index for sufficiently large $d$, but this worsens the already large burden of arithmetic \lfpl helper functions required in Hofmann’s proof. None of this is discussed in Hofmann’s proof, and fortunately we are once again able to sidestep all of it with our stack data structure.
 %%% Local Variables:
 %%% mode: LaTeX
 %%% TeX-master: "../paper"
