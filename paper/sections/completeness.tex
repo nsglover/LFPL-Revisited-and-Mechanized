@@ -15,13 +15,27 @@ diamonds.
 Suppose $\dfree{A}$. Then, for every polynomial-time computable function $f : \tpsem{A}^* \to \tpsem{A}^*$ such that $|f(x)| \le |x|$ for all $x \in \tpsem{A}^*$, there exists a closed term $M : \tparr{\tplist{A}}{\tplist{A}}$ such that $\tmsem{M}{\envnil} = f$.
 \end{theorem}
 
-This theorem was originally proven for $A = \tpunit$~\cite{hofmannStrengthNonsizeIncreasing2002}. The constraint that $f$ does not increase the length of its input is necessary because of the non-size-increasing property enforced upon LFPL functions. As we see in \pref{sec:completeness-general-thm}, this constraint can be removed if we don't enforce that the output type of $M$ is an \lfpl list.
+This theorem was originally proven for $A = \tpunit$~\cite{hofmannStrengthNonsizeIncreasing2002}. The constraint that $f$ does not increase the length of its input is necessary because of the non-size-increasing property enforced upon LFPL functions. As we see in \pref{sec:completeness-general-thm}, this constraint can be removed if we do not enforce that the output type of $M$ is an \lfpl list.
 
 Proving \pref{thm:completeness-concrete} boils down to simulating the polynomial-time Turing machine that computes the function $f$. This immediately presents two challenges. Say that $P : \mathbb N \to \mathbb N$ is the polynomial encoding how many steps the Turing machine takes to compute $f$. The first challenge is to represent the tape of the machine, which for an input list of size $n$ could contain up to $P(n)$ additional values by the time the machine halts. We only have $n$ diamonds from the input list, yet we have to store up to $P(n)$ additional values.
 
 The second challenge is to simulate the Turing machine for $P(n)$ steps. At first glance, it seems that \lfpl is only suited for performing $kn$ iterations given $n$ diamonds and some constant $k$. This can be achieved for $k = 1$ by iterating down a list and building it back up during the iteration process, and then it is easy to repeat this for any constant $k$ number of times. This is useful but does not help to perform, say, $n^2$ iterations.
 
-
+Both of these challenges are somewhat unique to \lfpl's completeness
+proof compared to completeness proofs for other languages for P.
+%
+For example, the challenge in the proof of the Cons-free system from
+the work of Jones~\cite{Jones2001} lies mostly in simulating the
+polynomially-many iterations of the machine’s step function but not in
+providing sufficient space for the tape.
+%
+This is similar to the completeness proof for \lfplplus and the
+extension of \lfpl considered by
+Atkey~\cite{atkeyPolynomialTimeDependent2024}, which provide
+lists without both, size restrictions and iteration.
+%
+% However, these proofs still address the aforementioned
+% second challenge, which is not present in the Cons-free system.
 
 \subsection{The Bounded Stack Data Structure}
 \label{sec:completeness-bounded-stack-definition}
@@ -265,3 +279,7 @@ A main difficulty in the completeness proof is to represent the tape of a polyno
 More importantly, there’s the issue that $m = \left\lfloor n/(2k) \right\rfloor = 0$ when $n < 2k$, and thus $cm^k = 0$ while it may be that $P(0) > 0$, so Hofmann’s construction fails for input lists of length less than $2k$ (as well as any inputs of length $0$). This can be fixed by hard-coding each of these finitely-many inputs. Nonetheless, neither this problem nor any potential solutions are discussed in the original proof. Our proof sidesteps this issue since our stack construction works for general polynomial bounds.
 
 The second source of errors is that storage devices have an array-like interface, where the client can access any element by providing its index as a binary natural number. In \lfpl, such an index requires some diamonds to store, whereas with our stack-like interface there is no index to worry about. In Hofmann’s encoding of the Turing machine, the input list (say with length $n$) is immediately split into two lists of length $n/2$. One half is reserved for the storage device as discussed in the previous paragraphs. The purpose of the other half is not discussed in the proof, but it is necessary to store a storage device index representing the position of the tape head. The issue is the tape could hold up to $P(n)$ elements, but the remaining diamonds can only represent up to $2^{n/2}$ binary indices, which is not necessarily greater than $P(n)$. This could be fixed by using a $d$-ary number to store the index for sufficiently large $d$, but this worsens the already large burden of arithmetic \lfpl helper functions required in Hofmann’s proof. None of this is discussed in Hofmann’s proof, and fortunately we are once again able to sidestep all of it with our stack data structure.
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: "../paper"
+%%% End:

@@ -1,6 +1,8 @@
 \section{Related Work}
 
-The most closely related work to ours is that of Atkey~\cite{atkeyPolynomialTimeDependent2024}. He develops a powerful extension of \lfpl with full dependent types and a ``Cons-free'' iterator much like the stack types we introduced in \pref{sec:soundness}. He also provides a semantic polynomial-time soundness proof using the realizability method of Dal Lago and Hofmann \cite{dallagoRealizabilityModelsImplicit2011}. These developments are mechanized in Agda. Our method for proving soundness differs from his in that it is syntactic rather than semantic and constructs an explicit polynomial bound on the cost of evaluation for each term. Furthermore, we devote great attention to mechanizing polynomial-time completeness, ensuring the strongest result by working with a minimal version of \lfpl.
+The most closely related work to ours is that of Atkey~\cite{atkeyPolynomialTimeDependent2024}. He develops a powerful extension of \lfpl with full dependent types and a ``Cons-free'' iterator much like the stack types we introduced in \pref{sec:soundness} and in previous work by Jones~\cite{Jones2001}.
+%
+Atkey also provides a semantic polynomial-time soundness proof using the realizability method of Dal Lago and Hofmann \cite{dallagoRealizabilityModelsImplicit2011}. These developments are mechanized in Agda. Our method for proving soundness differs from his in that it is syntactic rather than semantic and constructs an explicit polynomial bound on the cost of evaluation for each term. Furthermore, we devote great attention to mechanizing polynomial-time completeness, ensuring the strongest result by working with a minimal version of \lfpl.
 
 Hofmann's original work on LFPL~\cite{hofmannLinearTypesNonsizeincreasing1999,hofmannStrengthNonsizeIncreasing2002} is the basis of this article and has been discussed in detail in Sections~\ref{sec:lfpl},~\ref{sec:completeness}, and~\ref{sec:soundness}.
 %
@@ -10,4 +12,33 @@ None of these articles comes with a mechanization or full account of both soundn
 
 \lfpl also directly inspired automatic amortized resource analysis (AARA)~\cite{HoffmJ22}, and so our work could perhaps inspire early steps towards mechanizing the metatheory of AARA. Additionally, there is a polynomial-time completeness result for AARA similar to the one for \lfpl discussed in \pref{sec:completeness}~\cite{phamTypableFragmentsPolynomial2021}.
 
-Beyond \lfpl, there is a large body of work on implicit computational complexity (ICC)~\cite{dallagoImplicitComputationComplexity2022}, though we are not aware of any results in ICC besides ours and Atkey's~\cite{atkeyPolynomialTimeDependent2024} which are significantly mechanized. The polynomial time and space classes are a common focus~\cite{gaboardiSoftLinearLogic2008,gaboardiImplicitCharacterizationPSPACE2012}, though there has been interest in logarithmic space usage as well~\cite{schoppStratifiedBoundedAffine2007, ramyaaRamifiedCorecurrenceLogspace2011}. Interestingly, Hofmann~\cite{hofmannStrengthNonsizeIncreasing2002} noticed that, if the structural recursor of \lfpl is replaced with general recursion, the terminating fragment of the language characterizes exponential-time computation. \lfpl is an influential language in ICC, helping to inspire numerous developments in the field~\cite{dallagoRealizabilityModelsImplicit2011,marion2003,marion2011,baillot2016,dalLago2009,bonfante2011}.
+Beyond \lfpl, there is a large body of work on implicit computational complexity (ICC)~\cite{dallagoImplicitComputationComplexity2022}. The polynomial time and space classes are a common focus~\cite{gaboardiSoftLinearLogic2008,gaboardiImplicitCharacterizationPSPACE2012}, though there has been interest in logarithmic space usage as well~\cite{schoppStratifiedBoundedAffine2007, ramyaaRamifiedCorecurrenceLogspace2011}. Interestingly, Hofmann~\cite{hofmannStrengthNonsizeIncreasing2002} noticed that, if the structural recursor of \lfpl is replaced with general recursion, the terminating fragment of the language characterizes exponential-time computation. \lfpl is an influential language in ICC, helping to inspire numerous developments in the field~\cite{dallagoRealizabilityModelsImplicit2011,marion2003,marion2011,baillot2016,dalLago2009,bonfante2011}.
+
+We are only aware of two other works in ICC, besides ours and
+Atkey's~\cite{atkeyPolynomialTimeDependent2024}, that are
+significantly mechanized.
+%
+Heraud and Nowak~\cite{Heraud2011} mechanized the soundness and
+completeness of the language for P of Bellantoni and
+Cook~\cite{Bellantoni92} in Rocq.
+%
+This language is quite different from LFPL since it does not feature a
+linear type discipline or higher-order functions but instead relies on
+the idea of \emph{safe arguments}.
+%
+Férée et al.~\cite{Feree2018} describe a library for verifying
+polynomial-time complexity in Rocq by using
+quasi-interpretations. Instead of a higher-order language with a
+linear type system, they consider first-order term-rewrite systems. As
+a result, the soundness and completeness arguments are very different
+from the ones for \lfpl.
+%
+In particular, the completeness proofs for both, the language of
+Bellantoni and Cook and the system of quasi-interpretations, do not
+require the construction of bounded stacks, which is the main
+difficulty in completeness proof for \lfpl.
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: "../paper"
+%%% End:
