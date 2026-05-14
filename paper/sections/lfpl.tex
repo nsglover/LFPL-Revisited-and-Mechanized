@@ -82,9 +82,9 @@ The notion of size and the non-size-increasing property were originally formulat
 \subsection{Example Functions}
 \label{sec:lfpl-examples}
 
-To build intuition about the expressivity of \lfpl, we implement some examples of functions that demonstrate how to program in the language. Firstly, given any element type $A$, we implement efficient list reversal. For readability in example programs, we use concrete syntax
+To build intuition about the expressivity of \lfpl, we implement some examples of functions that demonstrate how to program in the language. Firstly, given any element type $A$, we implement efficient list reversal. For readability, we use the concrete syntax
 $$\text{\lstinline{rec M | nil => N1 | cons (xd, xh, xt) => N2}}$$
-for $\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}$ and similarly for sum elimination.
+for $\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}$ in the examples; and a similar syntax for sum elimination.
 
 \begin{example}[Linear-Time Reverse]
 \label{example:reverse}
@@ -102,7 +102,7 @@ reverse = lam l1 . revAppend l1 nil
 
 \begin{example}[List Case Analysis]
 \label{example:list-case}
-Importantly, both for the general convenience of the programmer and for use in \pref{example:susp}, we can inspect whether a list is empty, which is often presented as pattern matching in standard functional programming languages. For brevity in the concrete syntax, we allow for pattern matching on tuple variables at their binding sites.
+Importantly, both for the convenience of the programmer and for use in \pref{example:susp}, we can inspect whether a list is empty, which is often presented as pattern matching in standard functional programming languages. For brevity in the concrete syntax, we allow for pattern matching on tuple variables at their binding sites.
 \begin{lstlisting}
 lfold : 1 + diam * A * L(A) -o L(A)
 lfold = lam x . case x .
@@ -162,7 +162,8 @@ expCalls nil f = f
 expCalls (cons (_, _, n)) = let r = expCalls n f in
   wrap (lam x . unwrap(r) (unwrap(r) x))
 \end{lstlisting}
-Evaluating $\tmapp{\tmapp{\code{expCalls}}{n}}{f}$ yields a function which calls $f$ on itself $2^{|n|}$ times. If $f$ incurs any cost, then the resulting function will definitely not run in polynomial time.
+Evaluating $\tmapp{\tmapp{\code{expCalls}}{n}}{f}$ yields a function which calls $f$ on itself $2^{|n|}$.
+As a result, we can use \code{expCalls} to implement functions that are not polynomial-time computable.
 
 %%% Local Variables:
 %%% mode: LaTeX
