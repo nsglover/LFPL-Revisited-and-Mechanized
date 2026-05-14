@@ -52,6 +52,7 @@ If $\types{\Gamma}{M}{A}$, $\envtypes{\env}{\Gamma}$, and $\evals{\env}{M}{c}{v}
 We can also give a denotational semantics for values and environments, and prove that they cohere with the denotational semantics for terms. In particular, given $v : A$ and $\envtypes{\env}{\Gamma}$, we define $\tpsem{v} \in \tpsem{A}$ and $\tpsem{\env} \in \tpsem{\Gamma}$ by mutual induction on the structures of $v$ and $\env$. Most cases are straightforward; for example, $\tpsem{\vpair{v_1}{v_2}} = (\tpsem{v_1}, \tpsem{v_2})$. For closures such as function values, we appeal to the term denotational semantics: $\tpsem{\vlam{\env}{x}{M}} = \lambda v . \tmsem{M}{\envcons{\tpsem{\env}}{x}{v}}$. We prove the following in the mechanization:
 
 \begin{theorem}[Coherence]
+\label{thm:coherence}
 If $\types{\Gamma}{M}{A}$, $\envtypes{\env}{\Gamma}$, and $\evals{\env}{M}{c}{v}$, then $\tpsem{v} = \tmsem{M}{\tpsem{\env}}$.
 \end{theorem}
 
