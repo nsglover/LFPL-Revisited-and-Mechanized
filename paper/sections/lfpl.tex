@@ -124,10 +124,9 @@ susp : L(A) -o (L(1) -o L(A)) * L(1)
 susp = lam x . rec x .
 | nil => (lam _ . nil, nil)
 | cons (d, x, r) => letp (f, m) = r in
-  (lam n . case (lunfold n) .
-    | inj1 _ => nil
-    | inj2 (d', _, n') => cons (d', x, f n')
-  , cons (d, <>, m))
+  ((lam n . case (lunfold n) .
+     | inj1 _ => nil
+     | inj2 (d', _, n') => cons (d', x, f n')), cons (d, <>, m))
 \end{lstlisting}
 This example is important for the completeness proof, so it is worth stating its semantics: If $x \in \tpsem{A}^*$, then $\tmsem{\texttt{susp}}{\envnil}(x) = (f, m)$, where $f(m) = x$. Note that $m$ is the unique element of $\tpsem{\tpunit}^*$ with length $|x|$, so we recover $x$ as long as we give $f$ enough diamonds.
 \end{example}
