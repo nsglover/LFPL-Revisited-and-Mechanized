@@ -160,8 +160,8 @@ The idea of  $P_v$ and $P_\env$ is to bound the future cost of evaluating all of
 
 \begin{example}
 Consider \code{reverse} and \code{revAppend} from \pref{example:reverse}. For simplicity, assume our cost model has $\Crec = \Capp = 1$ and all other constants are zero. We have:
-$$P_\code{reverse}(n) = P_\code{revAppend}(n) = \Crec + n(\Crec + \Capp) = 2n + 1$$
-Applying \pref{thm:soundness-concrete} to this result, we learn that if \code{reverse} is evaluated with an input list of length $n$, we will incur at most $2n + 1$ cost, thus proving \code{reverse} is linear-time.
+$$P_\code{\tmapp{reverse}{\ell}}(n) = 3\Capp + P_\code{revAppend}(n) = 3\Capp + \Crec + n(\Crec + \Capp) = 2n + 4$$
+Applying \pref{thm:soundness-concrete} to this result, we learn that if \code{reverse} is evaluated with an input list of length $n$, we will incur at most $2n + 4$ cost, thus proving \code{reverse} is linear-time.
 \end{example}
 
 
