@@ -18,16 +18,22 @@ It says we must bipartition the context $G$ into $\ctxappend{G_A}{G_B}$, and giv
 
 \subsection{Denotational and Operational Semantics}
 
-Instead of the set-theoretic denotational semantics we give in \pref{sec:denotational-semantics}, our mechanization gives a denotational semantics from intrinsically typed \lfpl terms into Istari terms of the appropriate type. This is similar to the set-theoretic formulation, since all operations we use on sets (products, coproducts, etc.) are also present in the Istari type system. However, it is nice to use, as we can rely on Istari's reduction engine to simplify Istari terms resulting from the semantics of a complicated \lfpl term. These denotations have the following signatures:
+Instead of the set-theoretic denotational semantics we give in \pref{sec:denotational-semantics}, our mechanization gives a denotational semantics from intrinsically typed \lfpl terms into Istari terms of the appropriate type. This is similar to the set-theoretic formulation, since all operations we use on sets (products, coproducts, etc.) are also present in the Istari type system. One benefit is that we can rely on Istari's reduction engine to simplify Istari terms resulting from the semantics of a complicated \lfpl term. These denotations have the following signatures.
+Here, a value of type \lstinline{env G} represents an environment $\env$ such that $\env : G$. 
 \begin{lstlisting}
 tp_sem : tp -> type
 term_sem : forall (G : ctx) (A : tp) . term G A -> env G -> tp_sem A
 \end{lstlisting}
-Here, a value of type \lstinline{env G} represents an environment $\env$ such that $\env : G$. Similarly, for the operational semantics judgement $\evals{\env}{M}{c}{v}$, we define an inductive datatype encoding its rules with the following type:
+Similarly, for the operational semantics judgement
+$\evals{\env}{M}{c}{v}$ from \pref{sec:operational-semantics}, we
+define an inductive datatype encoding its rules with the following
+type:
 \begin{lstlisting}
 evals : forall (G : ctx) (A : tp) . term G A -> env G -> value A -> nat -> type
 \end{lstlisting}
-As briefly mentioned at the end of \pref{sec:operational-semantics}, we can give a denotational semantics for values and prove the following result in our mechanization, which is a good example of what many of our Istari theorems look like:
+As briefly mentioned at the end of \pref{sec:operational-semantics}, we can give a denotational semantics for values and prove the following result in our mechanization, which is a good example of what many of our Istari theorems look like.
+%
+It states that if $\evals{\env}{M}{c}{v}$, then $\tpsem{v} = \tmsem{M}{\env}$.
 \begin{lstlisting}
 value_sem : forall (A : tp) . value A -> tp_sem A
 value_sem = ...
@@ -35,7 +41,7 @@ lemma "operational_equiv_denotational"
   forall (G : ctx) (A : tp) (M : term G A) (V : env G) (v : value A) (c : nat) .
   evals M V v c -> value_sem v = term_sem M (env_sem V)
 \end{lstlisting}
-It states that if $\evals{\env}{M}{c}{v}$, then $\tpsem{v} = \tmsem{M}{\env}$.
+
 
 
 
@@ -45,6 +51,11 @@ When beginning this project, we were uncertain which proof assistant would be mo
 
 The first issue was a lack of tactics. Agda expressions are often cleaner and more readable than the proof scripts of tactic-based proof assistants like Rocq and Istari. However, when one constantly needs to reason about equality, say by substituting $e'$ for $e$ in a term $f(e)$ where $f$ is a complex expression, it becomes helpful to have a substitution tactic. In Agda, we needed to manually specify $f$, which is infeasible when $f$ is large.
 
-Secondly, Agda requires that all expressions are well-typed, even in the statement of a theorem yet to be proven. This presents some difficulties. For example, consider the \lfpl type $(\tplist{\tpunit})^k$ used in \pref{sec:completeness-bounded-stack-definition}. We know that $\tpsem{(\tplist{\tpunit})^k} = \tpsem{\tplist{\tpunit}}^k$, so we implicitly switch between these forms as needed, but in the mechanization this must be explicit. Some parts of our proof are only well-typed if they are given the form on the left-hand side of the equality, and others need the right-hand form. In Agda, we had to state a theorem where some parts of the theorem needed the left form, and others needed the right, so there was no way to formulate this such that it was well-typed without using with transport functions, which are known to cause other major difficulties~\cite{tabareau2018}. Istari does not care about the well-typedness of the theorem before it is proven. It must be given a type by the end of the proof, but this is not difficult since we have a lemma stating $\tpsem{(\tplist{\tpunit})^k} = \tpsem{\tplist{\tpunit}}^k$. The difference is that Istari lets us show well-typedness during the proof, whereas Agda demands it before the proof.
+Secondly, Agda requires that all expressions are well-typed, even in the statement of a theorem yet to be proven. This presents some difficulties. For example, consider the \lfpl type $(\tplist{\tpunit})^k$ used in \pref{sec:completeness-bounded-stack-definition}. We know that $\tpsem{(\tplist{\tpunit})^k} = \tpsem{\tplist{\tpunit}}^k$, so we implicitly switch between these forms as needed, but in the mechanization this must be explicit. Some parts of our proof are only well-typed if they are given the form on the left-hand side of the equality, and others need the right-hand form. In Agda, we had to state a theorem where some parts of the theorem needed the left form, and others needed the right, so there was no way to formulate this such that it was well-typed without using transport functions, which are known to cause other major difficulties~\cite{tabareau2018}. Istari does not require the well-typedness of a theorem before it is proven. It must be given a type by the end of the proof, but this is not difficult since we have a lemma stating $\tpsem{(\tplist{\tpunit})^k} = \tpsem{\tplist{\tpunit}}^k$. The difference is that Istari lets us show well-typedness during the proof, whereas Agda demands it before the proof.
 
 Such issues lead to the choice to finish the completeness and soundness proofs only in Istari. Retrospectively, we can say that it was a more than adequate tool for this task. In fact, we never encountered any Istari-related roadblocks. This is not to say there weren't annoyances; as a relatively new proof assistant, Istari sometimes struggles to infer implicit arguments and automatically eliminate vacuous proof cases, requiring manual intervention in situations where Agda would succeed.
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: "../paper"
+%%% End:
