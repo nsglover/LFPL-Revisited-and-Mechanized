@@ -92,7 +92,6 @@ revAppend = lam l1 . rec l1
 reverse : L(A) -o L(A)
 reverse = lam l1 . revAppend l1 nil
 \end{lstlisting}
-
 In the abstract syntax of \pref{fig:syntax-tp-tm}, \code{revAppend} would be written as:
 $$
 \tmlam{\ell_1}{\tmrec{\ell_1}{\tmlam{\ell_2}{\ell_2}}{d}{x}{r}{\tmlam{\ell_2}{\tmapp{r}{(\tmcons{d}{x}{\ell_2})}}}}
