@@ -212,7 +212,7 @@ We can then define $f^{\sharp} = \tmlam{s}{\tmletp{s}{x}{n}{\tmapp{\tmapp{g}{n}}
 Let $f : \tparr{\tptens{A}{\tplist{\tpunit}}}{\tptens{A}{\tplist{\tpunit}}}$ be a closed term and $P : \mathbb N \to \mathbb N$ be a polynomial. Then, there exists a closed term $f^{\sharp P} : \tparr{\tptens{A}{\tplist{\tpunit}}}{\tptens{A}{\tplist{\tpunit}}}$ such that $\tmsem{f^{\sharp P}}{\envnil} (x, n) = (\tmsem{f}{\envnil})^{P(|n|)}(x, n)$.
 \end{lemma}
 \begin{proof}
-To get monomials, we can repeat the $\sharp$ operation from \pref{lem:linear-iterator}, e.g. $\tmsem{(f^{\sharp})^{\sharp}}{\envnil} (x, n) = (\tmsem{f}{\envnil})^{|n|^2}(x, n)$. To add these monomials together to obtain any polynomial, we can just use function composition, since $g^m \circ g^k = g^{m + k}$ for any $g : X \to X$ and $m,k \in \mathbb N$.
+For monomials, we can repeat the $\sharp$ operation from \pref{lem:linear-iterator}, e.g. $\tmsem{(f^{\sharp})^{\sharp}}{\envnil} (x, n) = (\tmsem{f}{\envnil})^{|n|^2}(x, n)$. To add these monomials together to obtain any polynomial, we can just use function composition, since $g^m \circ g^k = g^{m + k}$ for any $g : X \to X$ and $m,k \in \mathbb N$.
 \end{proof}
 
 % Atkey~\cite{atkeyPolynomialTimeDependent2024} shows an alternative approach to \pref{lem:polynomial-iterator} that does not rely on \pref{lem:linear-iterator}, instead utilizing the fact that $\binom{n}{k}$ taken over all $k \in \mathbb N$ forms a basis for polynomials in $n$. For a fixed $k$, they construct an elegant iterator for $f$ which runs $\binom{n}{k}$ times on an input $(x, n)$.
