@@ -73,13 +73,13 @@ To define the semantics of the \lfpl list type, we make use of the Kleene star o
 
 For the semantics of the sum type, we make use of the disjoint union (or coproduct) operator $S \sqcup T := (\{ 1 \} \times S) \cup (\{ 2 \} \times T)$. The definitions of $\tpsem{A}$ and $\tmsem{M}{\env}$ are given in \pref{fig:sem-tp-tm}, inspired by Hofmann's set-theoretic interpretation~\cite{hofmannStrengthNonsizeIncreasing2002}. Notice the argument of type $\tpdiam$ to $\code{cons}$ is ignored; the presence of $\tpdiam$ in lists is purely a means of statically enforcing polynomial-time computation, so the dynamic semantics for $\code{cons}$ need not involve $\blacklozenge$.
 
-The notion of size and the non-size-increasing property were originally formulated for the denotational semantics~\cite{hofmannLinearTypesNonsizeincreasing1999}. The basic idea is to define a partial function $\mathsf{size}_A : \tpsem{A} \to \mathbb N$ by induction on $A$, intuitively counting the number of diamonds within the input. For example, $\mathsf{size}_{\tpdiam}(\blacklozenge) = 1$. The reason for partiality is that $\mathsf{size}_{\tparr{A}{B}}(f)$ is defined as the maximum difference (which might not exist) between $\mathsf{size}_B(f(x))$ and $\mathsf{size}_A(x)$, where $x$ ranges over all $x \in \tpsem{A}$ such that $\mathsf{size}_A(x)$ and $\mathsf{size}_B(f(x))$ are defined. The non-size-increasing theorem then proves simultaneously that $\mathsf{size}_A(\tmsem{M}{\env})$ is defined whenever the sizes of all values in $\env$ are defined and that the size of $\tmsem{M}{\env}$ is bounded by the sum of the sizes of the values in $\env$. In this paper, we provide an equivalent definition using an operational semantics in \pref{sec:soundness-size}. It is simpler because the definition is total, avoiding the complexities of dealing with partial functions while remaining sufficient for proving soundness.
-
 \input{figures/sem-tp-tm}
 
+The notion of size and the non-size-increasing property were originally formulated for the denotational semantics~\cite{hofmannLinearTypesNonsizeincreasing1999}. The basic idea is to define a partial function $\mathsf{size}_A : \tpsem{A} \to \mathbb N$ by induction on $A$, intuitively counting the number of diamonds within the input. For example, $\mathsf{size}_{\tpdiam}(\blacklozenge) = 1$. The reason for partiality is that $\mathsf{size}_{\tparr{A}{B}}(f)$ is defined as the maximum difference (which might not exist) between $\mathsf{size}_B(f(x))$ and $\mathsf{size}_A(x)$, where $x$ ranges over all $x \in \tpsem{A}$ such that $\mathsf{size}_A(x)$ and $\mathsf{size}_B(f(x))$ are defined. The non-size-increasing theorem then proves simultaneously that $\mathsf{size}_A(\tmsem{M}{\env})$ is defined whenever the sizes of all values in $\env$ are defined and that the size of $\tmsem{M}{\env}$ is bounded by the sum of the sizes of the values in $\env$. In this paper, we provide an equivalent definition using an operational semantics in \pref{sec:soundness-size}. It is simpler because the definition is total, avoiding the complexities of dealing with partial functions while remaining sufficient for proving soundness.
 
 
-\subsection{Example Functions}
+
+\subsection{Example Programs}
 \label{sec:lfpl-examples}
 
 To build intuition about the expressivity of \lfpl, we implement some examples of functions that demonstrate how to program in the language. Firstly, given any element type $A$, we implement efficient list reversal. For readability, we use the concrete syntax
@@ -98,6 +98,61 @@ revAppend = lam l1 . rec l1
 reverse : L(A) -o L(A)
 reverse = lam l1 . revAppend l1 nil
 \end{lstlisting}
+
+In the abstract syntax of \pref{fig:syntax-tp-tm}, \code{revAppend} would be written as:
+$$
+\tmlam{\ell_1}{\tmrec{\ell_1}{\tmlam{\ell_2}{\ell_2}}{d}{x}{r}{\tmlam{\ell_2}{\tmapp{r}{(\tmcons{d}{x}{\ell_2})}}}}
+$$
+For a fixed type $A$, this term has type $\tparr{\tplist{A}}{\tparr{\tplist{A}}{\tplist{A}}}$, which we can derive from the rules in \pref{fig:jmt-ty}. First, we make some abbreviations:
+
+\begin{itemize}
+  \item $V_{\ell_1}$ is a derivation of $\types{\ctxsing{{\ell_1}}{\tplist{A}}}{\ell_1}{\tplist{A}}$ via \pref{rule:ty-Var}.
+  \item $D_\text{nil}$ is a derivation of $\types{\ctxnil}{\tmlam{\ell_2}{\ell_2}}{\tparr{\tplist{A}}{\tplist{A}}}$ via \pref{rule:ty-ArrowI} and \pref{rule:ty-Var}.
+  \item $V_r$ is a derivation of $\types{\ctxsing{r}{\tparr{\tplist{A}}{\tplist{A}}}}{r}{\tparr{\tplist{A}}{\tplist{A}}}$ via \pref{rule:ty-Var}.
+\end{itemize}
+
+Then, we can derive $\types{\ctxnil}{\code{revAppend}}{\tparr{\tplist{A}}{\tparr{\tplist{A}}{\tplist{A}}}}$ via the following:
+\begin{mathpar}
+\ARule
+{
+  \types{\ctxnil}{\tmlam{\ell_1}{\tmrec{\ell_1}{\tmlam{\ell_2}{\ell_2}}{d}{x}{r}{\tmlam{\ell_2}{\tmapp{r}{(\tmcons{d}{x}{\ell_2})}}}}}{\tparr{\tplist{A}}{\tparr{\tplist{A}}{\tplist{A}}}}
+}
+{
+  \ARule
+  {
+    \types{\ctxsing{\ell_1}{\tplist{A}}}{\tmrec{\ell_1}{\tmlam{\ell_2}{\ell_2}}{d}{x}{r}{\tmlam{\ell_2}{\tmapp{r}{(\tmcons{d}{x}{\ell_2})}}}}{\tparr{\tplist{A}}{\tplist{A}}}
+  }
+  {
+    V_{\ell_1}
+    \\
+    D_{\text{nil}}
+    \\
+    \ARule
+    {
+      \types{\ctxcons{\ctxcons{\ctxsing{d}{\tpdiam}}{x}{A}}{r}{\tparr{\tplist{A}}{\tplist{A}}}}{\tmlam{\ell_2}{\tmapp{r}{(\tmcons{d}{x}{\ell_2})}}}{\tparr{\tplist{A}}{\tplist{A}}}
+    }
+    {
+      \ARule
+      {
+        \types{\ctxcons{\ctxcons{\ctxcons{\ctxsing{d}{\tpdiam}}{x}{A}}{r}{\tparr{\tplist{A}}{\tplist{A}}}}{\ell_2}{\tplist{A}}}{\tmapp{r}{(\tmcons{d}{x}{\ell_2})}}{\tplist{A}}
+      }
+      {
+        V_r
+        \\
+        \ARule
+        {
+          \types{\ctxcons{\ctxcons{\ctxsing{d}{\tpdiam}}{x}{A}}{\ell_2}{\tplist{A}}}{\tmcons{d}{x}{\ell_2}}{\tplist{A}}
+        }
+        {
+          \ARule{\types{\ctxsing{d}{\tpdiam}}{d}{\tpdiam}}{} \\ \ARule{\types{\ctxsing{x}{A}}{x}{A}}{} \\ \ARule{\types{\ctxsing{\ell_2}{\tplist{A}}}{\ell_2}{\tplist{A}}}{}
+        }
+      }
+    }
+  }
+}
+\end{mathpar}
+
+From this derivation, it is straightforward to derive $\types{\ctxnil}{\code{reverse}}{\tparr{\tplist{A}}{\tplist{A}}}$. To prove that \code{reverse} is correct, one can use the semantic clauses in \pref{fig:sem-tp-tm} to prove $\tmsem{\code{reverse}}{\envnil} : \tpsem{A}^* \to \tpsem{A}^*$ is the reversal function on $\tpsem{A}^*$.
 \end{example}
 
 \begin{example}[List Case Analysis]
