@@ -1,4 +1,4 @@
-# Nathan's Progress on Rebuttal Changelist
+# Progress on Rebuttal Changelist
 
 In short, I've finished everything other than the `reverse` running example and two items that I've left for you. If you have the time it would be good if you could read the changes I've made; I am not confident in the writing and we probably need to cut it down for space reasons anyways. See below for a summary of the changes and details on where to find them in the paper.
 
@@ -16,7 +16,7 @@ In short, I've finished everything other than the `reverse` running example and 
 
 - **[Review B]** We will discuss the relationship with Férée et al. (CPP 2018) and Heraud and Nowak (ITP 2011) in Section 6 (as sketched below).
 
-  - Not done, see `jan-todo.md`.
+  - Done.
 
 - **[Review A]** As sketched below, we will provide a more detailed explanation of the expressivity of LFPL+ (in comparison to LFPL) and the motivation for the addition of such features.
 
@@ -28,7 +28,7 @@ In short, I've finished everything other than the `reverse` running example and 
 
 - **[Review B]** In Section 3, we will compare the challenges faced in the completeness proof of LFPL to those in completeness proofs for other languages (as sketched below).
 
-  - Not done, see `jan-todo.md`.
+  - Done.
 
 - **[Review B]** We will add to the mechanization a trivial compilation from LFPL to LFPL+ and show that it preserves the semantics. This will yield (almost immediately) a completeness proof result LFPL+ and a soundness proof for LFPL.
 
@@ -40,4 +40,4 @@ In short, I've finished everything other than the `reverse` running example and 
 
 - **[All Reviews]** We will fix typos and other issues mentioned by the reviewers.
 
-  - Mostly done, see `comments-progress.md` for details.
+  - Done, see `comments-progress.md` for details.
