@@ -19,7 +19,7 @@ The semantics for terms involving these types can be found in the mechanization.
 \input{figures/ext-syntax-tp-tm}
 \input{figures/ext-jmt-ty}
 
-The stack type $\tpstack{A}$ is a particularly powerful addition to \lfpl. The vast majority of the difficulty in proving polynomial-time completeness of \lfpl, and by far the most complex aspect of our entire mechanization, was the definition and implementation of the bounded stack data structure discussed in \pref{sec:completeness-bounded-stack-definition} and \pref{sec:completeness-bounded-stack-implementation}. So, the addition of unbounded, $\tpdiam$-free stacks to \lfpl means \lfplplus admits a much simpler completeness proof. In essence, \lfplplus internalizes the bounded stack data structure from \pref{sec:completeness-bounded-stack-definition} and removes the boundedness restriction. No diamonds are required to interface with the stacks of \lfplplus, and there is no upper bound on the number of stack elements. The addition of these unbounded stacks to \lfpl would eliminate the need for the hardest part of our completeness proof, so it is worthwhile to show that they are sound despite their power.
+The stack type $\tpstack{A}$ is a particularly powerful addition to \lfpl. The vast majority of the difficulty in proving polynomial-time completeness of \lfpl, and by far the most complex aspect of our entire mechanization, was the definition and implementation of the bounded stack data structure discussed in \pref{sec:completeness-bounded-stack-definition} and \pref{sec:completeness-bounded-stack-implementation}. So, the addition of unbounded, $\tpdiam$-free stacks to \lfpl means \lfplplus admits a much simpler completeness proof, and thus it is worthwhile to show that they are sound despite their power. In essence, \lfplplus internalizes the bounded stack data structure from \pref{sec:completeness-bounded-stack-definition} and removes the boundedness restriction. No diamonds are required to interface with the stacks of \lfplplus, and there is no upper bound on the number of stack elements.
 
 
 
@@ -41,6 +41,10 @@ To account for the cost of evaluation, we give a cost-annotated big-step operati
   \fi
 }. Note the presence of constants $\Cvar, \Cnull, \ldots, \Ctrec \in \mathbb N$ (one for each syntactic construct) in the conclusion of each rule. These are left arbitrary so that our cost model is generic with respect to the particular costs of each primitive operation of the language.
 
+\begin{example}
+Consider \code{reverse} from \pref{example:reverse}. Instead of proving correctness in terms of the denotational semantics, we could show that $\evals{\envcons{\envnil}{x}{v_\ell}}{\tmapp{\code{reverse}}{v_\ell}}{v_\ell'}$, where $v_\ell'$ represents the reverse of the list represented by $v_\ell$.
+\end{example}
+
 This semantics enjoys several standard properties such as determinism and preservation of typing, which we state here and prove in the mechanization.
 
 \begin{theorem}[Determinism]
@@ -61,9 +65,7 @@ Polynomial-time soundness is meant to be a statement about the computational com
 %
 However, it is well understood how to justify a cost semantics for a functional language like \lfplplus in terms of a low-level model such as a Turing machine \cite{blellochProvableTimeSpace1996,Accattoli2019}.
 %
-The only non-standard features of \lfpl are the affine type system and the type $\tpdiam$.
-%
-However, both of these can be forgotten in a simple cost-preserving translation.
+The only non-standard features of \lfpl are the affine type system and the type $\tpdiam$, and both of these can be forgotten in a simple cost-preserving translation.
 %
 Thus, when proving true polynomial-time soundness of \lfpl, the only part which relies on \lfpl-specific reasoning is the very first step of giving a polynomial bound on the cost in \lfpl's big-step semantics; after that, these standard methods will carry the polynomial bound all the way down to the machine cost model. As the focus of this paper is \lfpl, we only mechanize the construction and verification of the polynomial cost bound.
 
@@ -101,14 +103,12 @@ Suppose $\types{\ctxcons{\ctxnil}{\ell}{\tplist{A}}}{M}{B}$, where $\dfree{A}$. 
 \end{theorem}
 
 Note it is important that the polynomial only depends on $M$, i.e. it is quantified before the input $v_\ell$. Taking $B = \tplist{\tpunit}$ and $A = \tpunit$, we recover the basic notion of soundness for \lfplplus functions on natural numbers. We present this more general form to motivate our transition to the even more general form we need to successfully prove it. As usual, we must reason about arbitrary terms under arbitrary contexts. It is tempting to say the following:
-
 \begin{center}
 \parbox{.9\linewidth}{
   \it
 Suppose $\types{\ctx}{M}{A}$. There exists a polynomial $P_M : \mathbb N \to \mathbb N$ such that, if $\env : \Gamma$, there exists a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and $c \le P(\envsize{\env})$.
 }
 \end{center}
-
 However, this statement is false. The problem is that the environment may contain values which incur cost when used, which is dynamic information and $P_M$ only has access to static information. Consider $\types{f : \tparr{\tpunit}{\tpunit}}{\tmapp{f}{\tmnull}}{\tpunit}$. If for simplicity $\Capp = \Cvar = \Cnull = 0$, we cannot statically observe how this program could incur any cost. After all, the only statically observable syntactic constructs are application, variable, and null. On the other hand, dynamically, $\env$ could map $f$ to a function which incurs cost.
 
 To resolve this issue, we must consider the potential cost of running functions (or lazy pairs) stored in the environment $\env$ and result value $v$. Suppose for a moment we have defined three families of polynomials: $P_M$ on all terms $M$, $P_v$ on all values $v$, and $P_\env$ on all environments $\env$. Our new goal is to prove the following theorem.
