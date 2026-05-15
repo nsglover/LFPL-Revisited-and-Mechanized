@@ -10,7 +10,7 @@ The typing rules for stacks of type $\tpstack{A}$ correspond to those for lists 
 %
 These stacks do not violate \lfpl's core principle of controlling recursion by diamonds because they do not have a recursor.
 
-The typing rules for the tree type $\tptree{A}$, an inductive type which does support recursion, are similar to those of lists $\tplist{A}$. The primary difference is that, in \pref{rule:ty-TreeE}, the base case $N_1$ is typed under an empty context. Like the list recursor, the tree recursor has two cases: the inductive and base case. The difference is that for the list recursor, the base case $N_1$ is only run once, so it may have access to part of the context (though this is not necessary for completeness). In the tree recursor, $N_1$ may be run many times, as a tree can have many leaves. So, to respect linearity, it cannot use anything from the context.
+The typing rules for the tree type $\tptree{A}$, an inductive type which does support recursion, are similar to those of lists $\tplist{A}$. The primary difference is that, in \pref{rule:ty-TreeE}, the base case $N_1$ is typed under an empty context. Like the list recursor, the tree recursor has two cases: the inductive case and base case. The difference is that for the list recursor, the base case $N_1$ is only run once, so it may have access to part of the context (though this is not necessary for completeness). In the tree recursor, $N_1$ may be run many times, as a tree can have many leaves. So, to respect linearity, it cannot use anything from the context.
 
 The denotational semantics for these new constructs are relatively straightforward. We set $\tpsem{\tpprod{A}{B}} = \tpsem{A} \times \tpsem{B}$ and $\tpsem{\tpstack{A}} = \tpsem{A}^*$. Giving a semantics for $\tptree{A}$ and its related terms boils down to giving a mathematical account of binary trees (in the same manner we have used the Kleene star to give a simple mathematical account of lists).
 %
@@ -102,7 +102,7 @@ Our goal for the rest of this section is to prove the following:
 Suppose $\types{\ctxcons{\ctxnil}{\ell}{\tplist{A}}}{M}{B}$, where $\dfree{A}$. Then, there exists a polynomial $P_M : \mathbb N \to \mathbb N$ such that, for any value $v_\ell : \tplist{A}$ representing a list of length $n$, there exists a value $v : B$ and a cost $c \in \mathbb N$ such that $\evals{\envcons{\envnil}{\ell}{v_\ell}}{M}{c}{v}$ and $c \le P(n)$.
 \end{theorem}
 
-Note it is important that the polynomial only depends on $M$, i.e. it is quantified before the input $v_\ell$. Taking $B = \tplist{\tpunit}$ and $A = \tpunit$, we recover the basic notion of soundness for \lfplplus functions on natural numbers. We present this more general form to motivate our transition to the even more general form we need to successfully prove it. As usual, we must reason about arbitrary terms under arbitrary contexts. It is tempting to say the following:
+Note it is important that the polynomial only depends on $M$, i.e., it is quantified before the input $v_\ell$. Taking $B = \tplist{\tpunit}$ and $A = \tpunit$, we recover the basic notion of soundness for \lfplplus functions on natural numbers. We present this more general form to motivate our transition to the even more general form we need to successfully prove it. As usual, we must reason about arbitrary terms under arbitrary contexts. It is tempting to say the following:
 \begin{center}
 \parbox{.9\linewidth}{
   \it
@@ -140,7 +140,7 @@ P_{\tmtrec{M}{N_1}{x}{y}{z}{w}{N_2}}(n) &= P_M(n) {+} (n {+} 1) (\Ctrec {+} P_{N
 The remaining cases are similar and provided in the mechanization.
 \end{definition}
 
-The aim of $P_M$ is to bound the cost of evaluating $M$, and the future cost of using any closures it evaluates to, by $P_M(n)$ in an environment containing $n$ diamonds. The intuition behind $P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n)$ is that $M$ and $N_1$ are evaluated once, and $N_2$ could be evaluated up to $n$ times, where $n = \envsize{\env}$ is the number of diamonds available the environment. Similarly, for $P_{\tmtrec{M}{N_1}{x}{y}{z}{w}{N_2}}$, the base case $N_1$ could be evaluated $n + 1$ times (a tree with $n$ internal nodes has $n + 1$ leaf nodes) and $N_2$ could be evaluated $n$ times.
+The aim of $P_M$ is to bound the cost of evaluating $M$, and the future cost of using any closures it evaluates to, by $P_M(n)$ in an environment containing $n$ diamonds. The intuition behind $P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n)$ is that $M$ and $N_1$ are evaluated once, and $N_2$ could be evaluated up to $n$ times, where $n = \envsize{\env}$ is the number of diamonds available in the environment. Similarly, for $P_{\tmtrec{M}{N_1}{x}{y}{z}{w}{N_2}}$, the base case $N_1$ could be evaluated $n + 1$ times (a tree with $n$ internal nodes has $n + 1$ leaf nodes) and $N_2$ could be evaluated $n$ times.
 
 \begin{definition}[Value and Environment Polynomials]
 We define polynomials $P_\env : \mathbb N \to \mathbb N$ and $P_v : \mathbb N \to \mathbb N$ via mutual induction as follows:
