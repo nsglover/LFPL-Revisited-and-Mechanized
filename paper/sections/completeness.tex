@@ -100,7 +100,6 @@ The intended use of the $k$-stack data structure is to choose $n \in \mathbb N$ 
 
 % The intuition for $\code{push}$ is that, given an element to push $x \in \tpsem{A}$ and a valid input stack $s \in \tpsem{S}$, we case on whether $s$ is full, i.e. $|I_n(s)| = B(n)$. If it is full, we just return $s$ and $x$. Otherwise, we return some new valid stack $s'$ such that the items of $s'$ are $x$ followed by the items of $s$. The intuition for $\code{pop}$ is quite similar, casing on whether $I_n(s)$ is $[]$ or $x :: \ell$ and proceeding accordingly.
 
-% \comment{Jan}{The following can be removed if needed.}
 % To summarize, a correct $k$-stack bounded by $B : \mathbb N \to \mathbb N$ is a data structure which, given the user's choice of some number $n \in \mathbb N$ at runtime, behaves like a standard stack in a functional programming language but requires temporary access to $nk$ diamonds and has a storage limit of $B(n)$ elements.
 
 
