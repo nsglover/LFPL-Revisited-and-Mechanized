@@ -102,7 +102,7 @@ Our goal for the rest of this section is to prove the following:
 Suppose $\types{\ctxcons{\ctxnil}{\ell}{\tplist{A}}}{M}{B}$, where $\dfree{A}$. Then, there exists a polynomial $P_M : \mathbb N \to \mathbb N$ such that, for any value $v_\ell : \tplist{A}$ representing a list of length $n$, there exists a value $v : B$ and a cost $c \in \mathbb N$ such that $\evals{\envcons{\envnil}{\ell}{v_\ell}}{M}{c}{v}$ and $c \le P(n)$.
 \end{theorem}
 
-Note it is important that the polynomial only depends on $M$, i.e., it is quantified before the input $v_\ell$. Taking $B = \tplist{\tpunit}$ and $A = \tpunit$, we recover the basic notion of soundness for \lfplplus functions on natural numbers. We present this more general form to motivate our transition to the even more general form we need to successfully prove it. As usual, we must reason about arbitrary terms under arbitrary contexts. It is tempting to say the following:
+Note that it is important that the polynomial only depends on $M$, i.e., it is quantified before the input $v_\ell$. Taking $B = \tplist{\tpunit}$ and $A = \tpunit$, we recover the basic notion of soundness for \lfplplus functions on natural numbers. We present this more general form to motivate our transition to the even more general form we need to successfully prove it. As usual, we must reason about arbitrary terms under arbitrary contexts. It is tempting to say the following:
 \begin{center}
 \parbox{.9\linewidth}{
   \it
@@ -184,8 +184,8 @@ By working with a general $n \ge \envsize{\env}$ rather than just $\envsize{\env
 We define $\Rval{A}{v}$ by induction on the type $A$:
 \begin{align*}
 \Rval{\tpunit}{v} &\quad \text{iff} \quad v = \vnull \\
-\Rval{\tptens{A_1}{A_2}}{v} &\quad \text{iff} \quad v = \vpair{v_1}{v_2}, \; \Rval{A_2}{v_1}, \text{ and } \Rval{A_2}{v_2} \\
-\Rval{\tptens{A_1}{A_2}}{v} &\quad \text{iff} \quad v = \vpair{v_1}{v_2}, \; \Rval{A_2}{v_1}, \text{ and } \Rval{A_2}{v_2} \\
+\Rval{\tptens{A_1}{A_2}}{v} &\quad \text{iff} \quad v = \vpair{v_1}{v_2}, \; \Rval{A_1}{v_1}, \text{ and } \Rval{A_2}{v_2} \\
+\Rval{\tpprod{A_1}{A_2}}{v} &\quad \text{iff} \quad v = \vrecord{\env}{M_1}{M_2}, \; \Rterm{A_1}{\env}{M_1}, \text{ and } \Rterm{A_2}{\env}{M_2} \\
 \Rval{\tparr{A}{B}}{v} &\quad \text{iff} \quad v = \vlam{\env}{x}{M}, \text{ and } \Rval{A}{v} \text{ implies } \Rterm{B}{\envcons{\env}{x}{v}}{M} \\
 \Rval{\tplist{A}}{v} &\quad \text{iff} \quad \text{$v$ is a list $\ell$ such that } \Rval{A}{-} \text{ holds for each element of $\ell$ }
 \end{align*}
