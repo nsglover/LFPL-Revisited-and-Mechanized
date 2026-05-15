@@ -123,7 +123,7 @@ This theorem is true (for some definitions of $P_v$, $P_M$, and $P_\env$), thoug
 
 \begin{definition}[Term Polynomial]
 Let $M$ be a \lfplplus term. We inductively define the polynomial $P_M : \mathbb N \to \mathbb N$ as follows.
-\upshape{
+{\upshape
 \begin{align*}
 P_{x}(n) &= \Cvar \\
 P_{\tmrecord{M_1}{M_2}}(n) &= \Crecord + \max(P_{M_1}, P_{M_2})(n) \\
@@ -143,7 +143,7 @@ The remaining cases are similar and provided in the mechanization.
 The aim of $P_M$ is to bound the cost of evaluating $M$, and the future cost of using any closures it evaluates to, by $P_M(n)$ in an environment containing $n$ diamonds. The intuition behind $P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n)$ is that $M$ and $N_1$ are evaluated once, and $N_2$ could be evaluated up to $n$ times, where $n = \envsize{\env}$ is the number of diamonds available the environment. Similarly, for $P_{\tmtrec{M}{N_1}{x}{y}{z}{w}{N_2}}$, the base case $N_1$ could be evaluated $n + 1$ times (a tree with $n$ internal nodes has $n + 1$ leaf nodes) and $N_2$ could be evaluated $n$ times.
 
 \begin{definition}[Value and Environment Polynomials]
-  We define polynomials $P_\env : \mathbb N \to \mathbb N$ and $P_v : \mathbb N \to \mathbb N$ via mutual induction as follows:
+We define polynomials $P_\env : \mathbb N \to \mathbb N$ and $P_v : \mathbb N \to \mathbb N$ via mutual induction as follows:
 \[
 \begin{array}{r@{\;=\;}l@{\hspace{4.5em}}r@{\;=\;}l}
   P_{\vdiam} = P_{\vnull} & P_{\vempty} = P_{\vnil} = P_{\vleaf} = 0 &
@@ -161,7 +161,7 @@ The idea of  $P_v$ and $P_\env$ is to bound the future cost of evaluating all of
 \begin{example}
 Consider \code{reverse} and \code{revAppend} from \pref{example:reverse}. For simplicity, assume our cost model has $\Crec = \Capp = 1$ and all other constants are zero. We have:
 $$P_\code{\tmapp{reverse}{\ell}}(n) = 3\Capp + P_\code{revAppend}(n) = 3\Capp + \Crec + n(\Crec + \Capp) = 2n + 4$$
-Applying \pref{thm:soundness-concrete} to this result, we learn that if \code{reverse} is evaluated with an input list of length $n$, we will incur at most $2n + 4$ cost, thus proving \code{reverse} is linear-time.
+Applying \pref{thm:soundness-concrete} to this result, we learn that if \code{reverse} is evaluated with an input list of length $n$ (and an $\tpdiam$-free element type), we will incur at most $2n + 4$ cost, thus proving \code{reverse} is linear-time.
 \end{example}
 
 

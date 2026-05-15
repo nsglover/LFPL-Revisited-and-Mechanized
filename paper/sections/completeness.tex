@@ -224,7 +224,7 @@ $$g : \tpsem{Q} \times (\{ a_0 \} \sqcup \tpsem{A}) \to (\{ q_0 \} \sqcup \tpsem
 
 If $(q', a', d) = g(q, a)$, the intent is that $q$ is the current state of the Turing machine, $a$ is the symbol under the tape head, $q'$ is the new state after taking a step, $a'$ is the symbol to overwrite $a$ with, and $d$ is the direction (left or right) to shift the head. So, the type of the \lfpl term encoding $g$ should be:
 $$\tparr{\tptens{Q}{(\tpsum{\tpunit{}}{A})}}{\tptens{(\tpsum{\tpunit{}}{Q})}{\tptens{(\tpsum{\tpunit{}}{A})}{(\tpsum{\tpunit}{\tpunit})}}}$$
-The input and output sets of $g$ are both denotations of heap-free types. The following two lemmas show \lfpl is complete with respect to computations only involving types $A$ such that $\dfree{A}$, and thus that $g$ can be implemented.
+The input and output sets of $g$ are both denotations of $\tpdiam$-free types. The following two lemmas show \lfpl is complete with respect to computations only involving types $A$ such that $\dfree{A}$, and thus that $g$ can be implemented.
 
 \begin{lemma}
 Suppose $\dfree{A}$. Then, for every $a \in \tpsem{A}$, there exists a closed term $M_a : A$ such that $\tmsem{M_a}{\envnil} = a$.

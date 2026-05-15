@@ -26,7 +26,7 @@ In a system which disallows nested iterations, expressing a program like this ca
 
 \subsection{Properties of LFPL}
 
-The defining property of \lfpl is that computation is non-size-increasing. Consider a list resulting from the evaluation of an  \lfpl program with some lists as inputs. The non-size-increasing theorem intuitively states that the length of this output list is (roughly) no greater than the sum of the lengths of the input lists. We present this in detail in \pref{sec:soundness-size}, but for now the main takeaway is that \lfpl does not support problematic size-increasing functions like \lstinline{double}. As expected of the defining property of the language, the non-size-increasing theorem is a main tool in showing that \lfpl is polynomial-time sound.
+The defining property of \lfpl is that computation is non-size-increasing. Consider a list resulting from the evaluation of an \lfpl program with some lists as inputs. The non-size-increasing theorem intuitively states that the length of this output list is no greater than the sum of the lengths of the input lists. We present this in detail in \pref{sec:soundness-size}, but for now the main takeaway is that \lfpl does not support problematic size-increasing functions like \lstinline{double}. As expected of the defining property of the language, the non-size-increasing theorem is a main tool in showing that \lfpl is polynomial-time sound.
 
 The most complete version of the polynomial-time soundness theorem states that any function on the natural numbers expressible in \lfpl is also computable by a polynomial-time Turing machine. We only prove one step in the path from \lfpl to Turing machines: In a high-level cost semantics, given an \lfpl program and some inputs with size $n$, there exists a polynomial $P : \mathbb N \to \mathbb N$ such that evaluating the program costs at most $P(n)$. Our theorem is the only step in this path which contains reasoning specific to \lfpl: Given this theorem, it is a well-known and standard procedure to justify the polynomial bound for our high-level cost semantics in terms of a low-level model such as a Turing machine~\cite{Accattoli2019,blellochProvableTimeSpace1996}.
 
@@ -96,7 +96,7 @@ In the abstract syntax of \pref{fig:syntax-tp-tm}, \code{revAppend} would be wri
 $$
 \tmlam{\ell_1}{\tmrec{\ell_1}{\tmlam{\ell_2}{\ell_2}}{d}{x}{r}{\tmlam{\ell_2}{\tmapp{r}{(\tmcons{d}{x}{\ell_2})}}}}
 $$
-For a fixed type $A$, this term has type $\tparr{\tplist{A}}{\tparr{\tplist{A}}{\tplist{A}}}$. Using the rules in \pref{fig:jmt-ty}, we can see this via the following partial derivation. The ellipses are straightforward to fill in. 
+This term has type $\tparr{\tplist{A}}{\tparr{\tplist{A}}{\tplist{A}}}$. Using the rules in \pref{fig:jmt-ty}, we can see this via the following partial derivation. The ellipses are straightforward to fill in. 
 \begin{mathpar}
 \ARule
 {
