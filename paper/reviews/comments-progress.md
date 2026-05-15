@@ -145,11 +145,11 @@ I've gone through the "comments for authors" list that each reviewer gave us and
 
 - The numeric citation style makes some sentences not nice to read, e.g. "in [17]" (l70 etc). A numeric citation should not be used as noun, it is akin to a footnote. Author-year style would be a remedy, or inserting author names ("in Hofmann [17]"), or maybe giving your key references some readable identifier.
 
-  - Fixed, it now says "given as a corollary in Hofmann [17]." I don't know if there are any other instances of this typo.
+  - Fixed, it now says "given as a corollary in Hofmann [17]." I fixed a few other instances as well.
 
 - Colloquial style should be avoided (e.g. l352 "doesn't").
 
-  - Fixed. I don't know if there are any other instances of this typo.
+  - Fixed. I fixed a few other instances as well.
 
 - l93 "syntactic substitution, which is a notoriously difficult operation to support and reason in proof assistants"
 I am not sure if "difficult" is the right qualifier, maybe "tedious" is more accurate. De Bruijn representations of terms are well established and well understood, and the theory of parallel substitution is straightforward to implement. Of course, if you can cut it out by a denotational or big-step semantics, you certainly want to do that.
