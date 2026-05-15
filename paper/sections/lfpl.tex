@@ -20,7 +20,6 @@ append (n :: l1) l2 = n :: append l1 l2
 
 id l = append (append l nil) nil
 \end{lstlisting}
-
 In a system which disallows nested iterations, expressing a program like this can be difficult or impossible when the output from a call to the iterative procedure like \lstinline{append} is fed into another such call. Meanwhile, \lfpl has no such restrictions, so the above program can be directly translated into \lfpl with minimal modifications. Due to this flexibility, \lfpl supports many other natural algorithms such as linear-time list reversal, insertion sort, and integer division by a constant.
 
 
@@ -60,9 +59,9 @@ written as $\env \in \tpsem{\Gamma}$.
 %
 Per the above discussion, we define $\tpsem{\tpdiam}$ as a nonempty set to ensure $\tpdiam$ is semantically inhabited.
 
-To define the semantics of the \lfpl list type, we make use of the Kleene star operator. Given a set $S$, the set $S^*$ is the set of finite strings of elements of $S$. We write $[]$ for the empty string, and given $x \in S$ and $\ell \in S^*$, we write $x :: \ell$ for the element of $S^*$ obtained by putting $x$ before the sequence of elements in $\ell$. Given $\ell \in S^*$, let $|\ell| \in \mathbb N$ denote the length of the string $\ell$. Lastly, for every set $T$, we inductively define the iteration operator on $S^*$:
+To define the semantics of the \lfpl list type, we make use of the Kleene star operator. Given a set $S$, the set $S^*$ is the set of finite strings of elements of $S$. We write $\emptylist$ for the empty string, and given $x \in S$ and $\ell \in S^*$, we write $x :: \ell$ for the element of $S^*$ obtained by putting $x$ before the sequence of elements in $\ell$. Given $\ell \in S^*$, let $|\ell| \in \mathbb N$ denote the length of the string $\ell$. Lastly, for every set $T$, we inductively define the iteration operator on $S^*$:
 \begin{align*}
-&\text{iter}([], b, f) = b \\
+&\text{iter}(\emptylist, b, f) = b \\
 &\text{iter}(x :: \ell, b, f) = f(x, \text{iter}(\ell, b, f))
 \end{align*}
 

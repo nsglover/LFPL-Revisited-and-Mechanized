@@ -79,7 +79,7 @@ Let $k \in \mathbb N$. Suppose $(S, \code{empty}, \code{push}, \code{pop})$ is a
 \begin{itemize}
   \item There exists a relation $V_n \subseteq \tpsem{S}$ of valid stack states.
   \item There exists a function $I_n : \tpsem{S} \to \tpsem{A}^*$ that returns the list of items in the stack.
-  \item Let $s = \tmsem{\code{empty}}{\ctxnil}$. Then, $V_n(s)$ holds and $I_n(s) = []$.
+  \item Let $s = \tmsem{\code{empty}}{\ctxnil}$. Then, $V_n(s)$ holds and $I_n(s) = \emptylist$.
   \item Let $f = \tmsem{\code{push}}{\ctxnil}$. Then, for all $x \in \tpsem{A}$ and $s \in \tpsem{S}$ such that $V_n(s)$ holds, we have:
   \begin{itemize}
     \item If $|I_n(s)| = B(n)$ then $f(m_{n,k})(x, s) = (m_{n,k}, s, (1, x))$.
@@ -87,7 +87,7 @@ Let $k \in \mathbb N$. Suppose $(S, \code{empty}, \code{push}, \code{pop})$ is a
   \end{itemize}
   \item Let $f = \tmsem{\code{pop}}{\ctxnil}$. Then, for all $s \in \tpsem{S}$ such that $V_n(s)$ holds:
   \begin{itemize}
-    \item If $I_n(s) = []$ then $f(m_{n,k})(s) = (m_{n,k}, s, (1, \ast))$.
+    \item If $I_n(s) = \emptylist$ then $f(m_{n,k})(s) = (m_{n,k}, s, (1, \ast))$.
     \item If $I_n(s) = x :: \ell$ then $f(m_{n,k})(s) = (m_{n,k}, s', (2, x))$, where $V_n(s')$ holds and $I_n(s') = \ell$.
   \end{itemize}
 \end{itemize}
@@ -98,7 +98,7 @@ The intended use of the $k$-stack data structure is to choose $n \in \mathbb N$ 
 
 % The definition only makes claims about valid stacks, i.e. $s \in \tpsem{S}$ such that $V_n(s)$ holds. Naturally, we insist that $\code{empty}$ should always be valid, and that $\code{push}$ and $\code{pop}$ should preserve validity. This extra layer of complexity is necessary; many of the implementations we provide in \pref{sec:completeness-bounded-stack-implementation} will require stack types $S$ which contain elements that would cause the $\code{push}$ and $\code{pop}$ operations to fail their specification. The extension of \lfpl with dependent types studied in~\cite{atkeyPolynomialTimeDependent2024} could be helpful here, potentially allowing us to internalize \pref{def:stack-correctness} into the types themselves.
 
-% The intuition for $\code{push}$ is that, given an element to push $x \in \tpsem{A}$ and a valid input stack $s \in \tpsem{S}$, we case on whether $s$ is full, i.e. $|I_n(s)| = B(n)$. If it is full, we just return $s$ and $x$. Otherwise, we return some new valid stack $s'$ such that the items of $s'$ are $x$ followed by the items of $s$. The intuition for $\code{pop}$ is quite similar, casing on whether $I_n(s)$ is $[]$ or $x :: \ell$ and proceeding accordingly.
+% The intuition for $\code{push}$ is that, given an element to push $x \in \tpsem{A}$ and a valid input stack $s \in \tpsem{S}$, we case on whether $s$ is full, i.e. $|I_n(s)| = B(n)$. If it is full, we just return $s$ and $x$. Otherwise, we return some new valid stack $s'$ such that the items of $s'$ are $x$ followed by the items of $s$. The intuition for $\code{pop}$ is quite similar, casing on whether $I_n(s)$ is $\emptylist$ or $x :: \ell$ and proceeding accordingly.
 
 % To summarize, a correct $k$-stack bounded by $B : \mathbb N \to \mathbb N$ is a data structure which, given the user's choice of some number $n \in \mathbb N$ at runtime, behaves like a standard stack in a functional programming language but requires temporary access to $nk$ diamonds and has a storage limit of $B(n)$ elements.
 
@@ -135,14 +135,14 @@ In the proof of \pref{lem:stack-inductive}, instead of storing data in a fixed-s
 Fix an element type $A$ and some $k \in \mathbb N$. Suppose $(S, \code{empty}, \code{push}, \code{pop})$ is a $k$-stack implementation with element type $A$ that is correct and bounded by $B : \mathbb N \to \mathbb N$. Then, there is a $(k + 1)$-stack implementation with element type $A$ that is correct and bounded by $B'(n) = n B(n)$. 
 \end{lemma}
 \begin{proof}
-We choose $S' = \tparr{\tplist{\tpunit}}{\tplist{S}}$, the type of suspended lists with element type $S$ (called ``sub-stacks''), to be our implementation type. Let $\ell$ be the unique element of $\tpsem{\tplist{\tpunit}}$ with $|\ell| = n$. To unsuspend a stack $s \in \tpsem{S'}$ we just call $s(\ell)$. We say $s$ is valid whenever $s(\ell) = s_1 :: \cdots :: s_n :: []$, where $s_i$ is valid for all $1 \le i \le n$ and there exists some index $0 \le j \le n$ such that $s_i$ is empty for $1 \le i < j$, the substack $s_j$ is unconstrained, and $s_i$ is full for $j < i \le n$.
+We choose $S' = \tparr{\tplist{\tpunit}}{\tplist{S}}$, the type of suspended lists with element type $S$ (called ``sub-stacks''), to be our implementation type. Let $\ell$ be the unique element of $\tpsem{\tplist{\tpunit}}$ with $|\ell| = n$. To unsuspend a stack $s \in \tpsem{S'}$ we just call $s(\ell)$. We say $s$ is valid whenever $s(\ell) = s_1 :: \cdots :: s_n :: \emptylist$, where $s_i$ is valid for all $1 \le i \le n$ and there exists some index $0 \le j \le n$ such that $s_i$ is empty for $1 \le i < j$, the substack $s_j$ is unconstrained, and $s_i$ is full for $j < i \le n$.
 % In other words, there should be an uninterrupted chunk of empty sub-stacks at the front of the stack, followed by a nonempty sub-stack, and then all remaining sub-stacks should be full.
 %
 The items $I'(S')$ are the appended item lists $I(s_i)$ of each sub-stack.
 
 It remains to correctly implement the three stack operations. Let's call them $\code{empty}'$, $\code{push}'$, and $\code{pop}'$. The operation $\code{empty}'$ is the function of type $\tparr{\tplist{\tpunit}}{\tplist{S}}$ which always returns the empty list.
 %
-When implementing $\code{push}'$, we are given as our source of diamonds an input of type $(\tplist{\tpunit})^{k+1} = \tptens{\tplist{\tpunit}}{(\tplist{\tpunit})^k}$, so we can use the first element of this tuple, call it $\ell$, to un-suspend the input stack $s \in \tpsem{S'}$ and obtain a list of sub-stacks $s(\ell) = s_1 :: \cdots :: s_n :: []$. Starting from the last element of this list, $s_n$, attempt pushing to it using the function $\code{push}$. If this succeeds, we are done. Otherwise, $s_n$ must be full, so we should try $s_{n-1}$. We can do this all the way up to $s_1$; if push still fails on $s_1$ then the whole stack must be full. This process can be implemented using \lfpl's list recursor. Afterwards, we use \pref{example:susp} to re-suspend the modified list and return the results.
+When implementing $\code{push}'$, we are given as our source of diamonds an input of type $(\tplist{\tpunit})^{k+1} = \tptens{\tplist{\tpunit}}{(\tplist{\tpunit})^k}$, so we can use the first element of this tuple, call it $\ell$, to un-suspend the input stack $s \in \tpsem{S'}$ and obtain a list of sub-stacks $s(\ell) = s_1 :: \cdots :: s_n :: \emptylist$. Starting from the last element of this list, $s_n$, attempt pushing to it using the function $\code{push}$. If this succeeds, we are done. Otherwise, $s_n$ must be full, so we should try $s_{n-1}$. We can do this all the way up to $s_1$; if push still fails on $s_1$ then the whole stack must be full. This process can be implemented using \lfpl's list recursor. Afterwards, we use \pref{example:susp} to re-suspend the modified list and return the results.
 
 The implementation of $\code{pop}'$ is similar, but instead we start from $s_1$. If popping $s_1$ fails, it must be empty, so we should try $s_2$. We go all the way down the list, and if popping $s_n$ still fails, then the whole stack must be empty. Note this is nontrivial to implement with the list recursor, since starting from $s_1$ and going down to $s_n$ is the reverse of the recursor's execution order. We solve this with a similar version of the trick used in \pref{example:reverse}.
 \end{proof}
