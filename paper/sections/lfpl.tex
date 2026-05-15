@@ -2,7 +2,7 @@
 \label{sec:lfpl}
 
 In G\"odel's System T, recursion is controlled in such a way as to ensure the language is still terminating. This is known as primitive or structural recursion. 
-The only way to write variable-time programs in \lfpl is using structural recursion, but that alone is not enough to achieve polynomial time. This pseudocode is an example of an exponential time program using only structural recursion:
+The only way to write variable-time programs in \lfpl is using structural recursion, but that alone is not enough to achieve polynomial time. This pseudocode is an example of an exponential-time program using only structural recursion:
 \begin{lstlisting}
 double zero = zero
 double (succ n) = succ (succ (double n))
@@ -11,7 +11,7 @@ exp zero = succ zero
 exp (succ n) = double (exp n)
 \end{lstlisting}
 
-The main idea of \lfpl is to enforce non-size-increasing computation. In the above example, the exponential behavior relies on the fact that \lstinline{double} increases the size of its input. \lfpl forbids such size-increasing computations. The non-size-increasing property is enforced with an affine type system, which treats input size as a limited resource which cannot be duplicated. Formally, size is represented by a type $\tpdiam$, so that an element of type $\tpdiam$ corresponds to one unit of size. The natural number $n$ requires $n$ elements of type $\tpdiam$ to construct. These resources, which we shall henceforth call diamonds, are returned when $n$ is consumed. The program \code{double} is no longer possible to write; in the \code{succ} case, one diamond is made available to us, yet we need two diamonds due to the two calls to \code{succ}.
+The main idea of \lfpl is to enforce non-size-increasing computation. In the above example, the exponential behavior relies on the fact that \lstinline{double} increases the size of its input. \lfpl forbids such size-increasing computations. The non-size-increasing property is enforced with an affine type system, which treats input size as a limited resource that cannot be duplicated. Formally, size is represented by a type $\tpdiam$, so that an element of type $\tpdiam$ corresponds to one unit of size. The natural number $n$ requires $n$ elements of type $\tpdiam$ to construct. These resources, which we shall henceforth call diamonds, are returned when $n$ is consumed. The program \code{double} is no longer possible to write; in the \code{succ} case, one diamond is made available to us, yet we need two diamonds due to the two calls to \code{succ}.
 
 In contrast to other polynomial-time systems that might restrict iteration such that nested iterations are impossible, \lfpl enables a fairly natural programming style. While many polynomial-time languages are complete with respect to polynomial-time \textit{computations}, they are often unable to express many natural \textit{algorithms}. Consider this pseudocode for an inefficient identity function on lists:
 \begin{lstlisting}
@@ -20,7 +20,7 @@ append (n :: l1) l2 = n :: append l1 l2
 
 id l = append (append l nil) nil
 \end{lstlisting}
-In a system which disallows nested iterations, expressing a program like this can be difficult or impossible when the output from a call to the iterative procedure like \lstinline{append} is fed into another such call. Meanwhile, \lfpl has no such restrictions, so the above program can be directly translated into \lfpl with minimal modifications. Due to this flexibility, \lfpl supports many other natural algorithms such as linear-time list reversal, insertion sort, and integer division by a constant.
+In a system that disallows nested iterations, expressing a program like this can be difficult or impossible when the output from a call to the iterative procedure like \lstinline{append} is fed into another such call. Meanwhile, \lfpl has no such restrictions, so the above program can be directly translated into \lfpl with minimal modifications. Due to this flexibility, \lfpl supports many other natural algorithms such as linear-time list reversal, insertion sort, and integer division by a constant.
 
 
 
@@ -28,9 +28,9 @@ In a system which disallows nested iterations, expressing a program like this ca
 
 The defining property of \lfpl is that computation is non-size-increasing. Consider a list resulting from the evaluation of an \lfpl program with some lists as inputs. The non-size-increasing theorem intuitively states that the length of this output list is no greater than the sum of the lengths of the input lists. We present this in detail in \pref{sec:soundness-size}, but for now the main takeaway is that \lfpl does not support problematic size-increasing functions like \lstinline{double}. As expected of the defining property of the language, the non-size-increasing theorem is a main tool in showing that \lfpl is polynomial-time sound.
 
-The most complete version of the polynomial-time soundness theorem states that any function on the natural numbers expressible in \lfpl is also computable by a polynomial-time Turing machine. We only prove one step in the path from \lfpl to Turing machines: In a high-level cost semantics, given an \lfpl program and some inputs with size $n$, there exists a polynomial $P : \mathbb N \to \mathbb N$ such that evaluating the program costs at most $P(n)$. Our theorem is the only step in this path which contains reasoning specific to \lfpl: Given this theorem, it is a well-known and standard procedure to justify the polynomial bound for our high-level cost semantics in terms of a low-level model such as a Turing machine~\cite{Accattoli2019,blellochProvableTimeSpace1996}.
+The most complete version of the polynomial-time soundness theorem states that any function on the natural numbers expressible in \lfpl is also computable by a polynomial-time Turing machine. We only prove one step in the path from \lfpl to Turing machines: In a high-level cost semantics, given an \lfpl program and some inputs with size $n$, there exists a polynomial $P : \mathbb N \to \mathbb N$ such that evaluating the program costs at most $P(n)$. Our theorem is the only step in this path that contains reasoning specific to \lfpl: Given this theorem, it is a well-known and standard procedure to justify the polynomial bound for our high-level cost semantics in terms of a low-level model such as a Turing machine~\cite{Accattoli2019,blellochProvableTimeSpace1996}.
 
-The polynomial-time completeness theorem states the logical inverse of soundness: Any function on the natural numbers that is computable by a polynomial-time Turing machine is expressible in \lfpl. As stated, this is not quite true for \lfpl; $\code{double}$ is computable in linear-time yet is not expressible in \lfpl. We can fix this by instead proving completeness for all polynomial-time computable functions which do not increase the size of their input. Perhaps surprisingly, we see in \pref{thm:completeness-general} that the more general statement of completeness is only \textit{barely} false: There is a very reasonable perspective in which \lfpl is able to express all polynomial-time computations, even the size-increasing ones.
+The polynomial-time completeness theorem states the logical inverse of soundness: Any function on the natural numbers that is computable by a polynomial-time Turing machine is expressible in \lfpl. As stated, this is not quite true for \lfpl; $\code{double}$ is computable in linear time yet is not expressible in \lfpl. We can fix this by instead proving completeness for all polynomial-time computable functions that do not increase the size of their input. Perhaps surprisingly, we see in \pref{thm:completeness-general} that the more general statement of completeness is only \textit{barely} false: There is a very reasonable perspective from which \lfpl is able to express all polynomial-time computations, even the size-increasing ones.
 
 
 \subsection{Syntax and Typing Rules}
@@ -42,7 +42,7 @@ The syntax of \lfpl is given in \pref{fig:syntax-tp-tm}. Other than the type $\t
 
 The typing judgement is written $\types{\ctx}{M}{A}$ and read as ``$M$ has type $A$ under context $\ctx$''. Importantly, \lfpl has an \textit{affine} type system, so contraction is not allowed and we must partition the context when we type an expression containing sequential subexpressions. The typing rules are given in \pref{fig:jmt-ty}. Notice that for $\tmcons{M_d}{M_h}{M_t}$ to be typed under $\ctxappend{\ctx_d}{\ctxappend{\ctx_h}{\ctx_t}}$, we must have $\types{\ctx_d}{M_d}{\tpdiam}$. Likewise, notice that for $\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}$ to be typed, we must type $N_2$ under a context with $x_d : \tpdiam$.
 
-Another important subtlety is in \pref{rule:ty-ListE}, where $N_2$ is typed under a context containing \textit{only} the variables $x_d$, $x_h$, and $x_t$. It is not allowed to use additional variables from the surrounding environment. This is because $N_2$ represents the body of the structural recursor and therefore, despite appearing once statically, may be run many times during the execution of a program. Therefore, even if $N_2$ would statically appear to use a variable once, at runtime that variable would be used many times and thus violate the main principle of affine type theory. For example, $N_2$ could take just one diamond from the context and use it to create a list of length $10$, which would break \lfpl's non-size-increasing property.
+Another important subtlety is in \pref{rule:ty-ListE}, where $N_2$ is typed under a context containing \textit{only} the variables $x_d$, $x_h$, and $x_t$. One is not allowed to use additional variables from the surrounding environment. This is because $N_2$ represents the body of the structural recursor and therefore, despite appearing once statically, may be run many times during the execution of a program. Consequently, even if $N_2$ would statically appear to use a variable once, at runtime that variable would be used many times and thus violate the main principle of affine type theory. For example, $N_2$ could take just one diamond from the context and use it to create a list of length $10$, which would break \lfpl's non-size-increasing property.
 
 \input{figures/jmt-ty}
 
@@ -53,7 +53,7 @@ Another important subtlety is in \pref{rule:ty-ListE}, where $N_2$ is typed unde
 
 To reason about the behavior of \lfpl programs, we need to reason about evaluating functions which may take lists as input. For instance, we will see in \pref{sec:lfpl-examples} a closed \lfpl term $\code{reverse} : \tparr{\tplist{A}}{\tplist{A}}$, but we can never actually ``run'' $\code{reverse}$ on a nonempty input list, since that would require a closed term of type $\tpdiam$ and the whole point of \lfpl's type system is to make that impossible. Thus, it is difficult to study \lfpl by itself; we instead need to reason about terms in a domain where $\tpdiam$ is inhabited.
 
-We now give a simple set-theoretic denotational semantics. To each type $A$ we assign a set $\tpsem{A}$, and to each well-typed term $\types{\Gamma}{M}{A}$ we assign an element $\tmsem{M}{\env}$ of $\tpsem{A}$, where $\env$ is an environment such $\env(x) \in \tpsem{A}$ for every $x : A \in \Gamma$,
+We now give a simple set-theoretic denotational semantics. To each type $A$ we assign a set $\tpsem{A}$, and to each well-typed term $\types{\Gamma}{M}{A}$ we assign an element $\tmsem{M}{\env}$ of $\tpsem{A}$, where $\env$ is an environment such that $\env(x) \in \tpsem{A}$ for every $x : A \in \Gamma$,
 %
 written as $\env \in \tpsem{\Gamma}$.
 %
@@ -158,7 +158,7 @@ lunfold = lam x . rec x .
 
 \begin{example}[List Suspension]
 \label{example:susp}
-Given a list, we can temporarily suspend its values and obtain the diamonds within the list for use elsewhere. We of course need those diamonds to un-suspend the list.
+Given a list, we can temporarily suspend its values and obtain the diamonds within the list for use elsewhere. We, of course, need those diamonds to un-suspend the list.
 \begin{lstlisting}
 susp : L(A) -o ((L(1) -o L(A)) * L(1))
 susp = lam x . rec x .
@@ -194,14 +194,14 @@ A common approach to safely reintroducing contraction into affine type systems i
 \ARule{\types{\ctxcons{\ctx}{x}{\; !A}}{[x/y]M}{B}}{\types{\ctxcons{\ctxcons{\ctx}{x}{\; !A}}{y}{\; !A}}{M}{B}}\hspace{-1.3em}
 \end{mathpar}
 
-By $!\ctx$ we mean the context obtained by replacing $x : A$ with $x : \; !A$ for every $x$ in $\ctx$. Commonly this modality would also contain a rule for weakening, but LFPL is affine and thus already supports weakening at every type. It is tempting to add this modality to \lfpl; if we say that all values of type $!A$ have size $0$, then these operations are non-size-increasing. Unfortunately, that is not enough to guarantee polynomial-time soundness. Consider the following pseudocode for \lfpl (extended with the !-modality, where $\tpsem{!A} = \tpsem{A}$):
+By $!\ctx$ we mean the context obtained by replacing $x : A$ with $x : \; !A$ for every $x$ in $\ctx$. Commonly, this modality would also contain a rule for weakening, but LFPL is affine and thus already supports weakening at every type. It is tempting to add this modality to \lfpl; if we say that all values of type $!A$ have size $0$, then these operations are non-size-increasing. Unfortunately, that is not enough to guarantee polynomial-time soundness. Consider the following pseudocode for \lfpl (extended with the !-modality, where $\tpsem{!A} = \tpsem{A}$):
 \begin{lstlisting}
 fnExp : L(1) -o !(L(1) -o L(1)) -o !(L(1) -o L(1))
 fnExp = lam l1 . lam f . rec l1
 | nil => f
 | cons (_, _, r) => wrap (lam x . unwrap(r) (unwrap(r) x))
 \end{lstlisting}
-Then, $\tmsem{\code{fnExp}}{\envnil}(n)(f)$ is the function $f^{2^{|n|}}$ which calls $f$ on its input $2^{|n|}$ times. Thus, we can use \code{fnExp} to implement functions that are not polynomial-time computable.
+Then, $\tmsem{\code{fnExp}}{\envnil}(n)(f)$ is the function $f^{2^{|n|}}$ that calls $f$ on its input $2^{|n|}$ times. Thus, we can use \code{fnExp} to implement functions that are not polynomial-time computable.
 
 %%% Local Variables:
 %%% mode: LaTeX
