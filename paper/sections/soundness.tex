@@ -4,11 +4,11 @@
 This section shows that \lfpl programs can be evaluated in polynomial
 time.
 %
-To strengthen the soundness result and illustrate how to add features to \lfpl while maintaining polynomial-time soundness, we extend the language and refer to the result as \lfplplus. The features are the standard product type, which manifests as the lazy product in an affine setting, a type of unbounded stacks which are similar to lists but do not support recursion, and the inductive type of binary trees. The syntax and typing rules of these language constructs are given in \pref{fig:ext-syntax-tp-tm} and \pref{fig:ext-jmt-ty} respectively.
+To strengthen the soundness result and illustrate how to add features to \lfpl while maintaining polynomial-time soundness, we extend the language and refer to the result as \lfplplus. The features are the standard product type, which manifests as the lazy product in an affine setting, a type of unbounded stacks, which are similar to lists but do not support recursion, and the inductive type of binary trees. The syntax and typing rules of these language constructs are given in \pref{fig:ext-syntax-tp-tm} and \pref{fig:ext-jmt-ty} respectively.
 
 The typing rules for stacks of type $\tpstack{A}$ correspond to those for lists in a standard non-affine functional programming language, where the elimination form is case analysis rather than structural recursion and the introduction form does not require diamonds.
 %
-These stacks do not violate \lfpl's core principle of controlling recursion by diamonds because they have no recursor.
+These stacks do not violate \lfpl's core principle of controlling recursion by diamonds because they do not have a recursor.
 
 The typing rules for the tree type $\tptree{A}$, an inductive type which does support recursion, are similar to those of lists $\tplist{A}$. The primary difference is that, in \pref{rule:ty-TreeE}, the base case $N_1$ is typed under an empty context. Like the list recursor, the tree recursor has two cases: the inductive and base case. The difference is that for the list recursor, the base case $N_1$ is only run once, so it may have access to part of the context (though this is not necessary for completeness). In the tree recursor, $N_1$ may be run many times, as a tree can have many leaves. So, to respect linearity, it cannot use anything from the context.
 
@@ -26,7 +26,7 @@ The stack type $\tpstack{A}$ is a particularly powerful addition to \lfpl. The v
 \subsection{Big-Step Operational Cost Semantics}
 \label{sec:operational-semantics}
 
-As discussed in \pref{sec:denotational-semantics}, any semantics for \lfplplus needs to have some way to inhabit the $\tpdiam$ type. To give \lfplplus an operational semantics, we introduce a separate language for \lfplplus values in \pref{fig:syntax-val}. Note the definitions of value and environment are mutually recursive. This means we usually have to define functions on values via mutual recursion with a corresponding function on environments. Like in the denotational semantics, diamonds in lists and trees are not explicit.
+As discussed in \pref{sec:denotational-semantics}, any semantics for \lfplplus needs to have some way to inhabit the $\tpdiam$ type. To give \lfplplus an operational semantics, we introduce a separate language for \lfplplus values in \pref{fig:syntax-val}. Note that the definitions of value and environment are mutually recursive. This means we usually have to define functions on values via mutual recursion with a corresponding function on environments. Like in the denotational semantics, diamonds in lists and trees are not explicit.
 %
 By separating values from terms, we ensure \lfplplus terms remain polynomial-time sound while obtaining a means of providing concrete inputs to observe their evaluation. We also define a typing judgement $v : A$ for values, so that $\vdiam : \tpdiam$, $\vcons{v_h}{v_t} : \tplist{A}$ whenever $v_h : A$ and $v_t : \tplist{A}$, and so on.
 
