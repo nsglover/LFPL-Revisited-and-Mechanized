@@ -10,9 +10,7 @@ In short, I've finished everything other than the `reverse` running example and 
 
 - **[Review A]** We will use the function `reverse` and its helper function `revAppend` from Section 2.5 as a running example for the type system, the denotational and operational semantics, and the bound from Theorem 6.
 
-  - Partially done: I added an example for the polynomial bound, see Example 26.
-  - I don't really know how to structure the typing/semantics examples. This example comes after both Sections 2.2 and 2.3, the typing and denotational semantics. I already do something slightly bad in the first paragraph of Section 2.3, where I refer to `reverse` before I have written it in Section 2.4.
-  - Between this and Contraction being moved to Section 2.5, I feel Section 2 needs some restructuring.
+  - Done. See Examples 1, 18, and 27.
 
 - **[Review B]** We will discuss the relationship with Férée et al. (CPP 2018) and Heraud and Nowak (ITP 2011) in Section 6 (as sketched below).
 
@@ -40,4 +38,4 @@ In short, I've finished everything other than the `reverse` running example and 
 
 - **[All Reviews]** We will fix typos and other issues mentioned by the reviewers.
 
-  - Done, see `comments-progress.md` for details.
+  - Done, but some are ignored. See `comments-progress.md` for details.

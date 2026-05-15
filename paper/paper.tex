@@ -1,6 +1,8 @@
 \documentclass[a4paper,USenglish,cleveref, autoref, thm-restate]{lipics-v2021}
 
 \bibliographystyle{plainurl}
+\nolinenumbers
+
 
 
 \usepackage{packages}
@@ -9,12 +11,10 @@
 \usepackage{macros/rule}
 \usepackage{macros/syntax}
 \usepackage{macros/lfpl}
-\usepackage{macros/logrel}
 
 
 
-% Comment this line and add a citation named "fullversion" to references.bib
-% to remove the appendices and generate the conference version of the paper.
+% Comment out the following line to generate the conference version of the paper.
 % \newcommand{\FULLVERSION}{}
 
 
@@ -24,7 +24,6 @@
 \ifdefined\FULLVERSION
   \DOIPrefix{}
 \else
-  % Volume Macros
   \EventEditors{Claudia Faggian and Joost-Pieter Katoen}
   \EventNoEds{2}
   \EventLongTitle{41st Annual Symposium on Logic in Computer Science (LICS 2026)}
@@ -39,7 +38,6 @@
 \fi
 
 
-\nolinenumbers
 
 \begin{document}
 

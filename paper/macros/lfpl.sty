@@ -65,7 +65,7 @@
 
 
 
-% Judgements and Functions %%
+% Judgements and Functions
 
 \NewDocumentCommand{\dfree}{m}{#1 \; \text{$\tpdiam$-$\jmt{free}$}}
 
@@ -113,3 +113,11 @@
 \newcommand{\Cleaf}{\ensuremath{C_{\textsc{leaf}}}}
 \newcommand{\Cnode}{\ensuremath{C_{\textsc{node}}}}
 \newcommand{\Ctrec}{\ensuremath{C_{\textsc{trec}}}}
+
+
+
+% Logical Relation
+
+\NewDocumentCommand{\Rval}{m m}{\mathcal R_{#1} \left( #2 \right)}
+\NewDocumentCommand{\Rterm}{m m m}{\mathcal R_{#1} \left(#2 ; #3 \right)}
+\NewDocumentCommand{\Renv}{m m}{\mathcal R_{#1} \left( #2 \right)}
