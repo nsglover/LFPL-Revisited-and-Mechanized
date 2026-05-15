@@ -41,9 +41,9 @@ The polynomial-time completeness theorem states the logical inverse of soundness
 \subsection{Syntax and Typing Rules}
 \label{sec:lfpl-definition}
 
-The syntax of \lfpl is given in \pref{fig:syntax-tp-tm}. Other than the type $\tpdiam$, and the additional argument and variable appearing in the list introduction and elimination forms respectively, the syntax looks like System T with lists. The first argument $M_d$ in the second list introduction form $\tmcons{M_d}{M_h}{M_t}$ is intended to have type $\tpdiam$; to add an element to a list, we are forced to pay a diamond. Likewise, the first variable $x_d$ in the list elimination $\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}$ is intended to have type $\tpdiam$; when eliminating a list, we earn back the diamonds we paid to construct it, allowing us to construct new lists during recursion. In this way, we use elements of type $\tpdiam$ to control the lengths of lists, ensuring that the number of diamonds available to us bounds the maximum length of a list that we can construct at any point.
-
 \input{figures/syntax-tp-tm}
+
+The syntax of \lfpl is given in \pref{fig:syntax-tp-tm}. Other than the type $\tpdiam$, and the additional argument and variable appearing in the list introduction and elimination forms respectively, the syntax looks like System T with lists. The first argument $M_d$ in the second list introduction form $\tmcons{M_d}{M_h}{M_t}$ is intended to have type $\tpdiam$; to add an element to a list, we are forced to pay a diamond. Likewise, the first variable $x_d$ in the list elimination $\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}$ is intended to have type $\tpdiam$; when eliminating a list, we earn back the diamonds we paid to construct it, allowing us to construct new lists during recursion. In this way, we use elements of type $\tpdiam$ to control the lengths of lists, ensuring that the number of diamonds available to us bounds the maximum length of a list that we can construct at any point.
 
 The typing judgement is written as $\types{\ctx}{M}{A}$ and read as ``$M$ has type $A$ under context $\ctx$''. Importantly, \lfpl has an \textit{affine} type system, so contraction is not allowed and we must partition the context when we type an expression containing sequential subexpressions. The typing rules are given in \pref{fig:jmt-ty}. Notice that for $\tmcons{M_d}{M_h}{M_t}$ to be typed under $\ctxappend{\ctx_d}{\ctxappend{\ctx_h}{\ctx_t}}$, we must have $\types{\ctx_d}{M_d}{\tpdiam}$. Likewise, notice that for $\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}$ to be typed, we must type $N_2$ under a context with $x_d : \tpdiam$.
 
@@ -103,15 +103,7 @@ In the abstract syntax of \pref{fig:syntax-tp-tm}, \code{revAppend} would be wri
 $$
 \tmlam{\ell_1}{\tmrec{\ell_1}{\tmlam{\ell_2}{\ell_2}}{d}{x}{r}{\tmlam{\ell_2}{\tmapp{r}{(\tmcons{d}{x}{\ell_2})}}}}
 $$
-For a fixed type $A$, this term has type $\tparr{\tplist{A}}{\tparr{\tplist{A}}{\tplist{A}}}$, which we can derive from the rules in \pref{fig:jmt-ty}. First, we make some abbreviations:
-
-\begin{itemize}
-  \item $V_{\ell_1}$ is a derivation of $\types{\ctxsing{{\ell_1}}{\tplist{A}}}{\ell_1}{\tplist{A}}$ via \pref{rule:ty-Var}.
-  \item $D_\text{nil}$ is a derivation of $\types{\ctxnil}{\tmlam{\ell_2}{\ell_2}}{\tparr{\tplist{A}}{\tplist{A}}}$ via \pref{rule:ty-ArrowI} and \pref{rule:ty-Var}.
-  \item $V_r$ is a derivation of $\types{\ctxsing{r}{\tparr{\tplist{A}}{\tplist{A}}}}{r}{\tparr{\tplist{A}}{\tplist{A}}}$ via \pref{rule:ty-Var}.
-\end{itemize}
-
-Then, we can derive $\types{\ctxnil}{\code{revAppend}}{\tparr{\tplist{A}}{\tparr{\tplist{A}}{\tplist{A}}}}$ via the following:
+For a fixed type $A$, this term has type $\tparr{\tplist{A}}{\tparr{\tplist{A}}{\tplist{A}}}$. Using the rules in \pref{fig:jmt-ty}, we can see this via the following partial derivation. The ellipses are straightforward to fill in. 
 \begin{mathpar}
 \ARule
 {
@@ -123,9 +115,9 @@ Then, we can derive $\types{\ctxnil}{\code{revAppend}}{\tparr{\tplist{A}}{\tparr
     \types{\ctxsing{\ell_1}{\tplist{A}}}{\tmrec{\ell_1}{\tmlam{\ell_2}{\ell_2}}{d}{x}{r}{\tmlam{\ell_2}{\tmapp{r}{(\tmcons{d}{x}{\ell_2})}}}}{\tparr{\tplist{A}}{\tplist{A}}}
   }
   {
-    V_{\ell_1}
+    \cdots
     \\
-    D_{\text{nil}}
+    \cdots
     \\
     \ARule
     {
@@ -137,7 +129,7 @@ Then, we can derive $\types{\ctxnil}{\code{revAppend}}{\tparr{\tplist{A}}{\tparr
         \types{\ctxcons{\ctxcons{\ctxcons{\ctxsing{d}{\tpdiam}}{x}{A}}{r}{\tparr{\tplist{A}}{\tplist{A}}}}{\ell_2}{\tplist{A}}}{\tmapp{r}{(\tmcons{d}{x}{\ell_2})}}{\tplist{A}}
       }
       {
-        V_r
+        \cdots
         \\
         \ARule
         {
@@ -190,7 +182,7 @@ This example is important for the completeness proof, so it is worth stating its
 
 \subsection{Contraction}
 
-The defining trait of an affine type system is that contraction, the use of a variable more than once, is not permitted. The importance of disallowing contraction in \lfpl is immediately evident; if we could use a variable of diamond type more than once, then we could easily create lists of arbitrary length and break the non-size-increasing property. Despite this restriction, there are types which still enjoy contraction. We define the judgement $\hspace{-0.25em}\dfree{}$ on types as follows:
+The defining trait of an affine type system is that contraction, the use of a variable more than once, is not permitted. The importance of disallowing contraction in \lfpl is clear; if we could use a variable of type $\tpdiam$ more than once, then we could easily create lists of arbitrary length and break the non-size-increasing property. Despite this restriction, there are types which still enjoy contraction. We define the judgement $\hspace{-0.25em}\dfree{}$ on types as follows:
 \begin{mathpar}
 \ARule{\dfree{\tpunit}}{}
 \and

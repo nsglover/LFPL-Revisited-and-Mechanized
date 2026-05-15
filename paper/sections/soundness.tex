@@ -6,9 +6,6 @@ time.
 %
 To strengthen the soundness result and illustrate how to add features to \lfpl while maintaining polynomial-time soundness, we extend the language and refer to the result as \lfplplus. The features are the standard product type, which manifests as the lazy product in an affine setting, a type of unbounded stacks which are similar to lists but do not support recursion, and the inductive type of binary trees. The syntax and typing rules of these language constructs are given in \pref{fig:ext-syntax-tp-tm} and \pref{fig:ext-jmt-ty} respectively.
 
-\input{figures/ext-syntax-tp-tm}
-\input{figures/ext-jmt-ty}
-
 The typing rules for stacks of type $\tpstack{A}$ correspond to those for lists in a standard non-affine functional programming language, where the elimination form is case analysis rather than structural recursion and the introduction form does not require diamonds.
 %
 These stacks do not violate \lfpl's core principle of controlling recursion by diamonds because they have no recursor.
@@ -18,6 +15,9 @@ The typing rules for the tree type $\tptree{A}$, an inductive type which does su
 The denotational semantics for these new constructs are relatively straightforward. We set $\tpsem{\tpprod{A}{B}} = \tpsem{A} \times \tpsem{B}$ and $\tpsem{\tpstack{A}} = \tpsem{A}^*$. Giving a semantics for $\tptree{A}$ and its related terms boils down to giving a mathematical account of binary trees (in the same manner we have used the Kleene star to give a simple mathematical account of lists).
 %
 The semantics for terms involving these types can be found in the mechanization.
+
+\input{figures/ext-syntax-tp-tm}
+\input{figures/ext-jmt-ty}
 
 The stack type $\tpstack{A}$ is a particularly powerful addition to \lfpl. The vast majority of the difficulty in proving polynomial-time completeness of \lfpl, and by far the most complex aspect of our entire mechanization, was the definition and implementation of the bounded stack data structure discussed in \pref{sec:completeness-bounded-stack-definition} and \pref{sec:completeness-bounded-stack-implementation}. So, the addition of unbounded, $\tpdiam$-free stacks to \lfpl means \lfplplus admits a much simpler completeness proof. In essence, \lfplplus internalizes the bounded stack data structure from \pref{sec:completeness-bounded-stack-definition} and removes the boundedness restriction. No diamonds are required to interface with the stacks of \lfplplus, and there is no upper bound on the number of stack elements. The addition of these unbounded stacks to \lfpl would eliminate the need for the hardest part of our completeness proof, so it is worthwhile to show that they are sound despite their power.
 
@@ -31,6 +31,7 @@ As discussed in \pref{sec:denotational-semantics}, any semantics for \lfplplus n
 By separating values from terms, we ensure \lfplplus terms remain polynomial-time sound while obtaining a means of providing concrete inputs to observe their evaluation. We also define a typing judgement $v : A$ for values, so that $\vdiam : \tpdiam$, $\vcons{v_h}{v_t} : \tplist{A}$ whenever $v_h : A$ and $v_t : \tplist{A}$, and so on.
 
 \input{figures/syntax-val}
+\input{figures/jmt-eval}
 
 To account for the cost of evaluation, we give a cost-annotated big-step operational semantics, represented by the judgement $\evals{\env}{M}{c}{v}$, read ``term $M$ evaluates under the environment $\env$ to a value $v$ with cost $c$''. A representative set of rules for this judgement is given in \pref{fig:jmt-eval}, and a complete set of rules can be found in{
   \ifdefined\FULLVERSION
@@ -65,8 +66,6 @@ The only non-standard features of \lfpl are the affine type system and the type 
 However, both of these can be forgotten in a simple cost-preserving translation.
 %
 Thus, when proving true polynomial-time soundness of \lfpl, the only part which relies on \lfpl-specific reasoning is the very first step of giving a polynomial bound on the cost in \lfpl's big-step semantics; after that, these standard methods will carry the polynomial bound all the way down to the machine cost model. As the focus of this paper is \lfpl, we only mechanize the construction and verification of the polynomial cost bound.
-
-\input{figures/jmt-eval}
 
 
 
