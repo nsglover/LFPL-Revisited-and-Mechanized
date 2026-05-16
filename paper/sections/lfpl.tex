@@ -4,9 +4,11 @@
 In G\"odel's System T, recursion is controlled in such a way as to ensure the language is still terminating. This is known as primitive or structural recursion. 
 The only way to write variable-time programs in \lfpl is using structural recursion, but that alone is not enough to achieve polynomial time. This pseudocode is an example of an exponential-time program using only structural recursion:
 \begin{lstlisting}
+double : nat -> nat
 double zero = zero
 double (succ n) = succ (succ (double n))
 
+exp : nat -> nat
 exp zero = succ zero
 exp (succ n) = double (exp n)
 \end{lstlisting}
@@ -15,9 +17,11 @@ The main idea of \lfpl is to enforce non-size-increasing computation. In the abo
 
 In contrast to other polynomial-time systems that might restrict iteration such that nested iterations are impossible, \lfpl enables a fairly natural programming style. While many polynomial-time languages are complete with respect to polynomial-time \textit{computations}, they are often unable to express many natural \textit{algorithms}. Consider this pseudocode for an inefficient identity function on lists:
 \begin{lstlisting}
+append : nat list -> nat list -> nat list
 append nil l2 = l2
 append (n :: l1) l2 = n :: append l1 l2
 
+id : nat list -> nat list
 id l = append (append l nil) nil
 \end{lstlisting}
 In a system that disallows nested iterations, expressing a program like this can be difficult or impossible when the output from a call to the iterative procedure like \lstinline{append} is fed into another such call. Meanwhile, \lfpl has no such restrictions, so the above program can be directly translated into \lfpl with minimal modifications. Due to this flexibility, \lfpl supports many other natural algorithms such as linear-time list reversal, insertion sort, and integer division by a constant.

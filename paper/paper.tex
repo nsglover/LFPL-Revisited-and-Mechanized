@@ -15,14 +15,14 @@
 
 
 % Comment out the following line to generate the conference version of the paper.
-% \newcommand{\FULLVERSION}{}
+\newcommand{\FULLVERSION}{}
 
 
 
 \input{metadata/authors}
 \input{metadata/concepts}
 \ifdefined\FULLVERSION
-  \DOIPrefix{}
+  \hideLIPIcs
 \else
   \EventEditors{Claudia Faggian and Joost-Pieter Katoen}
   \EventNoEds{2}
