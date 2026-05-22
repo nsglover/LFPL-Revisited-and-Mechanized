@@ -1,6 +1,6 @@
 # LFPL: Revisited and Mechanized
 
-This repository contains the mechanization and LaTeX source for the working paper "LFPL: Revisited and Mechanized" currently under submission to LICS 2026.
+This repository contains the mechanization and LaTeX source for the paper "LFPL: Revisited and Mechanized" that appeared at the Forty-First Annual Symposium on Logic in Computer Science (LICS 2026).
 
 ## Paper
 
