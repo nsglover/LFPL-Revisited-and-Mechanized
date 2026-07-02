@@ -10,7 +10,7 @@ This separation of (unrestricted) construction of data-structures and iteration 
 been previously used by Jones~\cite{Jones2001} in his
 ``Cons-free'' system for characterizing the class P.
 %
-Atkey also provides a semantic polynomial-time soundness proof using the realizability method of Dal Lago and Hofmann \cite{dallagoRealizabilityModelsImplicit2011}. These developments are mechanized in Agda. Our method for proving soundness differs from his in that it is syntactic rather than semantic and constructs an explicit polynomial bound on the cost of evaluation for each term. Furthermore, we devote great attention to mechanizing polynomial-time completeness, ensuring the strongest result by working with a minimal version of \lfpl.
+Atkey also provides a semantic polynomial-time soundness proof using the realizability method of Dal Lago and Hofmann~\cite{dallagoRealizabilityModelsImplicit2011}. These developments are mechanized in Agda. Our method for proving soundness differs from his in that it is syntactic rather than semantic and constructs an explicit polynomial bound on the cost of evaluation for each term. Furthermore, we devote great attention to mechanizing polynomial-time completeness, ensuring the strongest result by working with a minimal version of \lfpl.
 
 Hofmann's original work on LFPL~\cite{hofmannLinearTypesNonsizeincreasing1999,hofmannStrengthNonsizeIncreasing2002} is the basis of this article and has been discussed in detail in Sections~\ref{sec:lfpl},~\ref{sec:completeness}, and~\ref{sec:soundness}.
 %
@@ -45,8 +45,3 @@ In particular, the completeness proofs for both, the language of
 Bellantoni and Cook and the system of quasi-interpretations, do not
 require the construction of bounded stacks, which is the main
 difficulty in completeness proof for \lfpl.
-
-%%% Local Variables:
-%%% mode: LaTeX
-%%% TeX-master: "../paper"
-%%% End:

@@ -1,7 +1,7 @@
 \section{Mechanization}
 \label{sec:mechanization}
 
-We have mechanized all results stated in Sections \ref{sec:lfpl}, \ref{sec:completeness}, and \ref{sec:soundness} in the proof assistant Istari \cite{istariProofAssistant}. To our knowledge, our mechanization serves as one of two published case studies in this relatively new proof assistant~\cite{Li2026}. The mechanization is roughly 7,000 lines of meaningful Istari code. Around 3,000 of these are definitions and \lfpl code, around 3,500 are proof scripts, and around 800 are lemma and theorem statements~\cite{mechanization}.
+We have mechanized all results stated in Sections \ref{sec:lfpl}, \ref{sec:completeness}, and \ref{sec:soundness} in the proof assistant Istari~\cite{istariProofAssistant}. To our knowledge, our mechanization serves as one of two published case studies in this relatively new proof assistant~\cite{Li2026}. The mechanization is roughly 7,000 lines of meaningful Istari code. Around 3,000 of these are definitions and \lfpl code, around 3,500 are proof scripts, and around 800 are lemma and theorem statements~\cite{mechanization}.
 
 \subsection{Defining LFPL}
 
@@ -52,8 +52,3 @@ The first issue was a lack of tactics. Agda expressions are often cleaner and mo
 Secondly, Agda requires that all expressions are well-typed, even in the statement of a theorem yet to be proven. This presents some difficulties. For example, consider the \lfpl type $(\tplist{\tpunit})^k$ used in \pref{sec:completeness-bounded-stack-definition}. We know that $\tpsem{(\tplist{\tpunit})^k} = \tpsem{\tplist{\tpunit}}^k$, so we implicitly switch between these forms as needed, but in the mechanization this must be explicit. Some parts of our proof are only well-typed if they are given the form on the left-hand side of the equality, and others need the right-hand form. In Agda, we had to state a theorem where some parts of the theorem needed the left form, and others needed the right, so there was no way to formulate this such that it was well-typed without using transport functions, which are known to cause other major difficulties~\cite{tabareau2018}. Istari does not require the well-typedness of a theorem before it is proven. It must be given a type by the end of the proof, but this is not difficult since we have a lemma stating $\tpsem{(\tplist{\tpunit})^k} = \tpsem{\tplist{\tpunit}}^k$. The difference is that Istari lets us show well-typedness during the proof, whereas Agda demands it before the proof.
 
 Such issues led us to finish the completeness and soundness proofs only in Istari. Retrospectively, we can say that it was a more than adequate tool for this task. In fact, we never encountered any Istari-related roadblocks. This is not to say there weren't annoyances; as a relatively new proof assistant, Istari sometimes struggles to infer implicit arguments and automatically eliminate vacuous proof cases, requiring manual intervention in situations where Agda would succeed.
-
-%%% Local Variables:
-%%% mode: LaTeX
-%%% TeX-master: "../paper"
-%%% End:

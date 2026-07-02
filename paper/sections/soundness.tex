@@ -26,18 +26,18 @@ The stack type $\tpstack{A}$ is a particularly powerful addition to \lfpl. The v
 \subsection{Big-Step Operational Cost Semantics}
 \label{sec:operational-semantics}
 
+\input{figures/syntax-val}
+\input{figures/jmt-eval}
+
 As discussed in \pref{sec:denotational-semantics}, any semantics for \lfplplus needs to have some way to inhabit the $\tpdiam$ type. To give \lfplplus an operational semantics, we introduce a separate language for \lfplplus values in \pref{fig:syntax-val}. Note that the definitions of value and environment are mutually recursive. This means we usually have to define functions on values via mutual recursion with a corresponding function on environments. Like in the denotational semantics, diamonds in lists and trees are not explicit.
 %
 By separating values from terms, we ensure \lfplplus terms remain polynomial-time sound while obtaining a means of providing concrete inputs to observe their evaluation. We also define a typing judgement $v : A$ for values, so that $\vdiam : \tpdiam$, $\vcons{v_h}{v_t} : \tplist{A}$ whenever $v_h : A$ and $v_t : \tplist{A}$, and so on.
 
-\input{figures/syntax-val}
-\input{figures/jmt-eval}
-
 To account for the cost of evaluation, we give a cost-annotated big-step operational semantics, represented by the judgement $\evals{\env}{M}{c}{v}$, read ``term $M$ evaluates under the environment $\env$ to a value $v$ with cost $c$''. A representative set of rules for this judgement is given in \pref{fig:jmt-eval}, and a complete set of rules can be found in{
   \ifdefined\FULLVERSION
-    \pref{app:evaluation}
+    \pref{app:evaluation}%
   \else
-    Appendix A of the full version~\cite{fullversion}
+    Appendix A of the full version~\cite{fullversion}%
   \fi
 }. Note the presence of constants $\Cvar, \Cnull, \ldots, \Ctrec \in \mathbb N$ (one for each syntactic construct) in the conclusion of each rule. These are left arbitrary so that our cost model is generic with respect to the particular costs of each primitive operation of the language.
 
@@ -63,7 +63,7 @@ If $\types{\Gamma}{M}{A}$, $\envtypes{\env}{\Gamma}$, and $\evals{\env}{M}{c}{v}
 
 Polynomial-time soundness is meant to be a statement about the computational complexity of functions encoded by \lfpl with respect to some machine model like a Turing machine. The big-step cost semantics is somewhat removed from a Turing machine's cost model.
 %
-However, it is well understood how to justify a cost semantics for a functional language like \lfplplus in terms of a low-level model such as a Turing machine \cite{blellochProvableTimeSpace1996,Accattoli2019}.
+However, it is well understood how to justify a cost semantics for a functional language like \lfplplus in terms of a low-level model such as a Turing machine~\cite{blellochProvableTimeSpace1996,Accattoli2019}.
 %
 The only non-standard features of \lfpl are the affine type system and the type $\tpdiam$, and both of these can be forgotten in a simple cost-preserving translation.
 %
@@ -95,6 +95,8 @@ The relevance of this result to soundness might already be clear. An immediate c
 
 \subsection{Polynomial Cost Bound}
 
+\enlargethispage{1\baselineskip}
+
 Our goal for the rest of this section is to prove the following:
 
 \begin{theorem}[Concrete Polynomial-Time Soundness of \lfplplus]
@@ -116,7 +118,7 @@ To resolve this issue, we must consider the potential cost of running functions 
 \begin{theorem}[General Soundness]
 \label{thm:soundness-general}
 Suppose $\types{\ctx}{M}{A}$. Then, for any $\env : \Gamma$, there exists a value $v : A$ and a cost $c \in \mathbb N$ such that $\evals{\env}{M}{c}{v}$ and:
-$$c + P_v(\envsize{\env}) \le P_M(\envsize{\env}) + P_{\env}(\envsize{\env})$$
+\[ c + P_v(\envsize{\env}) \le P_M(\envsize{\env}) + P_{\env}(\envsize{\env}) \]
 \end{theorem}
 
 This theorem is true (for some definitions of $P_v$, $P_M$, and $P_\env$), though as stated it is not strong enough to be proven by rule induction on $\types{\ctx}{M}{A}$. Before discussing this further, we define the polynomials used in this theorem. By $\max(P,Q) : \mathbb N \to \mathbb N$ we mean the polynomial with coefficients equal to the pairwise maximums of the coefficients of polynomials $P,Q : \mathbb N \to \mathbb N$. This way, $\max(P(n), Q(n)) \le \max(P,Q)(n)$.
@@ -160,7 +162,7 @@ The idea of  $P_v$ and $P_\env$ is to bound the future cost of evaluating all of
 
 \begin{example}
 Consider \code{reverse} and \code{revAppend} from \pref{example:reverse}. For simplicity, assume our cost model has $\Crec = \Capp = 1$ and all other constants are zero. We have:
-$$P_\code{\tmapp{reverse}{\ell}}(n) = 3\Capp + P_\code{revAppend}(n) = 3\Capp + \Crec + n(\Crec + \Capp) = 2n + 4$$
+\[ P_\code{\tmapp{reverse}{\ell}}(n) = 3\Capp + P_\code{revAppend}(n) = 3\Capp + \Crec + n(\Crec + \Capp) = 2n + 4 \]
 Applying \pref{thm:soundness-concrete} to this result, we learn that if \code{reverse} is evaluated with an input list of length $n$ (and an $\tpdiam$-free element type), we will incur at most $2n + 4$ cost, thus proving \code{reverse} is linear-time.
 \end{example}
 
@@ -204,14 +206,9 @@ Suppose $\types{\Gamma}{M}{A}$ and $\envtypes{\env}{\Gamma}$. Then, if $\Renv{\G
 \begin{proof}
 We go by rule induction on $\types{\ctx}{M}{A}$. \pref{thm:non-size-increasing} comes up in nearly every case, since we need to satisfy the premise $n \ge \envsize{\env}$ of $\Rterm{A}{\env}{M}$ to use any inductive hypotheses. Importantly, we actually make use of this premise in the list and tree recursor cases, where we can say for example that the length of any list value $v$ is at most $\envsize{\env}$ and therefore at most $n$. Most cases are verbose but straightforward, and a couple of the less straightforward cases can be found in{
   \ifdefined\FULLVERSION
-    \pref{app:soundness}
+    \pref{app:soundness}%
   \else
-    Appendix B of the full version~\cite{fullversion}
+    Appendix B of the full version~\cite{fullversion}%
   \fi
 }.
 \end{proof}
-
-%%% Local Variables:
-%%% mode: LaTeX
-%%% TeX-master: "../paper"
-%%% End:

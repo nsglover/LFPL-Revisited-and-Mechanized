@@ -25,7 +25,7 @@
 \and
 \RuleEval{ListE$_2$}{\evals{\envappend{\env}{\env'}}{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}{c + c_T + c' + \Crec}{v_2}}{\evals{\env}{M}{c}{\vcons{v_h}{v_t}} \\ \evals{\envcons{\env'}{y}{v_t}}{\tmrec{y}{N_1}{x_d}{x_h}{x_t}{N_2}}{c_T}{v_T} \\ \evals{\cdot[x_d \mapsto \vdiam, x_h \mapsto v_h, x_t \mapsto v_T]}{N_2}{c'}{v_2}}
 \end{mathpar}
-\caption{The full definition of \lfplplus's evaluation judgement (1/2)}
+\caption{The full definition of \lfplplus's evaluation judgement. (1/2)}
 \label{fig:app-jmt-eval-1}
 \end{figure*}
 \begin{figure*}[t!]
@@ -50,10 +50,6 @@
 \and
 \RuleEval{TreeE$_2$}{\evals{\env}{\tmtrec{M}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{c + c_L + c_R + c' + \Ctrec}{v}}{\evals{\env}{M}{c}{\vnode{v_x}{v_l}{v_r}} \\ \evals{\envcons{\envnil}{y}{v_l}}{\tmtrec{y}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{c_L}{v_L} \\ \evals{\envcons{\envnil}{y}{v_r}}{\tmtrec{y}{N_1}{x_d}{x}{x_l}{x_r}{N_2}}{c_R}{v_R} \\ \evals{\envnil[x_d \mapsto \vdiam, x \mapsto v_x, x_l \mapsto v_L, x_r \mapsto v_R]}{N_2}{c'}{v}}
 \end{mathpar}
-\caption{The full definition of \lfplplus's evaluation judgement (2/2)}
+\caption{The full definition of \lfplplus's evaluation judgement. (2/2)}
 \label{fig:app-jmt-eval-2}
 \end{figure*}
-%%% Local Variables:
-%%% mode: LaTeX
-%%% TeX-master: "../paper"
-%%% End:

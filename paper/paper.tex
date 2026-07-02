@@ -1,4 +1,4 @@
-\documentclass[a4paper,USenglish,cleveref, autoref, thm-restate]{lipics-v2021}
+\documentclass[a4paper,USenglish,pdfa,cleveref,autoref,thm-restate]{lipics-v2021}
 
 \bibliographystyle{plainurl}
 \nolinenumbers
@@ -34,7 +34,7 @@
   \EventLocation{Lisbon, Portugal}
   \EventLogo{}
   \SeriesVolume{380}
-  \ArticleNo{29}
+  \ArticleNo{51}
 \fi
 
 
@@ -60,17 +60,14 @@
 \input{sections/related-work}
 \input{sections/conclusion}
 
-\newpage
+\bibliography{references}
 
 \ifdefined\FULLVERSION
+  \newpage
   \appendix
   \input{appendices/evaluation}
   \input{figures/app-jmt-eval}
   \input{appendices/soundness}
 \fi
-
-
-
-\bibliography{references}
 
 \end{document}                     

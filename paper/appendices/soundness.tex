@@ -12,27 +12,27 @@ We go by rule induction on $\types{\Gamma}{M}{A}$.
 Suppose $\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmapp{M}{N}}{B}$ because $\types{\ctx_1}{M}{\tparr{A}{B}}$ and $\types{\ctx_2}{N}{A}$. Assuming $\Renv{\Gamma}{\env}$, our goal is to show that $\Rterm{B}{\env}{\tmapp{M}{N}}$.
 
 Let $\envappend{\env_1}{\env_2}$ be the bipartition of $\env$ corresponding to $\ctxappend{\ctx_1}{\ctx_2}$. Unpacking the definition of $\Rterm{B}{\env}{\tmapp{M}{N}}$, we need to show that, for all $n \ge \envsize{\env_1} + \envsize{\env_2}$, there is a value $v : B$ and a cost $c \in \mathbb N$ such that $\Rval{B}{v}$ holds, $\evals{\env}{\tmapp{M}{N}}{c}{v}$, and:
-$$c + P_v(n) \le \Capp + P_M(n) + P_N(n) + P_{\env_1}(n) + P_{\env_2}(n)$$
+\[ c + P_v(n) \le \Capp + P_M(n) + P_N(n) + P_{\env_1}(n) + P_{\env_2}(n) \]
 
 Since $\Renv{\Gamma}{\env}$, we have $\Renv{\Gamma_1}{\env_1}$ and $\Renv{\Gamma_2}{\env_2}$. Therefore, by the induction hypotheses, we obtain $\Rterm{\tparr{A}{B}}{\env_1}{M}$ and $\Rterm{A}{\env_2}{N}$. Applying each to $n$ (which is valid since $n \ge \envsize{\env} \ge \envsize{\env_i}$ for $i \in \{1,2\}$), we conclude that:
 \begin{itemize}
   \item There is a value $v_M$ and a cost $c_M$ such that $\Rval{\tparr{A}{B}}{v}$ holds, $\evals{\env_1}{M}{c_M}{v_M}$, and:
-  $$ c_M + P_{v_M}(n) \le P_M(n) + P_{\env_1}(n) $$
+  \[ c_M + P_{v_M}(n) \le P_M(n) + P_{\env_1}(n) \]
   \item There is a value $v_N$ and a cost $c_N$ such that $\Rval{B}{v_N}$ holds, $\evals{\env_2}{N}{c_N}{v_N}$, and:
-  $$ c_N + P_{v_N}(n) \le P_N(n) + P_{\env_2}(n) $$
+  \[ c_N + P_{v_N}(n) \le P_N(n) + P_{\env_2}(n) \]
 \end{itemize}
 
 By definition of $\Rval{\tparr{A}{B}}{v}$, we know that $v_M = \vlam{\env'}{x}{M'}$ and $\Rterm{B}{\envcons{\env'}{x}{v_N}}{M'}$. In particular, by definition of $P_{\vlam{\env'}{x}{M'}}$, we obtain the following inequality:
-$$ c_M + P_{\env'}(n) + P_{M'}(n) \le P_M(n) + P_{\env_1}(n) $$
+\[ c_M + P_{\env'}(n) + P_{M'}(n) \le P_M(n) + P_{\env_1}(n) \]
 Also, by \pref{thm:non-size-increasing}, we know:
 \begin{align*}
 \envsize{\envcons{\env'}{x}{v_N}} &= \envsize{\env'} + \valsize{v_N} = \envsize{v_M} + \valsize{v_N} \\
 &\le \envsize{\env_1} + \envsize{\env_2} \le n
 \end{align*}
 Therefore, we may apply $\Rterm{B}{\envcons{\env'}{x}{v_N}}{M'}$ to $n$, concluding that there is a value $v : B$ and a cost $c_{M'}$ such that $\Rval{B}{v}$ holds, $\evals{\envcons{\env'}{x}{v_N}}{M'}{c}{v}$, and:
-$$ c_{M'} + P_v(n) \le P_{M'}(n) + P_{v_N}(n) + P_{\env'}(n) $$
+\[ c_{M'} + P_v(n) \le P_{M'}(n) + P_{v_N}(n) + P_{\env'}(n) \]
 Take $c = c_M + c_N + c_{M'} + \Capp$. After applying \pref{rule:eval-ArrowE} to conclude the first part of our goal, it remains to prove the cost bound. Chaining all our inequalities together, we get that:
-$$ c_M + c_N + c_{M'} + P_v(n) \le P_M(n) + P_N(n) + P_{\env}(n) $$
+\[ c_M + c_N + c_{M'} + P_v(n) \le P_M(n) + P_N(n) + P_{\env}(n) \]
 Adding $\Capp$ to both sides yields the desired inequality.
 
 \paragraph{Recursor Case} Suppose $\types{\ctxappend{\ctx_1}{\ctx_2}}{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}{B}$ because:
@@ -43,17 +43,12 @@ Adding $\Capp$ to both sides yields the desired inequality.
 \end{itemize}
 
 Assume $\Renv{\Gamma_1}{\env_1}$ and $\Renv{\Gamma_2}{\env_2}$, where $\envappend{\env_1}{\env_2}$ is the bipartition corresponding to $\ctxappend{\Gamma_1}{\Gamma_2}$. By the inductive hypothesis for $M$, we know that there is a value $v_M$ and cost $c_M$ such that $\Rval{\tplist{A}}{v_M}$ holds, $\evals{\env_1}{M}{c_M}{v_M}$, and:
-$$c_M + P_{v_M}(n) \le P_M(n) + P_{\env_1}(n)$$
+\[ c_M + P_{v_M}(n) \le P_M(n) + P_{\env_1}(n) \]
 By definition of $\Rval{\tplist{A}}{v_M}$, we know that $v_M$ is a list $\ell$ of values of type $A$ for which $\Rval{A}{-}$ holds. Now, recall the definition of $P_{\tmrec{M}{N_1}{x_d}{x_h}{x_t}{N_2}}(n)$:
-$$ P_M(n) + (\Crec + P_{N_1}(n)) + n (\Cvar + \Crec + P_{N_2}(n)) $$
+\[ P_M(n) + (\Crec + P_{N_1}(n)) + n (\Cvar + \Crec + P_{N_2}(n)) \]
 Instead of directly dealing with this bound on the cost, we use a stronger one:
-$$ P_M(n) + (\Crec + P_{N_1}(n)) + \mathsf{length}(\ell) (\Cvar + \Crec + P_{N_2}(n)) $$
+\[ P_M(n) + (\Crec + P_{N_1}(n)) + \mathsf{length}(\ell) (\Cvar + \Crec + P_{N_2}(n)) \]
 This bound makes intuitive sense; the whole point of multiplying by $n$ there was because it was suppose to bound the maximum number of times an iteration could run. Now that we are in the midst of the proof with access to dynamic information, we know we will iterate exactly $\mathsf{length}(\ell)$ times. This bound is indeed stronger; by \pref{thm:non-size-increasing}, we know $\mathsf{length}(\ell) \le \envsize{\env_1} \le n$.
 
 From here, the strategy is to proceed by induction on the structure of $\ell$ and prove termination alongside this tighter bound. The cases of this induction are relatively straightforward and do not require anything more complicated than what is seen in the application case above. The base case makes use of the induction hypothesis for $N_1$, and the inductive case makes use of the induction hypothesis for $N_2$.
 \end{proof}
-
-%%% Local Variables:
-%%% mode: LaTeX
-%%% TeX-master: "../paper"
-%%% End:
