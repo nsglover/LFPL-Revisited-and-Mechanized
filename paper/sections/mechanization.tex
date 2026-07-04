@@ -4,6 +4,7 @@
 We have mechanized all results stated in Sections \ref{sec:lfpl}, \ref{sec:completeness}, and \ref{sec:soundness} in the proof assistant Istari~\cite{istariProofAssistant}. To our knowledge, our mechanization serves as one of two published case studies in this relatively new proof assistant~\cite{Li2026}. The mechanization is roughly 7,000 lines of meaningful Istari code. Around 3,000 of these are definitions and \lfpl code, around 3,500 are proof scripts, and around 800 are lemma and theorem statements~\cite{mechanization}.
 
 \subsection{Defining LFPL}
+\enlargethispage{\baselineskip}
 
 We begin by defining the types of \lfpl as an inductive datatype \lstinline{tp} within Istari. \lfpl does not have type variables or similar complexities. We also define the judgement $\dfree{A}$ within Istari. Next, we represent contexts $\ctx$ as an Istari list of \lfpl types. We do not need variable names associated with the types because we use De Bruijn indices in the term structure. Importantly, we define a judgement $\code{split} \; \ctx \; \ctx_1 \; \ctx_2$ to indicate when $\ctx$ can be  bipartitioned into $\ctxappend{\ctx_1}{\ctx_2}$, used extensively in the typing rules. Essentially, viewing the contexts as type lists as we do in our mechanization, our definition of $\code{split} \; \ctx \; \ctx_1 \; \ctx_2$ ensures $\code{append}(\ctx_1)(\ctx_2)$ is equivalent to some permutation of $\ctx$.
 

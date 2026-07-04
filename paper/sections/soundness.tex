@@ -1,5 +1,6 @@
 \section{Polynomial-Time Soundness}
 \label{sec:soundness}
+\enlargethispage{\baselineskip}
 
 This section shows that \lfpl programs can be evaluated in polynomial
 time.
@@ -19,6 +20,7 @@ The semantics for terms involving these types can be found in the mechanization.
 \input{figures/ext-syntax-tp-tm}
 \input{figures/ext-jmt-ty}
 
+\enlargethispage{\baselineskip}
 The stack type $\tpstack{A}$ is a particularly powerful addition to \lfpl. The vast majority of the difficulty in proving polynomial-time completeness of \lfpl, and by far the most complex aspect of our entire mechanization, was the definition and implementation of the bounded stack data structure discussed in \pref{sec:completeness-bounded-stack-definition} and \pref{sec:completeness-bounded-stack-implementation}. So, the addition of unbounded, $\tpdiam$-free stacks to \lfpl means \lfplplus admits a much simpler completeness proof, and thus it is worthwhile to show that they are sound despite their power. In essence, \lfplplus internalizes the bounded stack data structure from \pref{sec:completeness-bounded-stack-definition} and removes the boundedness restriction. No diamonds are required to interface with the stacks of \lfplplus, and there is no upper bound on the number of stack elements.
 
 
@@ -26,12 +28,12 @@ The stack type $\tpstack{A}$ is a particularly powerful addition to \lfpl. The v
 \subsection{Big-Step Operational Cost Semantics}
 \label{sec:operational-semantics}
 
-\input{figures/syntax-val}
-\input{figures/jmt-eval}
-
 As discussed in \pref{sec:denotational-semantics}, any semantics for \lfplplus needs to have some way to inhabit the $\tpdiam$ type. To give \lfplplus an operational semantics, we introduce a separate language for \lfplplus values in \pref{fig:syntax-val}. Note that the definitions of value and environment are mutually recursive. This means we usually have to define functions on values via mutual recursion with a corresponding function on environments. Like in the denotational semantics, diamonds in lists and trees are not explicit.
 %
 By separating values from terms, we ensure \lfplplus terms remain polynomial-time sound while obtaining a means of providing concrete inputs to observe their evaluation. We also define a typing judgement $v : A$ for values, so that $\vdiam : \tpdiam$, $\vcons{v_h}{v_t} : \tplist{A}$ whenever $v_h : A$ and $v_t : \tplist{A}$, and so on.
+
+\input{figures/syntax-val}
+\input{figures/jmt-eval}
 
 To account for the cost of evaluation, we give a cost-annotated big-step operational semantics, represented by the judgement $\evals{\env}{M}{c}{v}$, read ``term $M$ evaluates under the environment $\env$ to a value $v$ with cost $c$''. A representative set of rules for this judgement is given in \pref{fig:jmt-eval}, and a complete set of rules can be found in{
   \ifdefined\FULLVERSION
@@ -73,14 +75,15 @@ Thus, when proving true polynomial-time soundness of \lfpl, the only part which 
 
 \subsection{The Non-Size-Increasing Property}
 \label{sec:soundness-size}
+\enlargethispage{1.7\baselineskip}
 
 We now make precise the non-size-increasing property referred to in previous sections. Our goal is to assign to each value $v$ a number $\valsize{v} \in \mathbb N$ that, roughly speaking, counts the number of diamond values $\vdiam$ contained within $v$.
 %
 We then show that the size of the value resulting from the evaluation of an \lfplplus term is bounded by the size of the values in the environment. We define size by mutual induction on values and environments in \pref{fig:size-val-env}.
 
+\pagebreak
 \input{figures/size-val-env}
 
-% Our intuitive notion of the non-size-increasing property is that a function's output should have size no greater than its input.
 \begin{theorem}[The Non-Size-Increasing Property]
 \label{thm:non-size-increasing}
 Suppose that $\types{\ctx}{M}{A}$. Then, for all environments $\env$, values $v$, and costs $c$ such that $\evals{\env}{M}{c}{v}$, we have $\valsize{v} \le \envsize{\env}$.
@@ -94,8 +97,6 @@ The relevance of this result to soundness might already be clear. An immediate c
 
 
 \subsection{Polynomial Cost Bound}
-
-\enlargethispage{1\baselineskip}
 
 Our goal for the rest of this section is to prove the following:
 

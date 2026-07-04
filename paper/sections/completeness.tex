@@ -44,8 +44,6 @@ Given $n$ diamonds, available in an input list of length $n$, it can only hold $
 
 We have in fact already seen the first key insight into how to construct $S(A)$ in \pref{example:susp}. It shows that we do not need any diamonds to store data; we just need them to interact with it. Using this idea, we can design our data structure so that it does not store diamonds and its push/pop functions temporarily borrow diamonds to interface with the suspended data.
 
-\enlargethispage{1\baselineskip}
-
 The second key insight is that we do not need to un-suspend the entire data structure to interface with it.
 %
 Since both push and pop work at the front of the stack, we just need to be able to un-suspend enough of our data structure to expose the front.
@@ -227,6 +225,7 @@ Both of these are straightforward to prove by rule induction on $\dfree{A}$. By 
 
 \subsection{Simulating the Turing Machine}
 \label{sec:completeness-general-thm}
+\enlargethispage{\baselineskip}
 
 It only remains to put everything together. For this subsection, assume we have a function $f : \tpsem{A}^* \to \tpsem{A}^*$ computable by a Turing machine on a tape with alphabet $\{a_0\} \sqcup \tpsem{A}$, with internal state set $\{q_0\} \sqcup \tpsem{Q}$ and transition function $g$. Further assume the machine always halts in $P(n)$ steps on an input of length $n$, where $P : \mathbb N \to \mathbb N$ is a $k$-degree polynomial. Lastly, assume $\dfree{A}$ and $\dfree{Q}$. This assumption is not restrictive; Turing machines have finite alphabets and finitely many states.
 
