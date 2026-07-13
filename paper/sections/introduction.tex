@@ -2,6 +2,10 @@
 
 The goal of implicit computational complexity (ICC) is to provide a programming language which characterizes a given complexity class. Concretely, this means that a procedure is representable in the language if and only if it inhabits the desired complexity class. ICC has been extensively studied for many complexity classes including P~\cite{hofmannLinearTypesNonsizeincreasing1999,hofmannTypeSystemBounded2000,hofmannLinearTypesNonsizeincreasing2003,gaboardiSoftLinearLogic2008}, PSPACE~\cite{hofmannLinearTypesNonsizeincreasing2003, gaboardiSoftLinearLogic2008,gaboardiImplicitCharacterizationPSPACE2012}, EXPTIME~\cite{hofmannStrengthNonsizeIncreasing2002}, and LOGSPACE~\cite{schoppStratifiedBoundedAffine2007, ramyaaRamifiedCorecurrenceLogspace2011}. Such languages often achieve their desired complexity class via modifications of standard linear or affine type systems~\cite{dallagoImplicitComputationComplexity2022}.
 
+% \ifdefined\FULLVERSION\else
+%   \enlargethispage{\baselineskip}
+% \fi
+
 One prominent such programming language for the complexity classes P and FP is Martin Hofmann's Linear Function Programming Language (\lfpl).
 %
 It was first defined in 1999, when Hofmann~\cite{hofmannLinearTypesNonsizeincreasing1999} showed that \lfpl is polynomial-time sound, that is, all functions definable in \lfpl belong to FP.
@@ -26,6 +30,10 @@ Our presentation of \lfpl involves a denotational semantics similar to the origi
 
 The mechanized completeness proof is a simplified and streamlined version of the one given by Hofmann~\cite{hofmannStrengthNonsizeIncreasing2002}. The main novelty is the implementation of a stack-like data structure in \lfpl that allows us to avoid much of the complexity of Hofmann's proof as well as sidestep the errors we discovered in that proof. To our knowledge, ours is the strongest completeness result for \lfpl. Hofmann also gave a weaker completeness theorem for linear-time Turing machines only~\cite{hofmannLinearTypesNonsizeincreasing1999}. Both Aehlig and Schwichtenberg~\cite{aehligSyntacticalAnalysisNonsizeincreasing2002} and Atkey~\cite{atkeyPolynomialTimeDependent2024} provide full completeness proofs but for powerful extensions of \lfpl, thereby weakening the completeness result. Like Hofmann's version~\cite{hofmannStrengthNonsizeIncreasing2002}, our completeness proof works with a minimal version of \lfpl, using the fewest tools to simulate a polynomial-time Turing machine.
 
+\ifdefined\FULLVERSION\else
+  \enlargethispage{2.2\baselineskip}
+\fi
+
 The mechanized soundness proof is inspired by Aehlig and Schwichtenberg~\cite{aehligSyntacticalAnalysisNonsizeincreasing2002}. We give a modern presentation of their result for a big-step operational cost semantics and an extended language \lfplplus. Using this cost semantics allows us to reason about concrete program executions and avoids the substitution-related tedium that arises when mechanizing a small-step semantics. While a big-step operational cost semantics is further away from a concrete machine model, it is well-known how to link it to small-step semantics, which have been shown to be reasonable with respect to lower-level semantic models~\cite{blellochProvableTimeSpace1996,Accattoli2019}.
 %
 Notably, for each \lfplplus term, the proof constructs a concrete polynomial that bounds the execution cost of the term as defined by the cost semantics.
@@ -34,11 +42,5 @@ To our knowledge, this is the strongest known soundness result for \lfpl;
 %
 we strengthen it by extending the language with several features such
 as a built-in stack data structure and lazy products.
-
-\ifdefined\FULLVERSION
-  \enlargethispage{-4.9\baselineskip}
-\else
-  \enlargethispage{-1\baselineskip}
-\fi
 
 In summary, we make the following contributions: the first complete presentation of the \lfpl metatheory, a novel completeness proof, a novel soundness proof, and the first complete mechanization of the \lfpl metatheory. The novelties in the proofs make them accessible and amenable to mechanization. Our desire to mechanize the \lfpl metatheory is partially responsible for driving us to discover these proofs. Our completeness proof resolves some errors we discovered in the only other completeness proof of equal strength to ours.
