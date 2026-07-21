@@ -1,6 +1,6 @@
 OUTFILES = paper.synctex.gz paper.pdf
 JUNKFILES = paper.aux paper.bbl paper.blg paper.dvi paper.fdb_latexmk paper.fls paper.out paper.log paper.xcp paper.vtc
-COMPILE = pdflatex -interaction=batchmode -synctex=4 paper.tex
+COMPILE = pdflatex -synctex=15 --interaction=batchmode paper.tex
 
 pdf : paper.tex
 	rm -f $(OUTFILES)

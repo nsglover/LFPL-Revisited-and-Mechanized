@@ -1,24 +1,32 @@
 \begin{figure}[t!]
-  \[ \substack{
-  \begin{array}{r@{\;=\;}l@{\hspace{2.5em}}r@{\;=\;}l}
-    \valsize{\vdiam} & 1 &
-    \valsize{\vrecord{\env}{M_1}{M_2}} & \envsize{\env}  \\                           
-    \valsize{\vnull} & 0 &
-    \valsize{\vlam{\env}{x}{M}} &  \envsize{\env} \\                               
-    \valsize{\vinj{i}{v}} & \valsize{v} &
-    \valsize{\vpair{v_1}{v_2}} & \valsize{v_1} + \valsize{v_2} \\                                          
-    \valsize{\vempty} & 0 &
-    \valsize{\vpush{v_h}{v_t}} & \valsize{v_h} + \valsize{v_t} \\                            
-    \valsize{\vnil} & 0 &
-    \valsize{\vcons{v_h}{v_t}} & 1 + \valsize{v_h} + \valsize{v_t} \\                          
-    \valsize{\vleaf} &  0 &
-    \valsize{\vnode{v}{v_l}{v_r}} & 1 + \valsize{v} + \valsize{v_l} + \valsize{v_r}
-  \end{array}\\[1ex]
-  \begin{array}{r@{\;\;}c@{\;\;}lcr@{\;\;}c@{\;\;}l}  
-   \envsize{\envnil} & = & 0 & &
-  \envsize{\envcons{\env}{x}{v}} & = & \envsize{\env} + \valsize{v} 
-  \end{array}}
-  \]
+  \resizebox{\textwidth}{!}
+  {
+    \begin{minipage}[c]{1.0029\textwidth}
+      \[
+        \substack
+        {
+          \begin{array}{r@{\;=\;}l@{\hspace{2.5em}}r@{\;=\;}l}
+          \valsize{\vdiam} & 1 &
+          \valsize{\vrecord{\env}{M_1}{M_2}} & \envsize{\env}  \\                           
+          \valsize{\vnull} & 0 &
+          \valsize{\vlam{\env}{x}{M}} &  \envsize{\env} \\                               
+          \valsize{\vinj{i}{v}} & \valsize{v} &
+          \valsize{\vpair{v_1}{v_2}} & \valsize{v_1} + \valsize{v_2} \\                                          
+          \valsize{\vempty} & 0 &
+          \valsize{\vpush{v_h}{v_t}} & \valsize{v_h} + \valsize{v_t} \\                            
+          \valsize{\vnil} & 0 &
+          \valsize{\vcons{v_h}{v_t}} & 1 + \valsize{v_h} + \valsize{v_t} \\                          
+          \valsize{\vleaf} &  0 &
+          \valsize{\vnode{v}{v_l}{v_r}} & 1 + \valsize{v} + \valsize{v_l} + \valsize{v_r}
+          \end{array}\\[1ex]
+          \begin{array}{r@{\;\;}c@{\;\;}lcr@{\;\;}c@{\;\;}l}  
+          \envsize{\envnil} & = & 0 & &
+          \envsize{\envcons{\env}{x}{v}} & = & \envsize{\env} + \valsize{v} 
+          \end{array}
+        }
+      \]
+    \end{minipage}
+  }
 \caption{Size of values and environments in \lfplplus.}
 \label{fig:size-val-env}
 \end{figure}
