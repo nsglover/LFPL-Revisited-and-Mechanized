@@ -15,3 +15,7 @@ See `mechanization/README.md` for more details about the structure of this direc
 ### Checking the Proofs
 
 You will need the [Istari proof assistant](https://istarilogic.org/install.html). Once that is installed and `istari` is in your `PATH`, run `make mechanization` from the root directory. The proofs are quite long, so this process can tens of minutes to complete.
+
+## Slides
+
+The directory `slides` contains the Keynote slides and some supporting assets for the talk "LFPL: Revisited and Mechanized" given at LICS 2026.
