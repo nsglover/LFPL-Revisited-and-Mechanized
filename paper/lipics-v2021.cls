@@ -414,7 +414,7 @@
                {\ifnum\@listdepth=\@ne\global\@nobotseplisttrue\fi\endlist}
 \renewcommand*\descriptionlabel[1]{%
   \hspace\labelsep\textcolor{lipicsGray}{\sffamily\bfseries\mathversion{bold}#1}}
-\def\topmattervskip{0.4}
+\def\topmattervskip{0.7}
 \renewenvironment{abstract}{%
   \vskip\topmattervskip\bigskipamount
   \noindent

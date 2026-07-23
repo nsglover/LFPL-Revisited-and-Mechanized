@@ -26,7 +26,7 @@ In a system that disallows nested iterations, expressing a program like this can
 
 \subsection{Properties of LFPL}
 
-\enlargethispage{1\baselineskip}
+\enlargethispage{\baselineskip}
 
 The defining property of \lfpl is that computation is non-size-increasing. Consider a list resulting from the evaluation of an \lfpl program with some lists as inputs. The non-size-increasing theorem intuitively states that the length of this output list is no greater than the sum of the lengths of the input lists. We present this in detail in \pref{sec:soundness-size}, but for now the main takeaway is that \lfpl does not support problematic size-increasing functions like \lstinline{double}. As expected of the defining property of the language, the non-size-increasing theorem is a main tool in showing that \lfpl is polynomial-time sound.
 
@@ -140,7 +140,7 @@ From this derivation, it is straightforward to derive $\types{\ctxnil}{\code{rev
 
 \begin{example}[List Case Analysis]
 \label{example:list-case}
-Importantly, both for convenience and for use in \pref{example:susp}, we can inspect whether a list is empty, which is often presented as pattern matching in standard functional programming languages. For brevity in the concrete syntax, we allow for pattern matching on tuple variables at their binding sites in place of the more verbose \code{letp}.
+Importantly, both for convenience and for use in \pref{example:susp}, we can inspect whether a list is empty, which is often presented as pattern matching in standard functional programming languages. For brevity in the concrete syntax, we allow for pattern matching on tuple variables at their binding sites in place of the more verbose \code{letp}.\smallskip
 \begin{lstlisting}
 lfold : 1 + diam * A * L(A) -o L(A)
 lfold = lam x . case x .
