@@ -1,4 +1,5 @@
 openModule /Nat/;
+openModule /Division/;
 openModule /List/;
 
 File.import "../../../math/load.iml";
@@ -135,38 +136,50 @@ withTypecheck (unfold /mem_div_helper/). qed ();
 lemma "mem_div_helper_correct"
 /
   forall (n k : nat) .
-  let (q, r) = div n k in
+  let (q, r) = divmod n (succ k) in
   let (mr, mq) = (`term_sem _ (arrow _ _) (mem_div_helper k) env_nil) (make_dnat n) in
   mq = make_mem q (succ k) : tp_sem (mem (succ k)) & mr = make_remainder (succ k - r) (succ k) : tp_sem (mem (succ k))
 /;
 intro /n k/. inference.
-remember /div n k/ /_/ /p/ /p_eq/.
-destruct /p/ /q r/. reduce //.
-revert /q r p_eq/.
+assert /succ k : pos/ /k_pos/ >>> [unfold /pos/ >> splitOf >>> [typecheck, omega], idtac].
+rewrite /-> divmod_equal/.
 induction /n/.
 {
-  intro /q r p_eq/.
-  injection /p_eq/. subst /q r/. clear /p_eq/. reduce //.
-  unfold /mem_div_helper/. reduce //.
-  unfold /nrec/. reduce //.
-  split >>> [autoWith /nil_mem_correct/, induction /k/ >> auto].
+  rewrite /-> div_0 at all, -> mod_0/.
+  unfold /mem_div_helper, nrec/.
+  reduce //.
+  split >>> [autoWith /nil_mem_correct/, clear /k_pos/ >> induction /k/ >> auto].
+  
 }
 {
-  intro /n ih q r p_eq/.
-  revert /p_eq/. remember /div n k/ /_/ /p'/ /p'_eq/.
-  destruct /p'/ /q' r'/. reduce //.
-  so /ih q' r' p'_eq/ /tmp/. clear /ih/. reintro /ih/.
-  so /div_correct n k/ /h_div/.
-  rewrite /<- p'_eq in h_div/. reduce /h_div/. destruct /h_div/ /n_eq r_leq/.
-  generalize /eq_nat_decide r' k/ /_/ /tmp/.
-  destruct /tmp/ /r_eq | r_neq/ >> reduce // >> intro /p_eq/ >> injection /p_eq/ >> clear /p_eq/ >> subst /q r/.
+  intro /n ih/.
+  generalize /eq_nat_decide (mod n (succ k)) k/ /_/ /tmp/.
+  destruct /tmp/ /r_eq | r_neq/.
   {
-    clear /r_leq/. subst /r'/.
-    rewrite /-> minus_succ_l_eq in ih, -> minus_self in ih/. reduce /ih/.
-    rewrite /-> minus_0_r/.
+    rewrite /-> r_eq in ih, -> minus_succ_l_eq in ih, -> minus_self in ih/. reduce /ih/.
+    assert /mod (succ n) (succ k) = 0 : nat/ /h_rem_zero/ >>>
+    [
+      rewrite /succ n = 1 + n : nat, -> plus_commute, -> mod_plus_alt, -> plus_commute, -> r_eq, -> mod_self/ >>
+      reflexivity,
+      idtac
+    ].
+    assert /div (succ n) (succ k) = succ (div n (succ k)) : nat/ /h_div_succ/.
+    {
+      so /mod_leq_l n (succ k)/ /h_n_k/.
+      rewrite /-> r_eq in h_n_k/.
+      apply /leq_antisymm/ >>
+      (
+        (apply /times_cancel_leq_r _# 2 (succ k) __/ >>> [omega, idtac]) >>
+        rewrite /-> times_commute (succ (div n (succ k))) _, -> times_dist_succ_r (succ k) _/ >>
+        rewrite /-> times_commute (succ k) _, -> div_prop' at all/ >>
+        omega
+      ).
+    }
+    rewrite /-> h_div_succ at all, -> h_rem_zero, -> minus_0_r/.
+    clear /h_div_succ h_rem_zero r_eq/.
     rewrite /make_remainder (succ k) (succ k) = term_sem (nil_mem (succ k)) env_nil : _/ >>>
-    [clear /n q' p'_eq ih n_eq mq mr/ >> induction /k/ >> auto, idtac].
-    revert /ih/. remember /term_sem _# 2 (make_dnat n)/ /_/ /rec_val/ /rec_val_eq/.
+    [clear /k_pos n ih mr mq/ >> induction /k/ >> auto, idtac].
+    revert /ih/. remember /term_sem _ _ (make_dnat n)/ /_/ /rec_val/ /rec_val_eq/.
     destruct /rec_val/ /mq' mr'/. reduce //.
     intro /(mq'_eq mr'_eq)/.
     unfold /mem_div_helper/. reduce //.
@@ -178,16 +191,31 @@ induction /n/.
     rewrite /-> nmatch_correct/. reduce //.
     split >>> [idtac, reflexivity].
     rewrite /-> lappend_correct, -> mem_append_correct/.
-    reduce //. reflexivity.    
+    reduce //.
+    reflexivity.
   }
   {
-    rewrite /-> minus_succ/.
+    so /mod_lt_r n (succ k)/ /r_leq'/.
+    unfold /lt in r_leq'/.
+    so /leq_succ_invert _ _ r_leq'/ /r_leq/.
+    so /lt_from_leq_neq _ _ r_leq r_neq/ /r_lt/. clear /r_leq' r_leq r_neq/.
+    assert /mod (succ n) (succ k) = succ (mod n (succ k)) : nat/ /h_rem_succ/ >>>
+    [
+      rewrite /succ n = 1 + n : nat, -> plus_commute, -> mod_plus_alt, -> plus_commute, -> mod_operands_lt _ _ __/ >>
+      omega,
+      idtac
+    ].
+    assert /div (succ n) (succ k) = div n (succ k) : nat/ /h_div_succ/.
+    {
+      apply /leq_antisymm/ >>
+      (apply /times_cancel_leq_r _# 2 (succ k) __/ >>> [omega, idtac] >> rewrite /-> div_prop' at all/ >> omega).
+    }
+    rewrite /-> h_div_succ at all, -> h_rem_succ, -> minus_succ/.
+    clear /h_div_succ h_rem_succ/.
     rewrite /-> minus_succ_l_eq _# 2 in ih/ >>> [omega, reduce /ih/].
-    so /lt_from_leq_neq _# 2 r_leq r_neq/ /r_lt/. clear /r_leq r_neq/.
-    assert /0 < k - r'/ /r_lt'/ >>> [omega, idtac].
+    assert /0 < k - mod n (succ k)/ /r_lt'/ >>> [omega, idtac].
     so /succ_pred _ r_lt'/ /not_full/. clear /r_lt'/.
-    rewrite /<- not_full/. reduce //.
-    revert /ih/. remember /term_sem _# 2 (make_dnat n)/ /_/ /rec_val/ /rec_val_eq/.
+    revert /ih/. remember /term_sem _ _ (make_dnat n)/ /_/ /rec_val/ /rec_val_eq/.
     destruct /rec_val/ /mq' mr'/. reduce //.
     intro /(mq'_eq mr'_eq)/.
     unfold /mem_div_helper/. reduce //.
@@ -195,9 +223,10 @@ induction /n/.
     unfold /nrec, nrec in rec_val_eq/. reduce /concl rec_val_eq/.
     rewrite /<- rec_val_eq/. reduce //. clear /rec_val_eq/.
     subst /mq' mr'/. reduce //.
-    rewrite /<- not_full/.
-    rewrite /-> rotate_remainder (pred (k - r')) k __/ >>> [omega, idtac].
+    rewrite /<- not_full at 0/.
+    rewrite /-> rotate_remainder (pred (k - mod n (succ k))) k __/ >>> [omega, idtac].
     reduce //. rewrite /-> nmatch_correct/. reduce //.
+    rewrite /<- not_full at 1 0/. reduce //.
     split >> reflexivity.
   }
 }
@@ -220,21 +249,26 @@ withTypecheck (unfold /mem_div/). qed ();
 lemma "mem_div_correct"
 /
   forall (n k : nat) .
-  let (q, r) = div n k in
+  let (q, r) = divmod n (succ k) in
  (`term_sem _ (arrow _ _) (mem_div k) env_nil) (make_dnat n) = (make_mem q (succ k), make_dnat r) : 
  (tp_sem (mem (succ k)) & tp_sem dnat)
 /;
 intro /n k/. inference.
-unfold /mem_div/. reduce //.
+assert /succ k : pos/ /k_pos/ >>> [unfold /pos/ >> splitOf >>> [typecheck, omega], idtac].
+unfold /mem_div/.
+reduce //.
 so /mem_div_helper_correct n k/ /helper_correct/.
 revert /helper_correct/.
-remember /div n k/ /_/ /tmp/ /q_r_eq/. destruct /tmp/ /q r/. reduce //.
 generalize /term_sem (mem_div_helper k) _# 2/ /_/ /tmp/. destruct /tmp/ /mr mq/. reduce //.
+rewrite /-> divmod_equal at all/.
+reduce //.
 intro /(mq_eq mr_eq)/. subst /mq mr/.
 extensionality >>> [reflexivity, reduce //].
-so /div_correct n k/ /h_qr/. rewrite /<- q_r_eq in h_qr/. destruct /h_qr/ /n_eq r_leq/.
-so /remainder_to_dnat (succ k - r) (succ k) __/ /tmp/ >>> [omega, reduce /tmp/ >> rewrite /-> tmp/ >> clear /tmp/].
-compat. omega.
+so /remainder_to_dnat (succ k - mod n (succ k)) (succ k) __/ /tmp/ >>>
+[omega, reduce /tmp/ >> rewrite /-> tmp/ >> clear /tmp/].
+compat.
+so /mod_lt_r n (succ k)/ /h_mod/.
+omega.
 qed ();
 
 
@@ -258,24 +292,22 @@ lemma "mem_div_inverse_correct"
   ((`term_sem _ (arrow _ _) (mem_div k) env_nil) (make_dnat n)) = make_dnat n : tp_sem dnat
 /;
 intro /n k/. inference.
+assert /succ k : pos/ /k_pos/ >>> [unfold /pos/ >> splitOf >>> [typecheck, omega], idtac].
 so /mem_div_correct n k/ /h/. revert /h/.
-so /div_correct n k/ /h'/. revert /h'/.
-generalize /div n k/ /_/ /tmp/. destruct /tmp/ /q r/. reduce //.
-intro /(n_eq r_leq) h_mem_div/.
+rewrite /-> divmod_equal/. reduce //.
+intro /h_mem_div/.
 rewrite /-> h_mem_div/. clear /h_mem_div/.
 unfold /mem_div_inverse/. reduce //.
 rewrite /-> lappend_correct at all/.
 rewrite /-> mem_to_dnat_correct/.
 assert /forall (a b : nat) . append (make_dnat a) (make_dnat b) = make_dnat (a + b) : _/ /lem/.
 {
-  clear /n k q r n_eq r_leq/.
+  clear /n k k_pos/.
   intro /a b/. induction /a/ >> auto.
 }
-repeatn 2 (rewrite /-> lem/). subst /n/.
-repeatn 2 compat.
-rewrite /<- times_1_l q/.
-rewrite /<- times_dist_plus_l 1 k q/.
-rewrite /-> times_commute/. reflexivity.
+repeatn 2 (rewrite /-> lem/).
+rewrite /-> times_commute, <- times_dist_succ_r, -> div_prop/.
+reflexivity.
 qed ();
 
 

@@ -1,4 +1,5 @@
 openModule /Nat/;
+openModule /Division/;
 openModule /List/;
 
 File.import "../../math/load.iml";
@@ -254,10 +255,10 @@ induction /d/.
   intro /d ih/.
   so /iter_length_pres A B n V V_leq H (fn n . c * exp n d) _ ih/ /goal/.
   reduce /goal/. clear /ih/.
-  rewrite /(fn n . c * (n * exp n d)) = (fn n . n * (c * exp n d)) : (nat -> nat)/ >>> [idtac, exact /goal/].
-  extensionality. reintro /x/. reduce //.
-  rewrite /<- times_assoc, -> times_commute c x/.
-  apply /times_assoc/.
+  rewrite /(fn n . c * (exp n d * n)) = (fn n . n * (c * exp n d)) : (nat -> nat)/ >>> [idtac, exact /goal/].
+  compat. reduce //.
+  rewrite /<- times_assoc, -> times_commute/.
+  reflexivity.
 }
 qed ();
 
@@ -302,7 +303,7 @@ induction /P/.
   /
     compose_length_pres
       A B n V V_leq H
-      (poly_eval P) (fn n . c * (n * exp n d)) _ _
+      (poly_eval P) (fn n . c * (exp n d * n)) _ _
       ih (mono_iter_length_pres A B n V V_leq H M (succ d) c M_pres)
   / >> reduce // >> typecheck.
 }

@@ -108,7 +108,7 @@ qed ();
 
 (* INDEXED SUMS *)
 
-lemma "times_dist_indexed_plus"
+lemma "times_dist_indexed_plus_l"
 /
   forall (s : nat -> nat) (n m : nat) .
   m * indexed plus s n = indexed plus (fn k . m * s k) n : nat
@@ -117,6 +117,19 @@ intro /s n m/.
 induction /n/ >>> [reflexivity, idtac].
 intro /n ih/.
 rewrite /-> times_dist_plus_r/.
+compat. exact /ih/.
+qed ();
+
+
+lemma "times_dist_indexed_plus_r"
+/
+  forall (s : nat -> nat) (n m : nat) .
+  indexed plus s n * m = indexed plus (fn k . s k * m) n : nat
+/;
+intro /s n m/.
+induction /n/ >>> [reflexivity, idtac].
+intro /n ih/.
+rewrite /-> times_dist_plus_l/.
 compat. exact /ih/.
 qed ();
 

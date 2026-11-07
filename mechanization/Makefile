@@ -3,7 +3,7 @@ define prepend
 endef
 
 UNITS = \
-	$(call prepend, math, tree nfold div poly exp binom polyd) \
+	$(call prepend, math, tree nfold poly binom polyd) \
 	$(call prepend, turing-machine, tape transition machine) \
 	\
 	$(call prepend, lfpl-ext/core, language operational denotational equivalence cost) \
@@ -13,7 +13,7 @@ UNITS = \
 	$(call prepend, lfpl-min/lib/heap-free, contraction surjective) \
 	$(call prepend, lfpl-min/lib/tuple, sugar tools) \
 	$(call prepend, lfpl-min/lib/list, sugar nat tools) \
-	$(call prepend, lfpl-min/lib/memory, mem division) \
+	$(call prepend, lfpl-min/lib/memory, mem nat-to-mem) \
 	$(call prepend, lfpl-min/lib/stack, interface weakened additive base inductive polynomial) \
 	$(call prepend, lfpl-min/completeness, tape step iteration machine theorems) \
 	\

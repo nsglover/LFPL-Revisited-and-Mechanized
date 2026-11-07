@@ -1,11 +1,9 @@
 openModule /Nat/;
+openModule /Division/;
 openModule /List/;
 
 File.loadWithoutDependencies "nfold.isto";
 openModule /NFold/;
-
-File.loadWithoutDependencies "exp.isto";
-openModule /Exponential/;
 
 beginModule "Binomial";
 
@@ -77,32 +75,27 @@ induction /n/ >>> [reflexivity, idtac].
 intro /n ih/.
 rewrite /-> binom_self, -> binom_lt n (succ n) (lt_succ _)/. reduce //. rewrite /-> plus_0_r/.
 rewrite /-> ih at all/. clear /ih/.
-rewrite /m * exp m n = exp m (succ n) : nat/.
+rewrite /exp m n * m = exp m (succ n) : nat/.
 rewrite /indexed plus _ n + exp m (succ n) = indexed plus (fn k . binom (succ n) k * exp m k) n + exp m (succ n) : nat/.
 rewrite /<- times_1_l (exp m (succ n))/.
 rewrite /<- binom_self (succ n)/.
 rewrite /indexed plus _ n + binom _# 2 * _ = indexed plus _ (succ n) : nat/.
-rewrite /-> times_dist_indexed_plus/.
+rewrite /-> times_dist_succ_r, -> times_dist_indexed_plus_r/.
 reduce /at 2/.
-rewrite /<- plus_0_r (indexed plus _ n)/.
-rewrite /<- times_0_l (exp m (succ n))/.
+rewrite /<- plus_0_r (indexed plus _ n), <- times_0_l (exp m (succ n))/.
 rewrite /<- binom_lt n (succ n) __/ >>> [omega, idtac].
-rewrite /-> shift_indexed _# 2 plus _ n plus_assoc/.
-rewrite /-> plus_assoc/.
+rewrite /-> shift_indexed _# 2 plus _ n plus_assoc, -> plus_assoc/.
 rewrite /<- split_indexed _# 2 plus _# 2 n plus_commute plus_assoc/.
 reduce /at 2/.
 assert
 /
-  (fn k . binom n (succ k) * (m * exp m k) + m * (binom n k * exp m k)) =
+  (fn k . binom n (succ k) * (exp m k * m) + binom n k * exp m k * m) =
   (fn k . binom (succ n) (succ k) * (exp m (succ k))) : (nat -> nat)
 / /tmp/.
 {
-  extensionality. reintro /k/. reduce //.
-  rewrite /<- times_assoc at 1/.
-  rewrite /-> times_commute m _ at 1/.
-  rewrite /-> times_assoc/.
-  rewrite /<- times_dist_plus_l/.
-  compat. apply /plus_commute/.
+  compat. reduce //.
+  rewrite /-> times_dist_plus_l, -> plus_commute/.
+  compat. apply /times_assoc/.
 }
 rewrite /-> tmp/. clear /tmp/.
 rewrite /binom n 0 * 1 = binom (succ n) 0 * exp m 0 : nat/ >>> [autoWith /binom_zero/, idtac].

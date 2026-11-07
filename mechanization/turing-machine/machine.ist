@@ -1,7 +1,5 @@
 openModule /Nat/;
 openModule /List/;
-openModule /Partial/;
-open Partiality;
 
 File.loadWithoutDependencies "tape.isto";
 openModule /Tape/;

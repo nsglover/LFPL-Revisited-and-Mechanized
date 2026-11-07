@@ -1,10 +1,8 @@
 openModule /Nat/;
+openModule /Division/;
 
 File.loadWithoutDependencies "nfold.isto";
 openModule /NFold/;
-
-File.loadWithoutDependencies "exp.isto";
-openModule /Exponential/;
 
 File.loadWithoutDependencies "binom.isto";
 openModule /Binomial/;
@@ -58,7 +56,7 @@ induction /P/ >>> [auto, idtac].
 intro /d c P ih/.
 apply /plus_leq/ >>> [clear /ih/, exact /ih/].
 apply /times_leq/ >>> [reflexivity, idtac].
-apply /times_leq/ >>> [exact /h_leq/, exact /exp_base_monotone m n d h_leq/].
+apply /times_leq/ >>> [exact /exp_mono_base m n d h_leq/, exact /h_leq/].
 qed ();
 
 
@@ -338,16 +336,14 @@ intro /d P n/.
 induction /P/.
 {
   intro /c/.
-  rewrite /-> times_1_r/.
-  rewrite /-> times_commute/.
-  omega.
+  rewrite /-> times_commute, -> plus_0_r at all/.
+  reflexivity.
 }
 {
   intro /d c P ih/.
-  rewrite /-> ih/.
-  rewrite /-> times_dist_plus_r/.
+  rewrite /-> ih, -> times_dist_plus_r/.
   compat.
-  rewrite /<- times_assoc, -> times_commute c n, -> times_assoc/.
+  rewrite /<- times_assoc, <- times_commute _ n/.
   reflexivity.
 }
 qed ();
@@ -447,16 +443,17 @@ induction /P/ >>> [auto, idtac].
 intro /d c P ih/.
 rewrite /-> ih/. clear /ih/.
 compat.
-rewrite /<- times_assoc c _ _/.
-rewrite /-> times_commute _ c/.
-rewrite /-> times_assoc/.
-rewrite /<- times_assoc _ n _/.
-rewrite /-> times_assoc _ _ n/.
-rewrite /-> times_commute _ n/.
-rewrite /<- times_assoc _ n _/.
-rewrite /-> times_assoc/.
-rewrite /<- times_assoc _ (k * n) _/.
-compat. symmetry. exact /exp_base_times _# 3/.
+rewrite /<- times_assoc c _ _, -> times_commute _ c, -> times_assoc at 1 0/.
+compat.
+rewrite /<- times_assoc _ _ n, -> times_commute at 1, -> times_assoc _ _ n, -> times_assoc _ _ n, <- times_assoc/.
+compat.
+clear /c P/.
+induction /d/ >>> [reflexivity, idtac].
+intro /d ih/.
+rewrite /<- ih, -> times_assoc at 1 0/.
+compat.
+rewrite /-> times_commute/.
+apply /times_assoc/.
 qed ();
 
 

@@ -1,6 +1,6 @@
 openModule /Nat/;
+openModule /Division/;
 openModule /List/;
-openModule /Partial/;
 
 File.import "../../math/load.iml";
 openModule /PolynomialWithDegree/;
@@ -51,6 +51,7 @@ lemma "polynomial_time_completeness"
   tape_stack_items A P (length input) s = f input : list (symbol (tp_sem A))
 /;
 intro /d P A HA f (Q HQ (c tr) _ h_f)/.
+assert /succ d : pos/ /d_pos/ >>> [unfold /pos/ >> splitOf >>> [typecheck, omega], idtac].
 exists /machine_enc A Q HA HQ c tr d P/.
 intro /input/.
 rewrite /-> h_f input/.
@@ -95,6 +96,7 @@ lemma "polynomial_time_completeness_list"
   (`term_sem _ (arrow _ _) M env_nil) input = keep (length input) (f input) : list (tp_sem A)
 /;
 intro /d P A HA f (Q HQ (c tr) _ h_f)/.
+assert /succ d : pos/ /d_pos/ >>> [unfold /pos/ >> splitOf >>> [typecheck, omega], idtac].
 exists /machine_enc_list A Q HA HQ c tr d P/ >>> [auto, idtac].
 intro /input/. unfold /machine_enc_list/. reduce //.
 rewrite /-> h_f input/.
@@ -125,7 +127,9 @@ intro /(m_eq output_correct)/.
 subst /m/.
 so /mem_div_correct (length input) d/ /mem_div_eq/.
 unfold /Tuple.letpair in mem_div_eq/. rewrite /-> mem_div_eq/. reduce //.
-so /output_correct (div (length input) d #1) r r_valid/ /tmp/. clear /output_correct/. reintro /output_correct/.
+rewrite /-> divmod_equal at all/. reduce //.
+rewrite /-> divmod_equal in mem_div_eq at all/. reduce /mem_div_eq/.
+so /output_correct (div (length input) (succ d)) r r_valid/ /tmp/. clear /output_correct/. reintro /output_correct/.
 revert /output_correct/. generalize /output _# 2/ /_/ /tmp/.
 intro /(m_out_eq output_correct)/.
 unfold /Tuple.letpair at all/.

@@ -4,7 +4,7 @@ File.import "../tuple/load.iml";
 File.import "../list/load.iml";
 
 File.loadWithoutDependencies "mem.isto";
-File.loadWithoutDependencies "division.isto";
+File.loadWithoutDependencies "nat-to-mem.isto";
 
 openModule /Memory/;
 openModule /NatToMem/;

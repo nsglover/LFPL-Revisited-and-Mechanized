@@ -15,8 +15,6 @@ The file structure consists of two general helper libraries (one defining some b
 - `math`: Various mathematical definitions and results.
   - `tree.ist`: Definition of binary trees in Istari.
   - `nfold.ist`: Defines $n$-fold and indexed operations (such as the $n$-fold composition of a function $f : A \to A$ with itself or an indexed sum over a sequence of natural numbers).
-  - `div.ist`: Natural number division (with remainder).
-  - `exp.ist`: Definition of and basic lemmas about exponentiation on natural numbers.
   - `binom.ist`: Definition of the binomial coefficient and a proof of the binomial theorem.
   - `poly.ist`: Definition of and basic lemmas about natural-coefficient polynomials.
 - `turing-machine`: A definition of general Turing machines and polynomial-time Turing machines.
@@ -48,7 +46,7 @@ The file structure consists of two general helper libraries (one defining some b
   - `tools.ist`: Append and list suspension (separates the diamonds and values of a list, turns an $L(A)$ into a $\mathbb N \to L(A)$ and an $\mathbb N$).
 - `lfpl-min/lib/memory`: LFPL library for manipulating unit lists and tuples of unit lists, which intuitively represent diamonds with no important values attached.
   - `mem.ist`: Tools for reasoning about tuples of natural numbers.
-  - `division.ist`: Implements division (by a compile-time constant) for LFPL nats.
+  - `nat-to-mem.ist`: Implements division (by a compile-time constant) for LFPL nats.
 - `lfpl-min/lib/stack`: LFPL library for $(k, s)$-bounded stacks, where $k : \mathbb{N}$ and $s : \mathbb{N} \to \mathbb{N}$. Whereas LFPL lists can only hold $n$ values given $n$ diamonds, these stacks hold up to $s(n)$ values given $0$ diamonds by suspending them under a lambda abstraction. To actually store and retrieve these values via the stack operations (push and pop), a pool of $nk$ diamonds is needed. These diamonds will only be temporarily borrowed, not consumed, by the stack operations. Notably, we can inductively construct $(k, n \mapsto cn^k)$-stacks, obtaining polynomial storage space with linear expenses.
   - `interface.ist`: Defines an interface for $(k, s)$-bounded stacks and for reasoning about their correctness.
   - `weakened.ist`: Weakens a $(k, s)$-stack to a $(k + 1, s)$-stack.

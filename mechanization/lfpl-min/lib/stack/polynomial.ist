@@ -1,4 +1,5 @@
 openModule /Nat/;
+openModule /Division/;
 openModule /List/;
 
 File.import "../../../math/load.iml";
@@ -44,10 +45,10 @@ intro /E c k/. induction /k/.
 }
 {
   intro /k impl_correct/.
-  assert /(fn n . c * (n * exp n k)) = (fn n . n * (c * exp n k)) : (nat -> nat)/ /bound_eq/.
+  assert /(fn n . c * (exp n k * n)) = (fn n . n * (c * exp n k)) : (nat -> nat)/ /bound_eq/.
   {
-    extensionality >> reintro /n/. reduce //.
-    rewrite /<- times_assoc, -> times_commute c n, -> times_assoc/.
+    compat. reduce //.
+    rewrite /-> times_commute, -> times_assoc, -> times_commute, <- times_assoc/.
     reflexivity.
   }
   rewrite /-> bound_eq/.
